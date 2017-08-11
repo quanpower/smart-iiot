@@ -5,6 +5,9 @@ from app.models import GrainTemp
 from sqlalchemy import and_
 import json
 import random
+import datetime
+
+
 api = Api(app)
 
 
@@ -33,7 +36,7 @@ class LoraTemps(Resource):
         print(temp_records)
         temp_log = []
         for i in xrange(len(temp_records)):
-            temp_log.append({"time":temp_records[i][3],"Temp1":temp_records[i][0],"Temp2":temp_records[i][1],"Temp3":temp_records[i][2]})
+            temp_log.append({"time":temp_records[i][3].strftime("%Y-%m-%d %H:%M:%S"),"Temp1":temp_records[i][0],"Temp2":temp_records[i][1],"Temp3":temp_records[i][2]})
         temps_dict = {"temps":temp_log}
         return temps_dict
 
