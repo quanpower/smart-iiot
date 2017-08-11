@@ -37,11 +37,16 @@ class LoraTemps(Resource):
         temp_log = []
         for i in xrange(len(temp_records)):
             temp_log.append({"time":temp_records[i][3].strftime("%Y-%m-%d %H:%M:%S"),"Temp1":temp_records[i][0],"Temp2":temp_records[i][1],"Temp3":temp_records[i][2]})
-        temps_reverse = temp_log.reverse()
+        
+        temps_reverse = temp_log[::-1]
+        print('------------temps_log--------------')
+
         print(temp_log)
+        print('------------temps_reverse--------------')
+
         print(temps_reverse)
 
-        temps_dict = {"temps":temp_log.reverse()}
+        temps_dict = {"temps":temps_reverse}
         return temps_dict
 
     def delete(self, todo_id):
