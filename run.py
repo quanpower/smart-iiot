@@ -4,7 +4,7 @@ from app import db
 from app.models import GrainTemp
 from sqlalchemy import and_
 import json
-
+import random
 api = Api(app)
 
 
@@ -15,7 +15,9 @@ class LoraTemp(Resource):
         temp_dict = {}
         # temp_dict["numbers"] = []
         temp_dic = {"numbers":[{"icon":"team","color":"#64ea91","title":"Temp1","number":temps[0]},{"icon":"team","color":"#8fc9fb","title":"Temp2","number":temps[1]},{"icon":"team","color":"#d897eb","title":"Temp3","number":temps[2]},{"icon":"message","color":"#f69899","title":"Battery_Vol","number":2}]}
-        return temp_dic
+        temp_dic1 = {"numbers":[{"icon":"team","color":"#64ea91","title":"Temp1","number":random.randint(10, 20)},{"icon":"team","color":"#8fc9fb","title":"Temp2","number":random.randint(20, 30)},{"icon":"team","color":"#d897eb","title":"Temp3","number":random.randint(30, 40)},{"icon":"message","color":"#f69899","title":"Battery_Vol","number":random.randint(1, 9)}]}
+
+        return temp_dic1
 
     def delete(self, todo_id):
 		pass
