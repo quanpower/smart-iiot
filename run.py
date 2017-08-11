@@ -15,7 +15,7 @@ class LoraTemp(Resource):
         temp_dict = {}
         # temp_dict["numbers"] = []
         temp_dic = {"numbers":[{"icon":"team","color":"#64ea91","title":"Temp1","number":temps[0]},{"icon":"team","color":"#8fc9fb","title":"Temp2","number":temps[1]},{"icon":"team","color":"#d897eb","title":"Temp3","number":temps[2]},{"icon":"message","color":"#f69899","title":"Battery_Vol","number":2}]}
-        return json.dumps(temp_dic)
+        return temp_dic
 
     def delete(self, todo_id):
 		pass
