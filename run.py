@@ -17,7 +17,7 @@ class LoraTemp(Resource):
         temp_dic = {"numbers":[{"icon":"team","color":"#64ea91","title":"Temp1","number":temps[0]},{"icon":"team","color":"#8fc9fb","title":"Temp2","number":temps[1]},{"icon":"team","color":"#d897eb","title":"Temp3","number":temps[2]},{"icon":"message","color":"#f69899","title":"Battery_Vol","number":2}]}
         temp_dic1 = {"numbers":[{"icon":"team","color":"#64ea91","title":"Temp1","number":random.randint(10, 20)},{"icon":"team","color":"#8fc9fb","title":"Temp2","number":random.randint(20, 30)},{"icon":"team","color":"#d897eb","title":"Temp3","number":random.randint(30, 40)},{"icon":"message","color":"#f69899","title":"Battery_Vol","number":random.randint(1, 9)}]}
 
-        return temp_dic1
+        return temp_dic
 
     def delete(self, todo_id):
 		pass
@@ -27,11 +27,15 @@ class LoraTemp(Resource):
 
 class LoraTemps(Resource):
     def get(self, gateway_addr, node_addr):
-        temps = db.session.query(GrainTemp.temp1,GrainTemp.temp2,GrainTemp.temp3).filter(and_(GrainTemp.gateway_addr == gateway_addr, GrainTemp.node_addr == node_addr)).order_by(GrainTemp.date.desc()).all()
-        print(temps[:10])
-        # for i in temps[:10]:
-        # todo json.dump()
-        return list(temps[:10])
+
+        temp_records = db.session.query(GrainTemp.temp1,GrainTemp.temp2,GrainTemp.temp3,GrainTemp.date).filter(and_(GrainTemp.gateway_addr == 1, GrainTemp.node_addr == 1)).order_by(GrainTemp.date.desc()).limit(10).all()
+        print('------------temp_record--------------')
+        print(temp_records)
+        temp_log = []
+        for i in xrange(len(temp_records)):
+            temp_log.append({"time":temp_records[i][3],"Temp1":temp_records[i][0],"Temp2":temp_records[i][1],"Temp3":temp_records[i][2]})
+        temps_dict = {"temps":temp_log}
+        return temps_dict
 
     def delete(self, todo_id):
 		pass
