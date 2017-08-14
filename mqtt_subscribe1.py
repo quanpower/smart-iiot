@@ -173,7 +173,7 @@ def save_realtime_data(data):
     c.temp2 = data[4]
     c.temp3 = data[5]
     c.battery_vol = data[6]
-    c.date = datetime.datetime.now()
+    c.datetime = datetime.datetime.now()
 
     db.session.add(c)
     try:

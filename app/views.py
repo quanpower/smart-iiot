@@ -1,5 +1,5 @@
 import calendar
-from flask_appbuilder import ModelView
+from flask_appbuilder import ModelView, DirectByChartView
 from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_appbuilder.charts.views import GroupByChartView
 from flask_appbuilder.models.group import aggregate_count
@@ -8,7 +8,7 @@ from flask_babel import lazy_gettext as _
 
 
 from app import db, appbuilder
-from .models import ContactGroup, Gender, Contact
+from .models import ContactGroup, Gender, Contact, GrainStorehouse, GrainBarn, LoraGateway, LoraNode, GrainTemp
 
 
 from flask_appbuilder import AppBuilder, BaseView, expose, has_access
@@ -136,6 +136,131 @@ class ContactTimeChartView(GroupByChartView):
     ]
 
 
+class GrainStorehouseModelView(ModelView):
+    datamodel = SQLAInterface(GrainStorehouse)
+
+    list_columns = ['storehouse_no', 'storehouse_name']
+    base_order = ('storehouse_no', 'asc')
+    show_fieldsets = [
+        ('Summary', {'fields': ['storehouse_no', 'storehouse_name']}),
+    ]
+
+    add_fieldsets = [
+        ('Summary', {'fields': ['storehouse_no', 'storehouse_name']}),
+    ]
+
+    edit_fieldsets = [
+        ('Summary', {'fields': ['storehouse_no', 'storehouse_name']}),
+    ]
+
+class LoraGatewayModelView(ModelView):
+    datamodel = SQLAInterface(LoraGateway)
+
+    list_columns = ['gateway_addr', 'grain_storehouse.storehouse_no', 'grain_storehouse.storehouse_name']
+
+    base_order = ('gateway_addr', 'asc')
+    show_fieldsets = [
+        ('Summary', {'fields': ['gateway_addr', 'grain_storehouse']}),
+    ]
+
+    add_fieldsets = [
+        ('Summary', {'fields': ['gateway_addr', 'grain_storehouse']}),
+    ]
+
+    edit_fieldsets = [
+        ('Summary', {'fields': ['gateway_addr', 'grain_storehouse']}),
+    ]
+
+class GrainBarnModelView(ModelView):
+    datamodel = SQLAInterface(GrainBarn)
+
+    list_columns = ['barn_no', 'barn_name', 'grain_storehouse.storehouse_no', 'lora_gateway.gateway_addr']
+
+    base_order = ('barn_no', 'asc')
+    show_fieldsets = [
+        ('Summary', {'fields': ['barn_no', 'barn_name', 'grain_storehouse', 'lora_gateway']}),
+    ]
+
+    add_fieldsets = [
+        ('Summary', {'fields': ['barn_no', 'barn_name', 'grain_storehouse', 'lora_gateway']}),
+    ]
+
+    edit_fieldsets = [
+        ('Summary', {'fields': ['barn_no', 'barn_name', 'grain_storehouse', 'lora_gateway']}),
+    ]
+
+class LoraNodeModelView(ModelView):
+    datamodel = SQLAInterface(LoraNode)
+
+    list_columns = ['node_addr', 'grain_storehouse.storehouse_no', 'lora_gateway.gateway_addr', 'grain_barn.barn_no']
+
+    base_order = ('node_addr', 'asc')
+    show_fieldsets = [
+        ('Summary', {'fields': ['node_addr', 'grain_storehouse', 'lora_gateway', 'grain_barn']}),
+    ]
+
+    add_fieldsets = [
+        ('Summary', {'fields': ['node_addr', 'grain_storehouse', 'lora_gateway', 'grain_barn']}),
+    ]
+
+    edit_fieldsets = [
+        ('Summary', {'fields': ['node_addr', 'grain_storehouse', 'lora_gateway', 'grain_barn']}),
+    ]
+
+class CountryDirectChartView(DirectByChartView):
+    datamodel = SQLAInterface(GrainTemp)
+    chart_title = 'Direct Data Example'
+
+    definitions = [
+    {
+        'label': 'Unemployment',
+        'group': 'stat_date',
+        'series': ['unemployed_perc',
+                   'college_perc']
+    }
+]
+
+class GrainTempModelView(ModelView):
+    datamodel = SQLAInterface(GrainTemp)
+
+    list_columns = ['grain_storehouse.storehouse_no', 'lora_gateway.gateway_addr', 'grain_barn.barn_no', 'lora_node.node_addr']
+
+    base_order = ('lora_node.node_addr', 'asc')
+    show_fieldsets = [
+        ('Summary', {'fields': ['grain_storehouse', 'lora_gateway', 'grain_barn', 'lora_node']}),
+        (
+            'TempData',
+            {'fields': ['temp1', 'temp2', 'temp3', 'battery_vol', 'datetime'], 'expanded': True}),
+    ]
+
+    add_fieldsets = [
+        ('Summary', {'fields': ['grain_storehouse', 'lora_gateway', 'grain_barn', 'lora_node']}),
+        (
+            'TempData',
+            {'fields': ['temp1', 'temp2', 'temp3', 'battery_vol', 'datetime'], 'expanded': True}),
+    ]
+    edit_fieldsets = [
+        ('Summary', {'fields': ['grain_storehouse', 'lora_gateway', 'grain_barn', 'lora_node']}),
+        (
+            'TempData',
+            {'fields': ['temp1', 'temp2', 'temp3', 'battery_vol', 'datetime'], 'expanded': True}),
+    ]
+
+class GrainTempChartView(DirectByChartView):
+    datamodel = SQLAInterface(GrainTemp)
+    chart_title = 'Direct Data Chart'
+
+    definitions = [
+    {
+        'label': 'temperature',
+        'group': 'datetime',
+        'series': ['temp1',
+                   'temp2',
+                   'temp3',
+                   'battery_vol']
+    }
+]
+
 db.create_all()
 fill_gender()
 appbuilder.add_view(GroupModelView, "List Groups", icon="fa-folder-open-o", category="Contacts", category_icon='fa-envelope')
@@ -143,3 +268,16 @@ appbuilder.add_view(ContactModelView, "List Contacts", icon="fa-envelope", categ
 appbuilder.add_separator("Contacts")
 appbuilder.add_view(ContactChartView, "Contacts Chart", icon="fa-dashboard", category="Contacts")
 appbuilder.add_view(ContactTimeChartView, "Contacts Birth Chart", icon="fa-dashboard", category="Contacts")
+
+
+appbuilder.add_view(GrainStorehouseModelView, "Grain Storehouse View", icon="fa-dashboard", category="Grain")
+appbuilder.add_view(GrainBarnModelView, "Grain Barn View", icon="fa-dashboard", category="Grain")
+
+appbuilder.add_separator("Grain")
+
+appbuilder.add_view(LoraGatewayModelView, "Lora Gateway View", icon="fa-dashboard", category="Grain")
+appbuilder.add_view(LoraNodeModelView, "Lora Node View", icon="fa-dashboard", category="Grain")
+appbuilder.add_separator("Grain")
+
+appbuilder.add_view(GrainTempModelView, "Grain Temp View", icon="fa-dashboard", category="Grain")
+appbuilder.add_view(GrainTempChartView, "Show Temperature Chart", icon="fa-dashboard", category="Grain")

@@ -1,3 +1,4 @@
+
 import logging
 
 from flask import Flask
@@ -25,3 +26,4 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
 """    
 
 from app import models, views
+
