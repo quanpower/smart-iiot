@@ -110,5 +110,5 @@ class GrainTemp(Model):
     datetime = Column(DateTime)
 
     def __repr__(self):
-        return self.node_addr
+        return self.temp1
 
