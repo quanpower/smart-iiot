@@ -1,3 +1,5 @@
+# -*- coding:utf-8 -*-
+
 import calendar
 from flask_appbuilder import ModelView, DirectByChartView
 from flask_appbuilder.models.sqla.interface import SQLAInterface
@@ -45,9 +47,6 @@ class MyView(BaseView):
         self.update_redirect()
         return self.render_template('index.html')
 
-appbuilder.add_view(MyView, "Method1", category='My View')
-appbuilder.add_link("Method2", href='/myview/method2/john', category='My View')
-appbuilder.add_link("Method3", href='/myview/method3/', category='My View')
 
 def fill_gender():
     try:
@@ -263,6 +262,7 @@ class GrainTempChartView(DirectByChartView):
 
 db.create_all()
 fill_gender()
+
 appbuilder.add_view(GroupModelView, "List Groups", icon="fa-folder-open-o", category="Contacts", category_icon='fa-envelope')
 appbuilder.add_view(ContactModelView, "List Contacts", icon="fa-envelope", category="Contacts")
 appbuilder.add_separator("Contacts")
@@ -270,14 +270,17 @@ appbuilder.add_view(ContactChartView, "Contacts Chart", icon="fa-dashboard", cat
 appbuilder.add_view(ContactTimeChartView, "Contacts Birth Chart", icon="fa-dashboard", category="Contacts")
 
 
-appbuilder.add_view(GrainStorehouseModelView, "Grain Storehouse View", icon="fa-dashboard", category="Grain")
-appbuilder.add_view(GrainBarnModelView, "Grain Barn View", icon="fa-dashboard", category="Grain")
+appbuilder.add_view(GrainStorehouseModelView, "粮库", icon="fa-dashboard", category="Grain")
+appbuilder.add_view(GrainBarnModelView, "粮仓", icon="fa-dashboard", category="Grain")
 
-appbuilder.add_separator("Grain")
 
-appbuilder.add_view(LoraGatewayModelView, "Lora Gateway View", icon="fa-dashboard", category="Grain")
-appbuilder.add_view(LoraNodeModelView, "Lora Node View", icon="fa-dashboard", category="Grain")
-appbuilder.add_separator("Grain")
+appbuilder.add_view(LoraGatewayModelView, "网关", icon="fa-dashboard", category="Lora")
+appbuilder.add_view(LoraNodeModelView, "节点", icon="fa-dashboard", category="Lora")
 
-appbuilder.add_view(GrainTempModelView, "Grain Temp View", icon="fa-dashboard", category="Grain")
-appbuilder.add_view(GrainTempChartView, "Show Temperature Chart", icon="fa-dashboard", category="Grain")
+appbuilder.add_view(GrainTempModelView, "温度记录", icon="fa-dashboard", category="Temp")
+appbuilder.add_view(GrainTempChartView, "温度图表", icon="fa-dashboard", category="Temp")
+
+
+appbuilder.add_view(MyView, "仪表板", category='My View')
+appbuilder.add_link("Method2", href='/myview/method2/john', category='My View')
+appbuilder.add_link("Method3", href='/myview/method3/', category='My View')
