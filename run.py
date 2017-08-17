@@ -3,7 +3,7 @@
 from app import app
 from flask_restful import reqparse, abort, Api, Resource
 from app import db
-from app.models import GrainTemp
+from app.models import GrainTemp,LoraGateway,LoraNode
 from sqlalchemy import and_
 import json
 import random
@@ -34,7 +34,7 @@ class LoraTemps(Resource):
     '''
     def get(self, gatewayAddr, nodeAddr):
 
-        temp_records = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.datetime).filter(and_(GrainTemp.lora_gateway.gateway_addr == gatewayAddr, GrainTemp.lora_node.node_addr == nodeAddr)).order_by(GrainTemp.datetime.desc()).limit(10).all()
+        temp_records = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.datetime).filter(and_(LoraGateway.gateway_addr == gatewayAddr, LoraNode.node_addr == nodeAddr)).order_by(GrainTemp.datetime.desc()).limit(10).all()
 
         temp_log = []
         for i in xrange(len(temp_records)):
