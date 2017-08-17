@@ -166,8 +166,10 @@ def lora_unpacking_realtime_data(packet_data):
 
 def save_realtime_data(data):
     c = GrainTemp()
-    c.gateway_addr = data[0]
-    c.node_addr = data[1]
+    c.grain_storehouse_id = 1
+    c.lora_gateway_id = 1
+    c.grain_barn_id = 1
+    c.lora_node_id = 1
     c.switch = data[2]
     c.temp1 = data[3]
     c.temp2 = data[4]
