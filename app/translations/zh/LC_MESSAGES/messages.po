@@ -1,0 +1,68 @@
+# Chinese translations for PROJECT.
+# Copyright (C) 2015 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2015.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2017-08-18 02:25+0800\n"
+"PO-Revision-Date: 2017-08-18 02:04+0800\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh\n"
+"Language-Team: zh <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.4.0\n"
+
+#: app/views.py:273
+msgid "grain_storehouse"
+msgstr "粮库"
+
+#: app/views.py:273
+msgid "Grain"
+msgstr "粮食"
+
+#: app/views.py:274
+msgid "barn"
+msgstr "粮仓"
+
+#: app/views.py:277
+msgid "lora_gateway"
+msgstr "LoRa网关"
+
+#: app/views.py:277
+msgid "Lora"
+msgstr "LoRa"
+
+#: app/views.py:278
+msgid "lora_node"
+msgstr "Lora节点"
+
+#: app/views.py:280
+msgid "temperature records"
+msgstr "温度记录"
+
+#: app/views.py:280
+msgid "Temp"
+msgstr "温度"
+
+#: app/views.py:281
+msgid "temperature charts"
+msgstr "温度图表"
+
+#: app/views.py:284
+msgid "dashboard"
+msgstr "仪表板"
+
+#: app/views.py:284 app/views.py:285 app/views.py:286
+msgid "Dashboard"
+msgstr "仪表板"
+
+#: app/templates/404.html:4
+msgid "Page not found"
+msgstr "找不到页面"
+

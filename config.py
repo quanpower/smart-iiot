@@ -67,7 +67,7 @@ LANGUAGES = {
     # 'pt_BR': {'flag':'br', 'name': 'Pt Brazil'},
     # # 'es': {'flag':'es', 'name':'Spanish'},
     # 'de': {'flag':'de', 'name':'German'},
-    'zh': {'flag':'cn', 'name':'Chinese'},
+    'zh': {'flag':'zh', 'name':'Chinese'},
     # 'ru': {'flag':'ru', 'name':'Russian'},
     # 'pl': {'flag':'pl', 'name':'Polish'}
 }

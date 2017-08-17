@@ -1,0 +1,67 @@
+# Translations template for PROJECT.
+# Copyright (C) 2017 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2017-08-18 02:25+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.4.0\n"
+
+#: app/views.py:273
+msgid "grain_storehouse"
+msgstr ""
+
+#: app/views.py:273
+msgid "Grain"
+msgstr ""
+
+#: app/views.py:274
+msgid "barn"
+msgstr ""
+
+#: app/views.py:277
+msgid "lora_gateway"
+msgstr ""
+
+#: app/views.py:277
+msgid "Lora"
+msgstr ""
+
+#: app/views.py:278
+msgid "lora_node"
+msgstr ""
+
+#: app/views.py:280
+msgid "temperature records"
+msgstr ""
+
+#: app/views.py:280
+msgid "Temp"
+msgstr ""
+
+#: app/views.py:281
+msgid "temperature charts"
+msgstr ""
+
+#: app/views.py:284
+msgid "dashboard"
+msgstr ""
+
+#: app/views.py:284 app/views.py:285 app/views.py:286
+msgid "Dashboard"
+msgstr ""
+
+#: app/templates/404.html:4
+msgid "Page not found"
+msgstr ""
+

@@ -270,17 +270,17 @@ appbuilder.add_view(ContactChartView, "Contacts Chart", icon="fa-dashboard", cat
 appbuilder.add_view(ContactTimeChartView, "Contacts Birth Chart", icon="fa-dashboard", category="Contacts")
 
 
-appbuilder.add_view(GrainStorehouseModelView, "粮库", icon="fa-dashboard", category="Grain")
-appbuilder.add_view(GrainBarnModelView, "粮仓", icon="fa-dashboard", category="Grain")
+appbuilder.add_view(GrainStorehouseModelView, "grain_storehouse", icon="fa-dashboard",label= _("grain_storehouse") ,category="Grain" ,category_icon='fa-envelope', category_label=_("Grain"))
+appbuilder.add_view(GrainBarnModelView, "barn", icon="fa-dashboard", label=_("barn"), category="Grain")
 
 
-appbuilder.add_view(LoraGatewayModelView, "网关", icon="fa-dashboard", category="Lora")
-appbuilder.add_view(LoraNodeModelView, "节点", icon="fa-dashboard", category="Lora")
+appbuilder.add_view(LoraGatewayModelView, "lora_gateway", icon="fa-dashboard", label=_("lora_gateway")  ,category="Lora" ,category_icon='fa-envelope', category_label=_("Lora"))
+appbuilder.add_view(LoraNodeModelView, "lora_node", icon="fa-dashboard", label=_("lora_node") ,category="Lora")
 
-appbuilder.add_view(GrainTempModelView, "温度记录", icon="fa-dashboard", category="Temp")
-appbuilder.add_view(GrainTempChartView, "温度图表", icon="fa-dashboard", category="Temp")
+appbuilder.add_view(GrainTempModelView, "temperature records", icon="fa-dashboard", label=_("temperature records") ,category="Temp", category_icon='fa-envelope', category_label=_("Temp") )
+appbuilder.add_view(GrainTempChartView, "temperature charts", icon="fa-dashboard", label=_("temperature charts")  ,category="Temp")
 
 
-appbuilder.add_view(MyView, "仪表板", category='My View')
-appbuilder.add_link("Method2", href='/myview/method2/john', category='My View')
-appbuilder.add_link("Method3", href='/myview/method3/', category='My View')
+appbuilder.add_view(MyView, _("dashboard"), category=_('Dashboard'))
+appbuilder.add_link("Method2", href='/myview/method2/john', category=_('Dashboard'))
+appbuilder.add_link("Method3", href='/myview/method3/', category=_('Dashboard'))
