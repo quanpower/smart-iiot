@@ -110,5 +110,5 @@ class GrainTemp(Model):
     datetime = Column(DateTime)
 
     def __repr__(self):
-        return self.temp1
+        return str(self.temp1)
 
