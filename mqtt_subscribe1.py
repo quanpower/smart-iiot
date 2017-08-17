@@ -99,8 +99,8 @@ def lora_unpacking(packet_data):
 def lora_unpacking_realtime_data(packet_data):
     print('--------real data process beginning-----------')
 
-    gateway_addr = packet_data.read(3).uint
-    node_addr = packet_data.read(13).int
+    gateway_addr = str(packet_data.read(3).uint)
+    node_addr = str(packet_data.read(13).int)
     tran_direct = packet_data.read(1).bool
     func_code = packet_data.read(3)
     switch = packet_data.read(1).bool
