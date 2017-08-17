@@ -270,15 +270,15 @@ appbuilder.add_view(ContactChartView, "Contacts Chart", icon="fa-dashboard", cat
 appbuilder.add_view(ContactTimeChartView, "Contacts Birth Chart", icon="fa-dashboard", category="Contacts")
 
 
-appbuilder.add_view(GrainStorehouseModelView, "grain_storehouse", icon="fa-dashboard",label= _("grain_storehouse") ,category="Grain" ,category_icon='fa-envelope', category_label=_("Grain"))
+appbuilder.add_view(GrainStorehouseModelView, "grain storehouse", icon="fa-dashboard", label= _("grain storehouse") ,category="Grain", category_icon='fa-envelope', category_label=_("Grain Setting"))
 appbuilder.add_view(GrainBarnModelView, "barn", icon="fa-dashboard", label=_("barn"), category="Grain")
 
 
-appbuilder.add_view(LoraGatewayModelView, "lora_gateway", icon="fa-dashboard", label=_("lora_gateway")  ,category="Lora" ,category_icon='fa-envelope', category_label=_("Lora"))
-appbuilder.add_view(LoraNodeModelView, "lora_node", icon="fa-dashboard", label=_("lora_node") ,category="Lora")
+appbuilder.add_view(LoraGatewayModelView, "lora gateway", icon="fa-dashboard", label=_("lora gateway"), category="Lora", category_icon='fa-envelope', category_label=_("Lora Setting"))
+appbuilder.add_view(LoraNodeModelView, "lora node", icon="fa-dashboard", label=_("lora node"), category="Lora")
 
-appbuilder.add_view(GrainTempModelView, "temperature records", icon="fa-dashboard", label=_("temperature records") ,category="Temp", category_icon='fa-envelope', category_label=_("Temp") )
-appbuilder.add_view(GrainTempChartView, "temperature charts", icon="fa-dashboard", label=_("temperature charts")  ,category="Temp")
+appbuilder.add_view(GrainTempModelView, "temperature records", icon="fa-dashboard", label=_("temperature records"), category="Temperature", category_icon='fa-envelope', category_label=_("Temperature") )
+appbuilder.add_view(GrainTempChartView, "temperature charts", icon="fa-dashboard", label=_("temperature charts"), category="Temperature")
 
 
 appbuilder.add_view(MyView, _("dashboard"), category=_('Dashboard'))

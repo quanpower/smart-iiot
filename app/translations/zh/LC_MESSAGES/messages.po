@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2017-08-18 02:25+0800\n"
+"POT-Creation-Date: 2017-08-18 02:44+0800\n"
 "PO-Revision-Date: 2017-08-18 02:04+0800\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh\n"
@@ -19,27 +19,27 @@ msgstr ""
 "Generated-By: Babel 2.4.0\n"
 
 #: app/views.py:273
-msgid "grain_storehouse"
+msgid "grain storehouse"
 msgstr "粮库"
 
 #: app/views.py:273
-msgid "Grain"
-msgstr "粮食"
+msgid "Grain Setting"
+msgstr "库仓配置"
 
 #: app/views.py:274
 msgid "barn"
 msgstr "粮仓"
 
 #: app/views.py:277
-msgid "lora_gateway"
-msgstr "LoRa网关"
+msgid "lora gateway"
+msgstr "Lora网关"
 
 #: app/views.py:277
-msgid "Lora"
-msgstr "LoRa"
+msgid "Lora Setting"
+msgstr "Lora配置"
 
 #: app/views.py:278
-msgid "lora_node"
+msgid "lora node"
 msgstr "Lora节点"
 
 #: app/views.py:280
@@ -47,7 +47,7 @@ msgid "temperature records"
 msgstr "温度记录"
 
 #: app/views.py:280
-msgid "Temp"
+msgid "Temperature"
 msgstr "温度"
 
 #: app/views.py:281
@@ -65,4 +65,6 @@ msgstr "仪表板"
 #: app/templates/404.html:4
 msgid "Page not found"
 msgstr "找不到页面"
+
+
 
