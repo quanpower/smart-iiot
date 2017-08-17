@@ -3,7 +3,7 @@
 from app import app
 from flask_restful import reqparse, abort, Api, Resource
 from app import db
-from app.models import GrainTemp,LoraGateway,LoraNode
+from app.models import GrainTemp, LoraGateway, LoraNode
 from sqlalchemy import and_
 import json
 import random
@@ -18,7 +18,7 @@ class LoraTemp(Resource):
         get the latest temp.
     '''
     def get(self, gatewayAddr, nodeAddr):
-        temps = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.battery_vol).filter(and_(GrainTemp.gateway_addr == gatewayAddr, GrainTemp.node_addr == nodeAddr)).order_by(GrainTemp.datetime.desc()).first()
+        temps = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.battery_vol).filter(and_(LoraGateway.gateway_addr == gatewayAddr, LoraNode.node_addr == nodeAddr)).order_by(GrainTemp.datetime.desc()).first()
         temp_dic = {"numbers": [{"icon": "apple", "color": "#64ea91", "title": "温度1", "number": temps[0]}, {"icon": "team", "color": "#8fc9fb", "title": "温度2", "number": temps[1]}, {"icon": "team", "color": "#d897eb", "title": "温度3", "number": temps[2]}, {"icon": "message", "color": "#f69899", "title": "电池", "number": temps[3]}]}
         return temp_dic
 
@@ -56,13 +56,16 @@ class LoraTemps(Resource):
 
 class LoraTempRecord(Resource):
     '''
-        get the temp records by the input datetime.
+        get the temp records by the input datetime. %H:%M:S%
     '''
     def get(self, gatewayAddr, nodeAddr, startTime, endTime):
+        startTime = datetime.datetime.strptime(startTime, "%Y-%m-%d %H:%M:%S")
+        endTime = datetime.datetime.strptime(endTime, "%Y-%m-%d %H:%M:%S")
+
         print(startTime)
         print(endTime)
-        # temp_records = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.date).filter(GrainTemp.gateway_addr == gatewayAddr, GrainTemp.node_addr == nodeAddr, GrainTemp.date.between(startTime, endTime)).order_by(GrainTemp.date.desc()).all()
-        temp_records = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.datetime).filter(GrainTemp.datetime.between(startTime, endTime)).order_by(GrainTemp.datetime.desc()).all()
+        temp_records = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.datetime).filter(and_(LoraGateway.gateway_addr == gatewayAddr, LoraNode.node_addr == nodeAddr, GrainTemp.datetime.between(startTime, endTime))).order_by(GrainTemp.datetime.desc()).all()
+
 
         temp_log = []
         for i in xrange(len(temp_records)):
@@ -86,10 +89,10 @@ class LoRaBattery(Resource):
         get the latest baterry voltage.
     '''
     def get(self, gatewayAddr, nodeAddr):
-    	battery_vol = db.session.query(GrainTemp.battery_vol).filter(and_(GrainTemp.gateway_addr == gatewayAddr, GrainTemp.node_addr == nodeAddr)).order_by(GrainTemp.datetime.desc()).first()
+    	battery_vol = db.session.query(GrainTemp.battery_vol).filter(and_(LoraGateway.gateway_addr == gatewayAddr, LoraNode.node_addr == nodeAddr)).order_by(GrainTemp.datetime.desc()).first()
     	battery_dict = {}
     	battery_dict["vol"] = battery_vol[0]
-        return json.dumps(battery_dict)
+        return battery_dict
 
     def post(self):
     	pass
