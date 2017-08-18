@@ -11,6 +11,8 @@ import binascii
 from app.models import GrainTemp
 import logging
 from app import db
+from utils import crc_func, sign
+
 #======================================================    
 
 log = logging.getLogger(__name__)
@@ -49,36 +51,36 @@ def on_message(mqttc, obj, msg):
     strcurtime = curtime.strftime("%Y-%m-%d %H:%M:%S")
     print(strcurtime + ": " + msg.topic+" "+str(msg.qos)+" "+str(msg.payload))
 
-    # packet_data = BitArray('0x4001004751E47533')
-    # bit_payload = BitStream(msg.payload)
-    # bit_payload = BitStream(bytes=msg.payload, length=64, offset=0)
+    payload_length = len(msg.payload)
+    un_int = struct.unpack(str(payload_length) + 'B', msg.payload)
+    print('-------units-----')
+    print(un_int)
+    uints = list(un_int)
 
-    # print('bit-payload')
-    # print(bit_payload)
+    if uints[payload_length-1] == crc_func(uints[:payload_length-1]):
+        print('CRC checked!')
 
-    # print(len(msg.payload))
-    if len(msg.payload) == 5:
-        print('ack received')
-    elif len(msg.payload) == 8:
-        # un_int = struct.unpack(str(len(msg.payload)) + 'B', msg.payload)
-        # print(un_int)
-        b = binascii.b2a_hex(msg.payload)
-        # packet_data = BitStream('0x4001004751E47533')
-        # '{:0>2x}'.format(1) #dic to hex,append 0
-        packet_data = BitStream('0x'+ b)
+        if payload_length == 5:
+            pass
+        elif payload_length == 8:
+            b = binascii.b2a_hex(msg.payload)
+            # packet_data = BitStream('0x4001004751E47533')
+            # '{:0>2x}'.format(1) #dic to hex,append 0
+            packet_data = BitStream('0x'+ b)
 
-        print('--------packet_data--------')
-        print(packet_data)
-        print('--------packet_data.bin--------')
-        print(packet_data.bin)
+            print('--------packet_data--------')
+            print(packet_data)
+            print('--------packet_data.bin--------')
+            print(packet_data.bin)
 
-        realtime_data = lora_unpacking_realtime_data(packet_data)
+            realtime_data = lora_unpacking_realtime_data(packet_data)
 
-        save_realtime_data(realtime_data)
+            save_realtime_data(realtime_data)
+        else:
+            print('bytes unknown!')
 
-        on_exec(str(msg.payload))
     else:
-        print('nothings!')
+        print('CRC check fail!')
 
 
 def on_exec(strcmd):
@@ -113,14 +115,6 @@ def lora_unpacking_realtime_data(packet_data):
     temp2 = packet_data.read(10).uint
     temp3 = packet_data.read(10).uint
     battery_vol =  packet_data.read(2).uint
-
-
-    def sign(temp_sign):
-        if not temp_sign:
-            sign = 1
-        else:
-            sign = -1
-        return sign
 
     temprature1 = (sign(temp1_sign) * temp1)/10.0
     temprature2 = (sign(temp2_sign) * temp2)/10.0
@@ -190,13 +184,6 @@ def lora_unpacking_ack(packet_data):
     # todo
     print('-------- ack data process beginning -----------')
 
-
-    
-
-def crc_func(bitstring):
-    pass
-    # todo
-    
 #=====================================================
 if __name__ == '__main__': 
     mqttc = mqtt.Client("mynodeserver")

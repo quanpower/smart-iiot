@@ -15,8 +15,7 @@ import logging
 
 import paho.mqtt.publish as publish
 import time 
-
-
+from utils import crc_func
 #======================================================    
 
 log = logging.getLogger(__name__)
@@ -102,10 +101,8 @@ def lora_unpacking(packet_data):
     else:
         pass
 
-
-
-def packing(gateway_addr, node_addr , trans_direct, func_code, wind_direct, wind_speed, model, on_off, work_mode, temp, crc):
-    return bitstring.pack('bin, bin, bin, bin, bin, bin, bin, bin, bin, bin, bin', gateway_addr, node_addr , trans_direct, func_code, wind_direct, wind_speed, model, on_off, work_mode, temp, crc)
+def packing(gateway_addr, node_addr , trans_direct, func_code, wind_direct, wind_speed, model, on_off, work_mode, temp):
+    return bitstring.pack('bin, bin, bin, bin, bin, bin, bin, bin, bin, bin', gateway_addr, node_addr , trans_direct, func_code, wind_direct, wind_speed, model, on_off, work_mode, temp)
     
 
 def transmitMQTT(strMsg):
@@ -136,12 +133,6 @@ def transmitMQTT(strMsg):
 #     mqttc.loop_forever()
 
 
-
-
-
-
-
-
 if __name__ == '__main__':
 
     gateway_addr = '0b001' # 1
@@ -154,43 +145,33 @@ if __name__ == '__main__':
     on_off = '0b01' # on
     work_mode = '0b001' #cold
     temp = '0b11100' #28
-    crc = '0b11011111'
-    print(type(gateway_addr))
 
-    str_bin = packing(gateway_addr, node_addr , trans_direct, func_code, wind_direct, wind_speed, model, on_off, work_mode, temp, crc)
+    str_bin = packing(gateway_addr, node_addr, trans_direct, func_code, wind_direct, wind_speed, model, on_off, work_mode, temp)
     print('----str_bin------')
     print(str_bin.bin)
-    print(type(str_bin))
+    print(str_bin.hex)
     print('----str_bin------')
-    # str_hex = binascii.hexlify(str_bin)
-    # str_hex = binascii.a2b_hex(str_bin)
-    # str_hex = str_bin.hex
-    # print(str_hex)
-    # print(type(str_hex))
-    # a ='2001'
-    # str_bytes = struct.pack('h',a)
-    # str_bytes = str_bin.tobytes()
-    # print(str_bin.read(16).uint)
-    # print(str_bin.read(16).uint)
 
-    # print(str_bin.read(16).uint)
+    print(len(str_bin))
 
 
-    # print(str_bytes)
-    # print(repr(str_bytes))
-    # str_bytes=struct.pack('HHH',str_bin.read(16).uint,str_bin.read(16).uint,str_bin.read(16).uint)
-    str_bytes=struct.pack('>HHHB',str_bin.read(16).uint,str_bin.read(16).uint,str_bin.read(16).uint,str_bin.read(8).uint)
+    units = []
+    for i in range(int(len(str_bin) / 8)):
+        units.append(str_bin.read(8).uint)
+    print(units)
 
-    # str_hex = str_bin.hex.bytes
+    crc = crc_func(units)
+    print('-------hex------')
+    print(hex(crc))
+
+    str_bytes=struct.pack('7B', units[0], units[1], units[2], units[3], units[4], units[5], crc)
+
     print(str_bytes)
     print(len(str_bytes))
     print(repr(str_bytes))
-    # print(repr(str_hex))
-    # print(type(str_hex))
 
     for i in range(0, 999999):
         time.sleep(1)
-
 
         transmitMQTT(str_bytes)
         # transmitMQTT(str_hex + "--{0}--".format(i))
