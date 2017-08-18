@@ -270,17 +270,17 @@ appbuilder.add_view(ContactChartView, "Contacts Chart", icon="fa-dashboard", cat
 appbuilder.add_view(ContactTimeChartView, "Contacts Birth Chart", icon="fa-dashboard", category="Contacts")
 
 
-appbuilder.add_view(GrainStorehouseModelView, "grain storehouse", icon="fa-dashboard", label= _("grain storehouse") ,category="Grain", category_icon='fa-envelope', category_label=_("Grain Setting"))
-appbuilder.add_view(GrainBarnModelView, "barn", icon="fa-dashboard", label=_("barn"), category="Grain")
+appbuilder.add_view(GrainStorehouseModelView, "grain storehouse", icon="icon-home", label= _("grain storehouse") ,category="Grain", category_icon='icon-home', category_label=_("Grain Setting"))
+appbuilder.add_view(GrainBarnModelView, "barn", icon="icon-home", label=_("barn"), category="Grain")
 
 
-appbuilder.add_view(LoraGatewayModelView, "lora gateway", icon="fa-dashboard", label=_("lora gateway"), category="Lora", category_icon='fa-envelope', category_label=_("Lora Setting"))
-appbuilder.add_view(LoraNodeModelView, "lora node", icon="fa-dashboard", label=_("lora node"), category="Lora")
+appbuilder.add_view(LoraGatewayModelView, "lora gateway", icon="icon-cloud", label=_("lora gateway"), category="Lora", category_icon='icon-cog', category_label=_("Lora Setting"))
+appbuilder.add_view(LoraNodeModelView, "lora node", icon=" icon-circle", label=_("lora node"), category="Lora")
 
-appbuilder.add_view(GrainTempModelView, "temperature records", icon="fa-dashboard", label=_("temperature records"), category="Temperature", category_icon='fa-envelope', category_label=_("Temperature") )
-appbuilder.add_view(GrainTempChartView, "temperature charts", icon="fa-dashboard", label=_("temperature charts"), category="Temperature")
+appbuilder.add_view(GrainTempModelView, "temperature records", icon="icon-list", label=_("temperature records"), category="Temperature", category_icon='icon-signal ', category_label=_("Temperature") )
+appbuilder.add_view(GrainTempChartView, "temperature charts", icon="icon-bar-chart", label=_("temperature charts"), category="Temperature")
 
 
-appbuilder.add_view(MyView, _("dashboard"), category=_('Dashboard'))
-appbuilder.add_link("Method2", href='/myview/method2/john', category=_('Dashboard'))
-appbuilder.add_link("Method3", href='/myview/method3/', category=_('Dashboard'))
+appbuilder.add_view(MyView, "dashboard", icon='icon-desktop', label=_("dashboard"), category='Dashboard', category_icon='icon-dashboard', category_label=_('Dashboard'))
+appbuilder.add_link("Method2", icon='icon-link', href='/myview/method2/john', category='Dashboard')
+appbuilder.add_link("Method3", icon='icon-link', href='/myview/method3/', category='Dashboard')
