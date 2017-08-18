@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2017-08-18 02:44+0800\n"
+"POT-Creation-Date: 2017-08-18 17:15+0800\n"
 "PO-Revision-Date: 2017-08-18 02:04+0800\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh\n"
@@ -19,7 +19,7 @@ msgstr ""
 "Generated-By: Babel 2.4.0\n"
 
 #: app/views.py:273
-msgid "grain storehouse"
+msgid "Grain Storehouse"
 msgstr "粮库"
 
 #: app/views.py:273
@@ -27,11 +27,11 @@ msgid "Grain Setting"
 msgstr "库仓配置"
 
 #: app/views.py:274
-msgid "barn"
+msgid "Barn"
 msgstr "粮仓"
 
 #: app/views.py:277
-msgid "lora gateway"
+msgid "Lora Gateway"
 msgstr "Lora网关"
 
 #: app/views.py:277
@@ -39,11 +39,11 @@ msgid "Lora Setting"
 msgstr "Lora配置"
 
 #: app/views.py:278
-msgid "lora node"
+msgid "Lora Node"
 msgstr "Lora节点"
 
 #: app/views.py:280
-msgid "temperature records"
+msgid "Temperature Records"
 msgstr "温度记录"
 
 #: app/views.py:280
@@ -51,20 +51,15 @@ msgid "Temperature"
 msgstr "温度"
 
 #: app/views.py:281
-msgid "temperature charts"
+msgid "Temperature Charts"
 msgstr "温度图表"
 
 #: app/views.py:284
-msgid "dashboard"
-msgstr "仪表板"
-
-#: app/views.py:284 app/views.py:285 app/views.py:286
 msgid "Dashboard"
 msgstr "仪表板"
 
 #: app/templates/404.html:4
 msgid "Page not found"
 msgstr "找不到页面"
-
 
 

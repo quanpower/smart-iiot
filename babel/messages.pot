@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2017-08-18 02:44+0800\n"
+"POT-Creation-Date: 2017-08-18 17:15+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Generated-By: Babel 2.4.0\n"
 
 #: app/views.py:273
-msgid "grain storehouse"
+msgid "Grain Storehouse"
 msgstr ""
 
 #: app/views.py:273
@@ -26,11 +26,11 @@ msgid "Grain Setting"
 msgstr ""
 
 #: app/views.py:274
-msgid "barn"
+msgid "Barn"
 msgstr ""
 
 #: app/views.py:277
-msgid "lora gateway"
+msgid "Lora Gateway"
 msgstr ""
 
 #: app/views.py:277
@@ -38,11 +38,11 @@ msgid "Lora Setting"
 msgstr ""
 
 #: app/views.py:278
-msgid "lora node"
+msgid "Lora Node"
 msgstr ""
 
 #: app/views.py:280
-msgid "temperature records"
+msgid "Temperature Records"
 msgstr ""
 
 #: app/views.py:280
@@ -50,14 +50,10 @@ msgid "Temperature"
 msgstr ""
 
 #: app/views.py:281
-msgid "temperature charts"
+msgid "Temperature Charts"
 msgstr ""
 
 #: app/views.py:284
-msgid "dashboard"
-msgstr ""
-
-#: app/views.py:284 app/views.py:285 app/views.py:286
 msgid "Dashboard"
 msgstr ""
 
