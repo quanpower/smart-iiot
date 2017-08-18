@@ -281,6 +281,6 @@ appbuilder.add_view(GrainTempModelView, "temperature records", icon="icon-list",
 appbuilder.add_view(GrainTempChartView, "temperature charts", icon="icon-bar-chart", label=_("Temperature Charts"), category="Temperature")
 
 
-appbuilder.add_view(MyView, "dashboard", icon='icon-desktop', label=_("Dashboard"), category='Dashboard', category_icon='icon-dashboard', category_label=_('Dashboard'))
-appbuilder.add_link("Method2", icon='icon-link', href='/myview/method2/john', category='Dashboard')
-appbuilder.add_link("Method3", icon='icon-link', href='/myview/method3/', category='Dashboard')
+appbuilder.add_view(MyView, "dashboard", icon='icon-desktop', label=_("Dashboard"), category='Dashboard', category_icon='icon-link', category_label=_('Dashboard'))
+appbuilder.add_link("Method2", icon='icon-dashboard', href='/myview/method2/john', category='Dashboard')
+appbuilder.add_link("Method3", icon='icon-dashboard', href='/myview/method3/', category='Dashboard')
