@@ -77,9 +77,6 @@ def on_message(mqttc, obj, msg):
         print('--------packet_data.bin--------')
         print(packet_data.bin)
 
-        realtime_data = lora_unpacking_realtime_data(packet_data)
-
-        save_realtime_data(realtime_data)
 
         on_exec(str(msg.payload))
     else:

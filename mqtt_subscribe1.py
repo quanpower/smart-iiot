@@ -61,7 +61,7 @@ def on_message(mqttc, obj, msg):
         print('CRC checked!')
 
         if payload_length == 5:
-            pass
+            lora_unpacking_ack(uints)
         elif payload_length == 8:
             b = binascii.b2a_hex(msg.payload)
             # packet_data = BitStream('0x4001004751E47533')
