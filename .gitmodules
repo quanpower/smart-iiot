@@ -1,3 +1,6 @@
 [submodule "antd-admin"]
 	path = antd-admin
 	url = https://github.com/quanpower/antd-admin.git
+[submodule "incubator-superset"]
+	path = incubator-superset
+	url = https://github.com/quanpower/incubator-superset.git
