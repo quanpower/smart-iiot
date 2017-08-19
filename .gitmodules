@@ -1,0 +1,3 @@
+[submodule "antd-admin"]
+	path = antd-admin
+	url = https://github.com/quanpower/antd-admin.git
