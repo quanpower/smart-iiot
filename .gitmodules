@@ -4,3 +4,6 @@
 [submodule "incubator-superset"]
 	path = incubator-superset
 	url = https://github.com/quanpower/incubator-superset.git
+[submodule "flask_jsondash"]
+	path = flask_jsondash
+	url = https://github.com/quanpower/flask_jsondash.git
