@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 
 from app import app
+from flasgger import Swagger, swag_from
 from flask_restful import reqparse, abort, Api, Resource
 from app import db
 from app.models import GrainTemp, LoraGateway, LoraNode
@@ -12,12 +13,59 @@ import datetime
 
 api = Api(app)
 
+swagger = Swagger(app)
+
+
+TODOS = {
+    'todo1': {'task': 'build an API'},
+    'todo2': {'task': '?????'},
+    'todo3': {'task': 'profit!'},
+    '42': {'task': 'Use Flasgger'}
+}
+
+
+def abort_if_todo_doesnt_exist(todo_id):
+    if todo_id not in TODOS:
+        abort(404, message="Todo {} doesn't exist".format(todo_id))
+
+
+parser = reqparse.RequestParser()
+parser.add_argument('task')
+
+
+
+
 
 class LoraTemp(Resource):
-    '''
-        get the latest temp.
-    '''
+    # """
+    #         Get the latest temp.
+    #         ---
+    #         tags:
+    #           - LoraTemp
+    #         parameters:
+    #           - in: path
+    #             name: gateway_addr
+    #             required: true
+    #             description: The ID of the task, try 42!
+    #             type: string
+    #         responses:
+    #           200:
+    #             description: The task data
+    #             schema:
+    #               id: Task
+    #               properties:
+    #                 task:
+    #                   type: string
+    #                   default: My Task
+    #         """
     def get(self, gatewayAddr, nodeAddr):
+
+        get_parser = reqparse.RequestParser()
+        get_parser.add_argument('id', type=int, location='args', required=True)
+
+        args = get_parser.parse_args()
+        id = args.get('id')
+
         temps = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.battery_vol).filter(and_(LoraGateway.gateway_addr == gatewayAddr, LoraNode.node_addr == nodeAddr)).order_by(GrainTemp.datetime.desc()).first()
         temp_dic = {"numbers": [{"icon": "apple", "color": "#64ea91", "title": "温度1", "number": temps[0]}, {"icon": "apple", "color": "#8fc9fb", "title": "温度2", "number": temps[1]}, {"icon": "apple", "color": "#d897eb", "title": "温度3", "number": temps[2]}, {"icon": "message", "color": "#f69899", "title": "电池", "number": temps[3]}]}
         return temp_dic
@@ -27,6 +75,56 @@ class LoraTemp(Resource):
 
     def put(self, todo_id):
 		pass
+
+class BarnTemp(Resource):
+    """
+            Get the barn's latest temp.
+            ---
+            tags:
+              - LoraTemp
+            parameters:
+              - in: path
+                name: barn_no
+                required: true
+                description: Barn NO!
+                type: string
+            responses:
+              200:
+                description: The latest temperatues data of this barn
+                schema:
+                  id: Task
+                  properties:
+                    task:
+                      type: string
+                      default: My Task
+            """
+    def get(self, barn_no):
+
+        # get_parser = reqparse.RequestParser()
+        # get_parser.add_argument('id', type=int, location='args', required=True)
+        #
+        # args = get_parser.parse_args()
+        # id = args.get('id')
+
+        temps = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.battery_vol).filter(and_(LoraGateway.gateway_addr == '1', LoraNode.node_addr == '1')).order_by(GrainTemp.datetime.desc()).first()
+        print('---------temps-----------')
+        print(temps)
+
+        temp_dic1 = {"air-conditioner1": [{"title": "温度1", "value": temps[0]}, {"title": "温度2", "value": temps[1]}, {"title": "温度3", "value": temps[2]}, {"title": "电池", "value": temps[3]}]}
+        temp_dic2 = {"air-conditioner2": [{"title": "温度1", "value": temps[0]}, {"title": "温度2", "value": temps[1]}, {"title": "温度3", "value": temps[2]}, {"title": "电池", "value": temps[3]}]}
+        temp_dic3 = {"air-conditioner3": [{"title": "温度1", "value": temps[0]}, {"title": "温度2", "value": temps[1]}, {"title": "温度3", "value": temps[2]}, {"title": "电池", "value": temps[3]}]}
+        temp_dic4 = {"air-conditioner4": [{"title": "温度1", "value": temps[0]}, {"title": "温度2", "value": temps[1]}, {"title": "温度3", "value": temps[2]}, {"title": "电池", "value": temps[3]}]}
+
+        temps_dict = {"air-conditioner_data": [temp_dic1, temp_dic2, temp_dic3, temp_dic4]}
+
+        return temps_dict
+
+    def delete(self, todo_id):
+		pass
+
+    def put(self, todo_id):
+		pass
+
 
 class LoraTemps(Resource):
     '''
@@ -105,10 +203,9 @@ api.add_resource(LoRaBattery, '/api/v1/loranode_battery/<gatewayAddr>/<nodeAddr>
 api.add_resource(LoraTemp, '/api/v1/loranode_temperature/<gatewayAddr>/<nodeAddr>')
 api.add_resource(LoraTemps, '/api/v1/loranode_temperatures/<gatewayAddr>/<nodeAddr>')
 api.add_resource(LoraTempRecord, '/api/v1/loranode_temperature_record/<gatewayAddr>/<nodeAddr>/<startTime>/<endTime>')
+api.add_resource(BarnTemp, '/api/v1/barn_temperatures/<barn_no>')
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
-
-app.run(host='0.0.0.0', port=8888, debug=True)
+    app.run(host='0.0.0.0', port=8888, debug=True)
 
