@@ -133,15 +133,20 @@ def transmitMQTT(strMsg):
 if __name__ == '__main__':
 
     gateway_addr = '0b001' # 1
-    node_addr = '0b0000000000001' # 1
+    node_addr = '0b0000000000011' # 1
     trans_direct = '0b1'  # 1
     func_code = '0b0010001' # 17
     wind_direct = '0b00' #auto
     wind_speed = '0b00' #1
-    model = '0b1101100000' #
+    model = '0b1010010010' # hitachi 658
     on_off = '0b01' # on
     work_mode = '0b001' #cold
     temp = '0b11100' #28
+
+    # models = []
+    # for i in range(600,1000):
+    #     models.append(bin(i))
+    # print(models)
 
     str_bin = packing(gateway_addr, node_addr, trans_direct, func_code, wind_direct, wind_speed, model, on_off, work_mode, temp)
     print('----str_bin------')
@@ -167,10 +172,45 @@ if __name__ == '__main__':
     print(len(str_bytes))
     print(repr(str_bytes))
 
-    for i in range(0, 999999):
-        time.sleep(1)
-
+    for i in xrange(1,999999):
+        time.sleep(10)
         transmitMQTT(str_bytes)
-        # transmitMQTT(str_hex + "--{0}--".format(i))
 
         print ("Send msg ok.{0}".format(i))
+
+    # for i in models:
+    #     print('------model-----')
+    #     print(i)
+    #     print(type(i))
+    #     a = int(i.replace('0b',''),2)
+    #     print(a)
+    #     time.sleep(10)
+    #
+    #     str_bin = packing(gateway_addr, node_addr, trans_direct, func_code, wind_direct, wind_speed, i, on_off,
+    #                       work_mode, temp)
+    #     print('----str_bin------')
+    #     print(str_bin.bin)
+    #     print(str_bin.hex)
+    #     print('----str_bin------')
+    #
+    #     print(len(str_bin))
+    #
+    #     units = []
+    #     for i in range(int(len(str_bin) / 8)):
+    #         units.append(str_bin.read(8).uint)
+    #     print(units)
+    #
+    #     crc = crc_func(units)
+    #     print('-------hex------')
+    #     print(hex(crc))
+    #
+    #     str_bytes = struct.pack('7B', units[0], units[1], units[2], units[3], units[4], units[5], crc)
+    #
+    #     print(str_bytes)
+    #     print(len(str_bytes))
+    #     print(repr(str_bytes))
+
+        # transmitMQTT(str_bytes)
+        # # transmitMQTT(str_hex + "--{0}--".format(i))
+        #
+        # print ("Send msg ok.{0}".format(i))
