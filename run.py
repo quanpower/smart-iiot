@@ -76,6 +76,9 @@ class LoraTemp(Resource):
     def put(self, todo_id):
 		pass
 
+
+
+
 class BarnTemp(Resource):
     """
             Get the barn's latest temp.
@@ -195,6 +198,83 @@ class LoRaBattery(Resource):
     def post(self):
     	pass
 
+class Barns(Resource):
+    # """
+    #         Get the latest temp.
+    #         ---
+    #         tags:
+    #           - LoraTemp
+    #         parameters:
+    #           - in: path
+    #             name: gateway_addr
+    #             required: true
+    #             description: The ID of the task, try 42!
+    #             type: string
+    #         responses:
+    #           200:
+    #             description: The task data
+    #             schema:
+    #               id: Task
+    #               properties:
+    #                 task:
+    #                   type: string
+    #                   default: My Task
+    #         """
+    def get(self):
+
+        # get_parser = reqparse.RequestParser()
+        # get_parser.add_argument('id', type=int, location='args', required=True)
+        #
+        # args = get_parser.parse_args()
+        # id = args.get('id')
+
+        barn_dic = {"barns": [{"icon": "home", "color": "#64ea91", "title": "1haocang", "number": 27.1}, {"icon": "home", "color": "#8fc9fb", "title": "2haocang", "number": 27.5}, {"icon": "home", "color": "#d897eb", "title": "3haocang", "number": 31}, {"icon": "home", "color": "#f69899", "title": "4haocang", "number": 32}, {"icon": "home", "color": "#64ea91", "title": "5haocang", "number": 27.1}, {"icon": "home", "color": "#8fc9fb", "title": "6haocang", "number": 27.5}, {"icon": "home", "color": "#d897eb", "title": "7haocang", "number": 31}, {"icon": "home", "color": "#f69899", "title": "8haocang", "number": 32}]}
+        return barn_dic
+
+    def delete(self, todo_id):
+        pass
+
+    def put(self, todo_id):
+        pass
+
+class ConcTemps(Resource):
+    # """
+    #         Get the latest temp.
+    #         ---
+    #         tags:
+    #           - LoraTemp
+    #         parameters:
+    #           - in: path
+    #             name: gateway_addr
+    #             required: true
+    #             description: The ID of the task, try 42!
+    #             type: string
+    #         responses:
+    #           200:
+    #             description: The task data
+    #             schema:
+    #               id: Task
+    #               properties:
+    #                 task:
+    #                   type: string
+    #                   default: My Task
+    #         """
+    def get(self):
+
+        # get_parser = reqparse.RequestParser()
+        # get_parser.add_argument('id', type=int, location='args', required=True)
+        #
+        # args = get_parser.parse_args()
+        # id = args.get('id')
+
+        conc_temps_dic = {"concTemps": [{"icon": "bulb", "color": "#64ea91", "title": "1#", "number": 27.1}, {"icon": "bulb", "color": "#8fc9fb", "title": "2#", "number": 27.5}, {"icon": "bulb", "color": "#d897eb", "title": "3#", "number": 31}, {"icon": "home", "color": "#f69899", "title": "4haocang", "number": 32}, {"icon": "home", "color": "#64ea91", "title": "5haocang", "number": 27.1}, {"icon": "home", "color": "#8fc9fb", "title": "6haocang", "number": 27.5}, {"icon": "home", "color": "#d897eb", "title": "7haocang", "number": 31}, {"icon": "home", "color": "#f69899", "title": "8haocang", "number": 32}]}
+        return conc_temps_dic
+
+    def delete(self, todo_id):
+        pass
+
+    def put(self, todo_id):
+        pass
 
 ##
 ## Actually setup the Api resource routing here
@@ -204,6 +284,8 @@ api.add_resource(LoraTemp, '/api/v1/loranode_temperature/<gatewayAddr>/<nodeAddr
 api.add_resource(LoraTemps, '/api/v1/loranode_temperatures/<gatewayAddr>/<nodeAddr>')
 api.add_resource(LoraTempRecord, '/api/v1/loranode_temperature_record/<gatewayAddr>/<nodeAddr>/<startTime>/<endTime>')
 api.add_resource(BarnTemp, '/api/v1/barn_temperatures/<barn_no>')
+api.add_resource(Barns, '/api/v1/barns')
+api.add_resource(ConcTemps, '/api/v1/concrete_temperature/1')
 
 
 if __name__ == '__main__':
