@@ -177,5 +177,5 @@ class ConcTemp(Model):
     datetime = Column(DateTime)
 
     def __repr__(self):
-        return str(self.temp1)
+        return str(self.datetime)
 
