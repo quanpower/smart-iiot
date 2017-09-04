@@ -4,7 +4,7 @@ from app import app
 from flasgger import Swagger, swag_from
 from flask_restful import reqparse, abort, Api, Resource
 from app import db
-from app.models import GrainTemp, LoraGateway, LoraNode, ConcGateway, ConcNode, ConcTemp
+from app.models import GrainTemp, LoraGateway, LoraNode, GrainBarn, GrainStorehouse, ConcGateway, ConcNode, ConcTemp
 from sqlalchemy import and_
 import json
 import random
@@ -31,27 +31,7 @@ parser = reqparse.RequestParser()
 parser.add_argument('task')
 
 class LoraTemp(Resource):
-    # """
-    #         Get the latest temp.
-    #         ---
-    #         tags:
-    #           - LoraTemp
-    #         parameters:
-    #           - in: path
-    #             name: gateway_addr
-    #             required: true
-    #             description: The ID of the task, try 42!
-    #             type: string
-    #         responses:
-    #           200:
-    #             description: The task data
-    #             schema:
-    #               id: Task
-    #               properties:
-    #                 task:
-    #                   type: string
-    #                   default: My Task
-    #         """
+
     def get(self, gatewayAddr, nodeAddr):
 
         # get_parser = reqparse.RequestParser()
@@ -72,27 +52,7 @@ class LoraTemp(Resource):
 
 
 class BarnTemp(Resource):
-    """
-            Get the barn's latest temp.
-            ---
-            tags:
-              - LoraTemp
-            parameters:
-              - in: path
-                name: barn_no
-                required: true
-                description: Barn NO!
-                type: string
-            responses:
-              200:
-                description: The latest temperatues data of this barn
-                schema:
-                  id: Task
-                  properties:
-                    task:
-                      type: string
-                      default: My Task
-            """
+
     def get(self, barn_no):
 
         # get_parser = reqparse.RequestParser()
@@ -191,27 +151,7 @@ class LoRaBattery(Resource):
     	pass
 
 class Barns(Resource):
-    # """
-    #         Get the latest temp.
-    #         ---
-    #         tags:
-    #           - LoraTemp
-    #         parameters:
-    #           - in: path
-    #             name: gateway_addr
-    #             required: true
-    #             description: The ID of the task, try 42!
-    #             type: string
-    #         responses:
-    #           200:
-    #             description: The task data
-    #             schema:
-    #               id: Task
-    #               properties:
-    #                 task:
-    #                   type: string
-    #                   default: My Task
-    #         """
+
     def get(self):
 
         # get_parser = reqparse.RequestParser()
@@ -219,6 +159,39 @@ class Barns(Resource):
         #
         # args = get_parser.parse_args()
         # id = args.get('id')
+
+        def return_status(self,a,b,c):
+            max_abc = max(a,b,c)
+            print('max_abc:', max_abc)
+            if max_abc < 35:
+                return "#64ea91"
+            elif (35 <= max_abc) and (max_abc <= 50):
+                return "#8fc9fb"
+            else:
+                return "#f69899"
+        barns = db.session.query(GrainBarn.barn_no, GrainBarn.barn_name).filter(GrainStorehouse.storehouse_no == '1').all()
+        print("barns are:", barns)
+        nodes = []
+        for barn in barns:
+            print(type(barn))
+
+            statuses = []
+            for node in nodes:
+                print(type(node))
+
+                # todo: repalce geteway_addr
+                temps = db.session.query(ConcTemp.temp1, ConcTemp.temp2, ConcTemp.temp3, ConcTemp.datetime).filter(
+                    and_(ConcGateway.gateway_addr == '1', ConcNode.node_addr == node[0])).order_by(
+                    ConcTemp.datetime.desc()).first()
+                if temps:
+                    status = {"name":node[0]+u"号测温点","status":self.return_status(temps[0], temps[1], temps[2]),"content":"上：{0}℃, 中：{1}℃, 下：{2}℃".format(str(temps[0]),str(temps[1]),str(temps[2])),"avatar":"http://dummyimage.com/48x48/f279aa/757575.png&text={0}".format(node[0]),"date":datetime.datetime.strftime(temps[3], "%Y-%m-%d %H:%M:%S")}
+                    statuses.append(status)
+                else:
+                    statuses = []
+        # conc_dash_dic = {"concDash":[{"name":"1","status":1,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/f279aa/757575.png&text=1","date":"2017-08-19 23:38:45"},{"name":"White","status":2,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/79cdf2/757575.png&text=W","date":"2017-04-22 14:17:06"},{"name":"Martin","status":3,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/f1f279/757575.png&text=M","date":"2017-05-07 04:29:13"},{"name":"Johnson","status":1,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/d079f2/757575.png&text=J","date":"2017-01-14 02:38:37"},{"name":"Jones","status":2,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/79f2ac/757575.png&text=J","date":"2017-07-08 20:05:50"}]}
+        conc_dash_dic = {"concDash":statuses}
+        print("conc_dash_dic", conc_dash_dic)
+
 
         barn_dic = {"barns": [{"icon": "home", "color": "#64ea91", "title": "1haocang", "number": 27.1}, {"icon": "home", "color": "#8fc9fb", "title": "2haocang", "number": 27.5}, {"icon": "home", "color": "#d897eb", "title": "3haocang", "number": 31}, {"icon": "home", "color": "#f69899", "title": "4haocang", "number": 32}, {"icon": "home", "color": "#64ea91", "title": "5haocang", "number": 27.1}, {"icon": "home", "color": "#8fc9fb", "title": "6haocang", "number": 27.5}, {"icon": "home", "color": "#d897eb", "title": "7haocang", "number": 31}, {"icon": "home", "color": "#f69899", "title": "8haocang", "number": 32}]}
         return barn_dic
@@ -334,13 +307,191 @@ class ConcDashboard(Resource):
         conc_dash_dic = {"concDash":statuses}
         print("conc_dash_dic", conc_dash_dic)
 
-        return conc_dash_dic
+
+class Menus(Resource):
+    menus = [
+  {
+    'id': '1',
+    'icon': 'laptop',
+    'name': '仪表板',
+    'route': '/dashboard',
+  },
+  {
+    'id': '2',
+    'bpid': '1',
+    'name': '粮库仪表板',
+    'icon': 'bulb',
+    'route': '/grain',
+  },
+  {
+    'id': '21',
+    'bpid': '1',
+    'name': '粮仓测温点',
+    'icon': 'bulb',
+    'route': '/graindetail',
+  },
+  {
+    'id': '9',
+    'bpid': '1',
+    'name': '历史记录',
+    'icon': 'user',
+    'route': '/user',
+  },
+  {
+    'id': '7',
+    'bpid': '1',
+    'name': '历史记录',
+    'icon': 'shopping-cart',
+    'route': '/post',
+  },
+  {
+    'id': '21',
+    'mpid': '-1',
+    'bpid': '2',
+    'name': 'User Detail',
+    'route': '/user/:id',
+  },
+  {
+    'id': '3',
+    'bpid': '1',
+    'name': 'Request',
+    'icon': 'api',
+    'route': '/request',
+  },
+  {
+    'id': '4',
+    'bpid': '1',
+    'name': 'UI Element',
+    'icon': 'camera-o',
+  },
+  {
+    'id': '41',
+    'bpid': '4',
+    'mpid': '4',
+    'name': 'IconFont',
+    'icon': 'heart-o',
+    'route': '/UIElement/iconfont',
+  },
+  {
+    'id': '42',
+    'bpid': '4',
+    'mpid': '4',
+    'name': 'DataTable',
+    'icon': 'database',
+    'route': '/UIElement/dataTable',
+  },
+  {
+    'id': '43',
+    'bpid': '4',
+    'mpid': '4',
+    'name': 'DropOption',
+    'icon': 'bars',
+    'route': '/UIElement/dropOption',
+  },
+  {
+    'id': '44',
+    'bpid': '4',
+    'mpid': '4',
+    'name': 'Search',
+    'icon': 'search',
+    'route': '/UIElement/search',
+  },
+  {
+    'id': '45',
+    'bpid': '4',
+    'mpid': '4',
+    'name': 'Editor',
+    'icon': 'edit',
+    'route': '/UIElement/editor',
+  },
+  {
+    'id': '46',
+    'bpid': '4',
+    'mpid': '4',
+    'name': 'layer (Function)',
+    'icon': 'credit-card',
+    'route': '/UIElement/layer',
+  },
+  {
+    'id': '5',
+    'bpid': '1',
+    'name': '图表',
+    'icon': 'code-o',
+  },
+  {
+    'id': '51',
+    'bpid': '5',
+    'mpid': '5',
+    'name': '线状图',
+    'icon': 'line-chart',
+    'route': '/chart/lineChart',
+  },
+  {
+    'id': '52',
+    'bpid': '5',
+    'mpid': '5',
+    'name': '柱状图',
+    'icon': 'bar-chart',
+    'route': '/chart/barChart',
+  },
+  {
+    'id': '53',
+    'bpid': '5',
+    'mpid': '5',
+    'name': '面积图',
+    'icon': 'area-chart',
+    'route': '/chart/areaChart',
+  },
+  {
+    'id': '6',
+    'bpid': '1',
+    'name': 'Test Navigation',
+    'icon': 'setting',
+  },
+  {
+    'id': '61',
+    'bpid': '6',
+    'mpid': '6',
+    'name': 'Test Navigation1',
+    'route': '/navigation/navigation1',
+  },
+  {
+    'id': '62',
+    'bpid': '6',
+    'mpid': '6',
+    'name': 'Test Navigation2',
+    'route': '/navigation/navigation2',
+  },
+  {
+    'id': '621',
+    'bpid': '62',
+    'mpid': '62',
+    'name': 'Test Navigation21',
+    'route': '/navigation/navigation2/navigation1',
+  },
+  {
+    'id': '622',
+    'bpid': '62',
+    'mpid': '62',
+    'name': 'Test Navigation22',
+    'route': '/navigation/navigation2/navigation2',
+  },
+]
+
+    def get(self):
+        return menus
 
     def delete(self, todo_id):
         pass
 
     def put(self, todo_id):
         pass
+        return conc_dash_dic
+
+
+
+
+
 
 ##
 ## Actually setup the Api resource routing here
@@ -353,6 +504,8 @@ api.add_resource(BarnTemp, '/api/v1/barn_temperatures/<barn_no>')
 api.add_resource(Barns, '/api/v1/barns')
 
 api.add_resource(ConcDashboard, '/api/v1/concrete_dashboard')
+api.add_resource(Menus, '/api/v1/menus')
+
 # api.add_resource(ConcTemp, '/api/v1/concrete_temperature/<gatewayAddr>/<nodeAddr>')
 api.add_resource(ConcRealtimeTemp, '/api/v1/concrete_temperature/<gatewayAddr>/<nodeAddr>')
 
