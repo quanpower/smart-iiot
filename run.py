@@ -169,24 +169,23 @@ class Barns(Resource):
             else:
                 return "#f69899"
 
-        barns = db.session.query(GrainBarn.barn_no, GrainBarn.barn_name).filter(GrainStorehouse.storehouse_no == '1').all()
+        barns = db.session.query(GrainBarn.barn_no, GrainBarn.barn_name).join(GrainStorehouse, GrainStorehouse.id == GrainBarn.grain_storehouse_id).filter(GrainStorehouse.storehouse_no=='1').all()
         print("-------barns are---------:", barns)
         barn_temps = []
         for barn in barns:
             print('---------------barn--------------', barn)
-            nodes = db.session.query(LoraNode.node_addr).filter(GrainBarn.barn_no == barn[0]).all()
+            nodes = db.session.query(LoraNode.node_addr).join(GrainBarn, GrainBarn.id == LoraNode.grain_barn_id).filter(GrainBarn.barn_no == barn[0]).all()
             print('nodes:', nodes)
             max_temps = []
             for node in nodes:
                 # todo: repalce geteway_addr
-                print('node', node)
-                print('node[0]', node[0])
+                print('******node******', node)
                 temps = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, LoraGateway.gateway_addr,
-                    LoraNode.node_addr).filter(and_(LoraGateway.gateway_addr == '1', LoraNode.node_addr == node[0])).order_by(
+                    LoraNode.node_addr).join(LoraGateway, LoraGateway.id == GrainTemp.lora_gateway_id).join(LoraNode, 
+                    LoraNode.id == GrainTemp.lora_node_id).filter(and_(LoraGateway.gateway_addr == '1', LoraNode.node_addr == node[0])).order_by(
                     GrainTemp.datetime.desc()).all()
 
                 print('temps', temps)
-                print('node_addr == node[0]', temps[0][4] == node[0])
                 if temps:
                     max_temp = max(temps[0][0], temps[0][1], temps[0][2])
                     print('max_temp', max_temp)
@@ -197,7 +196,10 @@ class Barns(Resource):
                     max_temps = []
             print('max_temps:', max_temps)
 
-            max_temp_value = max(a['max_temp'] for a in max_temps)
+            if max_temps:
+                max_temp_value = max(a['max_temp'] for a in max_temps)
+            else:
+                max_temp_value = 0
 
             barn_temps_dic = {"icon": "home", "color": return_color(max_temp_value), "title": barn[1], "number": max_temp_value}
             barn_temps.append(barn_temps_dic)
@@ -320,9 +322,127 @@ class ConcDashboard(Resource):
         conc_dash_dic = {"concDash":statuses}
         print("conc_dash_dic", conc_dash_dic)
 
+class AirConRealtimeTemp(Resource):
+
+    def get(self, gatewayAddr, nodeAddr):
+        temps = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.battery_vol).join(
+            LoraNode, LoraNode.id == GrainTemp.lora_node_id).join(
+            LoraGateway, LoraGateway.id == GrainTemp.lora_gateway_id).filter(
+            and_(LoraNode.node_addr == unicode(nodeAddr), LoraGateway.gateway_addr == unicode(gatewayAddr))).order_by(
+            GrainTemp.datetime.desc()).first()
+
+        print("temps:",temps)
+        air_con_realtime_temp_dic = {"airConRealtimeTemp": [{"icon": "bulb", "color": "#64ea91", "title": "左", "number": temps[0]}, {"icon": "bulb", "color": "#8fc9fb", "title": "中", "number": temps[1]}, {"icon": "bulb", "color": "#d897eb", "title": "右", "number": temps[2]}, {"icon": "message", "color": "#f69899", "title": "电池", "number": temps[3]}]}
+        return air_con_realtime_temp_dic
+
+    def delete(self, todo_id):
+        pass
+
+    def put(self, todo_id):
+        pass
+
+
+class AirConTemps(Resource):
+    '''
+        get the lates 10 temps.
+    '''
+    def get(self, gatewayAddr, nodeAddr):
+
+        temp_records = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.datetime).join(
+            LoraNode, LoraNode.id == GrainTemp.lora_node_id).join(
+            LoraGateway, LoraGateway.id == GrainTemp.lora_gateway_id).filter(
+            and_(LoraNode.node_addr == unicode(nodeAddr), LoraGateway.gateway_addr == unicode(gatewayAddr))).order_by(
+            GrainTemp.datetime.desc()).limit(10).all()
+        temp_log = []
+        for i in xrange(len(temp_records)):
+            temp_log.append({"时间": temp_records[i][3].strftime("%Y-%m-%d %H:%M:%S"), "温度1": temp_records[i][0], "温度2": temp_records[i][1], "温度3": temp_records[i][2]})
+        
+        temps_reverse = temp_log[::-1]
+        print('------------temps_reverse--------------')
+        print(temps_reverse)
+
+        temps_dict = {"airConTemps": temps_reverse}
+        return temps_dict
+
+    def delete(self, todo_id):
+        pass
+
+    def put(self, todo_id):
+        pass
+
+
+class AirConTempRecord(Resource):
+    '''
+        get the temp records by the input datetime. %H:%M:S%
+    '''
+    def get(self, gatewayAddr, nodeAddr, startTime, endTime):
+        startTime = datetime.datetime.strptime(startTime, "%Y-%m-%d %H:%M:%S")
+        endTime = datetime.datetime.strptime(endTime, "%Y-%m-%d %H:%M:%S")
+
+        print(startTime)
+        print(endTime)
+        temp_records = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.datetime).join(
+            LoraNode, LoraNode.id == GrainTemp.lora_node_id).join(
+            LoraGateway, LoraGateway.id == GrainTemp.lora_gateway_id).filter(
+            and_(LoraNode.node_addr == unicode(nodeAddr), LoraGateway.gateway_addr == unicode(gatewayAddr), 
+                GrainTemp.datetime.between(startTime, endTime))).order_by(
+            GrainTemp.datetime.desc()).all()
+        print('*********temp_records*************', temp_records)
+
+        temp_log = []
+        for i in xrange(len(temp_records)):
+            temp_log.append({"key": i, "time": temp_records[i][3].strftime("%Y-%m-%d %H:%M:%S"), "Temp1": temp_records[i][0], "Temp2": temp_records[i][1], "Temp3": temp_records[i][2]})
+        
+        temps_reverse = temp_log[::-1]
+        print('------------temps_records--------------')
+        print(temps_reverse)
+
+        temps_record_dict = {"airConTempRecord": temps_reverse}
+        return temps_record_dict
+
+    def delete(self, todo_id):
+        pass
+
+    def put(self, todo_id):
+        pass
+
+
+class AirConDashboard(Resource):
+    def return_status(self,a,b,c):
+        max_abc = max(a,b,c)
+        print('max_abc:', max_abc)
+        if max_abc < 35:
+            return 1
+        elif (35 <= max_abc) and (max_abc <= 50):
+            return 2
+        else:
+            return 3
+
+    def get(self):
+        nodes = db.session.query(ConcNode.node_addr).order_by(ConcNode.node_addr.desc()).all()
+        print("nodes are:", nodes)
+        statuses = []
+        for node in nodes:
+            print(type(node))
+
+            # todo: repalce geteway_addr
+            temps = db.session.query(ConcTemp.temp1, ConcTemp.temp2, ConcTemp.temp3, ConcTemp.datetime).filter(
+                and_(ConcGateway.gateway_addr == '1', ConcNode.node_addr == node[0])).order_by(
+                ConcTemp.datetime.desc()).first()
+            if temps:
+                status = {"name":node[0]+u"号测温点","status":self.return_status(temps[0], temps[1], temps[2]),"content":"上：{0}℃, 中：{1}℃, 下：{2}℃".format(str(temps[0]),str(temps[1]),str(temps[2])),"avatar":"http://dummyimage.com/48x48/f279aa/757575.png&text={0}".format(node[0]),"date":datetime.datetime.strftime(temps[3], "%Y-%m-%d %H:%M:%S")}
+                statuses.append(status)
+            else:
+                statuses = []
+        # conc_dash_dic = {"concDash":[{"name":"1","status":1,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/f279aa/757575.png&text=1","date":"2017-08-19 23:38:45"},{"name":"White","status":2,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/79cdf2/757575.png&text=W","date":"2017-04-22 14:17:06"},{"name":"Martin","status":3,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/f1f279/757575.png&text=M","date":"2017-05-07 04:29:13"},{"name":"Johnson","status":1,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/d079f2/757575.png&text=J","date":"2017-01-14 02:38:37"},{"name":"Jones","status":2,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/79f2ac/757575.png&text=J","date":"2017-07-08 20:05:50"}]}
+        conc_dash_dic = {"concDash":statuses}
+        print("conc_dash_dic", conc_dash_dic)
+
 
 class Menus(Resource):
-    menus = [
+    
+    def get(self):
+        menus = [
   {
     'id': '1',
     'icon': 'laptop',
@@ -341,7 +461,7 @@ class Menus(Resource):
     'bpid': '1',
     'name': '粮仓测温点',
     'icon': 'bulb',
-    'route': '/graindetail',
+    'route': '/aircondetail',
   },
   {
     'id': '9',
@@ -490,8 +610,6 @@ class Menus(Resource):
     'route': '/navigation/navigation2/navigation2',
   },
 ]
-
-    def get(self):
         return menus
 
     def delete(self, todo_id):
@@ -524,6 +642,12 @@ api.add_resource(ConcRealtimeTemp, '/api/v1/concrete_temperature/<gatewayAddr>/<
 
 api.add_resource(ConcTemps, '/api/v1/concrete_temperatures/<gatewayAddr>/<nodeAddr>')
 api.add_resource(ConcTempRecord, '/api/v1/concrete_temperature_record/<gatewayAddr>/<nodeAddr>/<startTime>/<endTime>')
+
+api.add_resource(AirConRealtimeTemp, '/api/v1/air-conditioner_temperature/<gatewayAddr>/<nodeAddr>')
+
+api.add_resource(AirConTemps, '/api/v1/air-conditioner_temperatures/<gatewayAddr>/<nodeAddr>')
+api.add_resource(AirConTempRecord, '/api/v1/air-conditioner_temperature_record/<gatewayAddr>/<nodeAddr>/<startTime>/<endTime>')
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8888, debug=True)
