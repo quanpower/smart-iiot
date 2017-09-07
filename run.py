@@ -154,14 +154,13 @@ class Barns(Resource):
 
     def get(self):
 
-        # get_parser = reqparse.RequestParser()
+        # (get_parser = reqparse.RequestParser()
         # get_parser.add_argument('id', type=int, location='args', required=True)
         #
         # args = get_parser.parse_args()
         # id = args.get('id')
 
-        def return_status(self,a,b,c):
-            max_abc = max(a,b,c)
+        def return_color(max_abc):
             print('max_abc:', max_abc)
             if max_abc < 35:
                 return "#64ea91"
@@ -169,31 +168,45 @@ class Barns(Resource):
                 return "#8fc9fb"
             else:
                 return "#f69899"
+
         barns = db.session.query(GrainBarn.barn_no, GrainBarn.barn_name).filter(GrainStorehouse.storehouse_no == '1').all()
-        print("barns are:", barns)
-        nodes = []
+        print("-------barns are---------:", barns)
+        barn_temps = []
         for barn in barns:
-            print(type(barn))
-
-            statuses = []
+            print('---------------barn--------------', barn)
+            nodes = db.session.query(LoraNode.node_addr).filter(GrainBarn.barn_no == barn[0]).all()
+            print('nodes:', nodes)
+            max_temps = []
             for node in nodes:
-                print(type(node))
-
                 # todo: repalce geteway_addr
-                temps = db.session.query(ConcTemp.temp1, ConcTemp.temp2, ConcTemp.temp3, ConcTemp.datetime).filter(
-                    and_(ConcGateway.gateway_addr == '1', ConcNode.node_addr == node[0])).order_by(
-                    ConcTemp.datetime.desc()).first()
+                print('node', node)
+                print('node[0]', node[0])
+                temps = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, LoraGateway.gateway_addr,
+                    LoraNode.node_addr).filter(and_(LoraGateway.gateway_addr == '1', LoraNode.node_addr == node[0])).order_by(
+                    GrainTemp.datetime.desc()).all()
+
+                print('temps', temps)
+                print('node_addr == node[0]', temps[0][4] == node[0])
                 if temps:
-                    status = {"name":node[0]+u"号测温点","status":self.return_status(temps[0], temps[1], temps[2]),"content":"上：{0}℃, 中：{1}℃, 下：{2}℃".format(str(temps[0]),str(temps[1]),str(temps[2])),"avatar":"http://dummyimage.com/48x48/f279aa/757575.png&text={0}".format(node[0]),"date":datetime.datetime.strftime(temps[3], "%Y-%m-%d %H:%M:%S")}
-                    statuses.append(status)
+                    max_temp = max(temps[0][0], temps[0][1], temps[0][2])
+                    print('max_temp', max_temp)
+
+                    max_temp_dic = {"max_temp": max_temp}
+                    max_temps.append(max_temp_dic)
                 else:
-                    statuses = []
+                    max_temps = []
+            print('max_temps:', max_temps)
+
+            max_temp_value = max(a['max_temp'] for a in max_temps)
+
+            barn_temps_dic = {"icon": "home", "color": return_color(max_temp_value), "title": barn[1], "number": max_temp_value}
+            barn_temps.append(barn_temps_dic)
+        barn_dic = {"barns": barn_temps}
         # conc_dash_dic = {"concDash":[{"name":"1","status":1,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/f279aa/757575.png&text=1","date":"2017-08-19 23:38:45"},{"name":"White","status":2,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/79cdf2/757575.png&text=W","date":"2017-04-22 14:17:06"},{"name":"Martin","status":3,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/f1f279/757575.png&text=M","date":"2017-05-07 04:29:13"},{"name":"Johnson","status":1,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/d079f2/757575.png&text=J","date":"2017-01-14 02:38:37"},{"name":"Jones","status":2,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/79f2ac/757575.png&text=J","date":"2017-07-08 20:05:50"}]}
-        conc_dash_dic = {"concDash":statuses}
-        print("conc_dash_dic", conc_dash_dic)
+        # conc_dash_dic = {"concDash":statuses}
+        print("barns", barn_dic)
 
-
-        barn_dic = {"barns": [{"icon": "home", "color": "#64ea91", "title": "1haocang", "number": 27.1}, {"icon": "home", "color": "#8fc9fb", "title": "2haocang", "number": 27.5}, {"icon": "home", "color": "#d897eb", "title": "3haocang", "number": 31}, {"icon": "home", "color": "#f69899", "title": "4haocang", "number": 32}, {"icon": "home", "color": "#64ea91", "title": "5haocang", "number": 27.1}, {"icon": "home", "color": "#8fc9fb", "title": "6haocang", "number": 27.5}, {"icon": "home", "color": "#d897eb", "title": "7haocang", "number": 31}, {"icon": "home", "color": "#f69899", "title": "8haocang", "number": 32}]}
+        # barn_dic = {"barns": [{"icon": "home", "color": "#64ea91", "title": "1haocang", "number": 27.1}, {"icon": "home", "color": "#8fc9fb", "title": "2haocang", "number": 27.5}, {"icon": "home", "color": "#d897eb", "title": "3haocang", "number": 31}, {"icon": "home", "color": "#f69899", "title": "4haocang", "number": 32}, {"icon": "home", "color": "#64ea91", "title": "5haocang", "number": 27.1}, {"icon": "home", "color": "#8fc9fb", "title": "6haocang", "number": 27.5}, {"icon": "home", "color": "#d897eb", "title": "7haocang", "number": 31}, {"icon": "home", "color": "#f69899", "title": "8haocang", "number": 32}]}
         return barn_dic
 
     def delete(self, todo_id):

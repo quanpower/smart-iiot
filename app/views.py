@@ -395,27 +395,27 @@ appbuilder.add_view(ContactModelView, "List Contacts", icon="fa-envelope", categ
 appbuilder.add_separator("Contacts")
 appbuilder.add_view(ContactChartView, "Contacts Chart", icon="fa-dashboard", category="Contacts")
 appbuilder.add_view(ContactTimeChartView, "Contacts Birth Chart", icon="fa-dashboard", category="Contacts")
-#
-#
-# appbuilder.add_view(GrainStorehouseModelView, "grain storehouse", icon="icon-home", label=_("Grain Storehouse"), category="Grain", category_icon='icon-home', category_label=_("Grain Setting"))
-# appbuilder.add_view(GrainBarnModelView, "barn", icon="icon-home", label=_("Barn"), category="Grain")
-#
-#
-# appbuilder.add_view(LoraGatewayModelView, "lora gateway", icon="icon-cloud", label=_("Lora Gateway"), category="Lora", category_icon='icon-cog', category_label=_("Lora Setting"))
-# appbuilder.add_view(LoraNodeModelView, "lora node", icon=" icon-circle", label=_("Lora Node"), category="Lora")
-#
-# appbuilder.add_view(GrainTempModelView, "temperature records", icon="icon-list", label=_("Temperature Records"), category="Temperature", category_icon='icon-signal ', category_label=_("Temperature") )
-# appbuilder.add_view(GrainTempChartView, "temperature charts", icon="icon-bar-chart", label=_("Temperature Charts"), category="Temperature")
+
+
+appbuilder.add_view(GrainStorehouseModelView, "grain storehouse", icon="icon-home", label=_("Grain Storehouse"), category="Grain", category_icon='icon-home', category_label=_("Grain Setting"))
+appbuilder.add_view(GrainBarnModelView, "barn", icon="icon-home", label=_("Barn"), category="Grain")
+
+
+appbuilder.add_view(LoraGatewayModelView, "lora gateway", icon="icon-cloud", label=_("Lora Gateway"), category="Lora", category_icon='icon-cog', category_label=_("Lora Setting"))
+appbuilder.add_view(LoraNodeModelView, "lora node", icon=" icon-circle", label=_("Lora Node"), category="Lora")
+
+appbuilder.add_view(GrainTempModelView, "temperature records", icon="icon-list", label=_("Temperature Records"), category="Temperature", category_icon='icon-signal ', category_label=_("Temperature") )
+appbuilder.add_view(GrainTempChartView, "temperature charts", icon="icon-bar-chart", label=_("Temperature Charts"), category="Temperature")
 
 
 appbuilder.add_view(ConcLocationModelView, "concrete location", icon="icon-home", label=_("Concrete Location"), category="Concrete", category_icon='icon-home', category_label=_("Concrete Setting"))
 appbuilder.add_view(ConcRegionModelView, "region", icon="icon-home", label=_("Region"), category="Concrete")
 
 
-appbuilder.add_view(ConcGatewayModelView, "lora gateway", icon="icon-cloud", label=_("Lora Gateway"), category="Lora", category_icon='icon-cog', category_label=_("Lora Setting"))
-appbuilder.add_view(ConcNodeModelView, "lora node", icon=" icon-circle", label=_("Lora Node"), category="Lora")
+appbuilder.add_view(ConcGatewayModelView, "concrete gateway", icon="icon-cloud", label=_("Concrete Gateway"), category="Lora", category_icon='icon-cog', category_label=_("Lora Setting"))
+appbuilder.add_view(ConcNodeModelView, "concrete node", icon=" icon-circle", label=_("Concrete Node"), category="Lora")
 
-appbuilder.add_view(ConcTempModelView, "temperature records", icon="icon-list", label=_("Temperature Records"), category="Temperature", category_icon='icon-signal ', category_label=_("Temperature") )
+appbuilder.add_view(ConcTempModelView, "temperature records", icon="icon-list", label=_("Concrete Temperature Records"), category="Concrete Temperature", category_icon='icon-signal ', category_label=_("Concrete Temperature") )
 # appbuilder.add_view(GrainTempChartView, "temperature charts", icon="icon-bar-chart", label=_("Temperature Charts"), category="Temperature")
 
 
