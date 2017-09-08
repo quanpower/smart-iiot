@@ -133,22 +133,34 @@ def transmitMQTT(strMsg):
 if __name__ == '__main__':
 
     gateway_addr = '0b001' # 1
-    node_addr = '0b0000000000011' # 1
+    node_addr = '0b0000000000001' # 1
     trans_direct = '0b1'  # 1
     func_code = '0b0010001' # 17
     wind_direct = '0b00' #auto
-    wind_speed = '0b00' #1
-    model = '0b1010010010' # hitachi 658
+    wind_speed = '0b11' #1
+    model = '0b0000101110' # hitachi 658
     on_off = '0b01' # on
     work_mode = '0b001' #cold
-    temp = '0b11100' #28
+    temp = '0b11101' #28
 
     # models = []
     # for i in range(600,1000):
     #     models.append(bin(i))
     # print(models)
+    gateway_addr2 = '0b001' # 1
+    node_addr2 = '0b0000000000001' # 1
+    trans_direct2 = '0b1'  # 1
+    func_code2 = '0b0010001' # 17
+    wind_direct2 = '0b00' #auto
+    wind_speed2 = '0b00' #1
+    model2 = '0b0000101110' # hitachi 658
+    on_off2 = '0b00' # on
+    work_mode2 = '0b001' #cold
+    temp2 = '0b11101' #28
 
     str_bin = packing(gateway_addr, node_addr, trans_direct, func_code, wind_direct, wind_speed, model, on_off, work_mode, temp)
+    str_bin2 = packing(gateway_addr2, node_addr2, trans_direct2, func_code2, wind_direct2, wind_speed2, model2, on_off2, work_mode2, temp2)
+
     print('----str_bin------')
     print(str_bin.bin)
     print(str_bin.hex)
@@ -160,14 +172,19 @@ if __name__ == '__main__':
     units = []
     for i in range(int(len(str_bin) / 8)):
         units.append(str_bin.read(8).uint)
-    print(units)
+    print('units',units)
+
+    units2 = []
+    for i in range(int(len(str_bin2) / 8)):
+        units2.append(str_bin2.read(8).uint)
 
     crc = crc_func(units)
-    print('-------hex------')
-    print(hex(crc))
+    crc2 = crc_func(units2)
+    print('-------send-hex------')
+    print(units,hex(crc))
 
     str_bytes=struct.pack('7B', units[0], units[1], units[2], units[3], units[4], units[5], crc)
-
+    str_bytes2 = struct.pack('7B', units2[0], units2[1], units2[2], units2[3], units2[4], units2[5], crc2)
     print(str_bytes)
     print(len(str_bytes))
     print(repr(str_bytes))
@@ -175,6 +192,9 @@ if __name__ == '__main__':
     for i in xrange(1,999999):
         time.sleep(10)
         transmitMQTT(str_bytes)
+        time.sleep(10)
+        transmitMQTT(str_bytes2)
+
 
         print ("Send msg ok.{0}".format(i))
 

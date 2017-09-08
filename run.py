@@ -322,6 +322,7 @@ class ConcDashboard(Resource):
         conc_dash_dic = {"concDash":statuses}
         print("conc_dash_dic", conc_dash_dic)
 
+
 class AirConRealtimeTemp(Resource):
 
     def get(self, gatewayAddr, nodeAddr):
@@ -418,198 +419,307 @@ class AirConDashboard(Resource):
         else:
             return 3
 
-    def get(self):
-        nodes = db.session.query(ConcNode.node_addr).order_by(ConcNode.node_addr.desc()).all()
+    def get(self, gatewayAddr, barnNo):
+        nodes = db.session.query(LoraNode.node_addr).join(GrainBarn, GrainBarn.id == LoraNode.grain_barn_id).filter(
+            GrainBarn.barn_no == unicode(barnNo)).order_by(LoraNode.node_addr.desc()).all()
         print("nodes are:", nodes)
         statuses = []
         for node in nodes:
-            print(type(node))
 
             # todo: repalce geteway_addr
-            temps = db.session.query(ConcTemp.temp1, ConcTemp.temp2, ConcTemp.temp3, ConcTemp.datetime).filter(
-                and_(ConcGateway.gateway_addr == '1', ConcNode.node_addr == node[0])).order_by(
-                ConcTemp.datetime.desc()).first()
+            temps = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.datetime).join(
+                LoraGateway, LoraGateway.id == GrainTemp.lora_gateway_id).join(LoraNode, LoraNode.id == GrainTemp.lora_node_id).filter(
+                and_(LoraGateway.gateway_addr == unicode(gatewayAddr), LoraNode.node_addr == node[0])).order_by(
+                GrainTemp.datetime.desc()).first()
             if temps:
-                status = {"name":node[0]+u"号测温点","status":self.return_status(temps[0], temps[1], temps[2]),"content":"上：{0}℃, 中：{1}℃, 下：{2}℃".format(str(temps[0]),str(temps[1]),str(temps[2])),"avatar":"http://dummyimage.com/48x48/f279aa/757575.png&text={0}".format(node[0]),"date":datetime.datetime.strftime(temps[3], "%Y-%m-%d %H:%M:%S")}
+                status = {"name":node[0]+u"号空调","status":self.return_status(temps[0], temps[1], temps[2]),"content":"左：{0}℃, 中：{1}℃, 右：{2}℃".format(str(temps[0]),str(temps[1]),str(temps[2])),"avatar":"http://dummyimage.com/48x48/f279aa/757575.png&text={0}".format(node[0]),"date":datetime.datetime.strftime(temps[3], "%Y-%m-%d %H:%M:%S")}
                 statuses.append(status)
             else:
                 statuses = []
         # conc_dash_dic = {"concDash":[{"name":"1","status":1,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/f279aa/757575.png&text=1","date":"2017-08-19 23:38:45"},{"name":"White","status":2,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/79cdf2/757575.png&text=W","date":"2017-04-22 14:17:06"},{"name":"Martin","status":3,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/f1f279/757575.png&text=M","date":"2017-05-07 04:29:13"},{"name":"Johnson","status":1,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/d079f2/757575.png&text=J","date":"2017-01-14 02:38:37"},{"name":"Jones","status":2,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/79f2ac/757575.png&text=J","date":"2017-07-08 20:05:50"}]}
-        conc_dash_dic = {"concDash":statuses}
-        print("conc_dash_dic", conc_dash_dic)
+        air_con_dash_dic = {"airConDash":statuses}
+        print("air_con_dash_dic", air_con_dash_dic)
+        return air_con_dash_dic
 
+
+class GrainQuote(Resource):
+    def get(self,name,content):
+        name = name
+        title = u'公告栏'
+        content = content
+        avatar = 'http://img.hb.aicdn.com/bc442cf0cc6f7940dcc567e465048d1a8d634493198c4-sPx5BR_fw236'
+        quote = {'name':name, 'title':title, 'content':content, 'avatar':avatar}
+        quote_dic = {'quote':quote}
+
+        return quote_dic
+
+    def delete(self, todo_id):
+        pass
+
+    def put(self, todo_id):
+        pass
+
+
+class GrainSmarttempCtrl(Resource):
+    def get(self,name,content):
+        name = ''
+        title = u'智能控温'
+        content = ''
+        avatar = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1504847335593&di=d7fd8e71543f9b99f12f614718757a0e&imgtype=0&src=http%3A%2F%2Fc1.neweggimages.com.cn%2FNeweggPic2%2Fneg%2FP800%2FA16-184-4PU.jpg'
+        smarttempctrl = {'name':name, 'title':title, 'content':content, 'avatar':avatar}
+        smarttempctrl_dic = {'smarttempctrl':smarttempctrl}
+
+        return smarttempctrl_dic
+
+    def delete(self, todo_id):
+        pass
+
+    def put(self, todo_id):
+        pass
+
+
+class GrainRealtimeTemp(Resource):
+    def get(self,name,content):
+        name = ''
+        title = u'实时监测'
+        content = ''
+        avatar = 'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1819841961,264465916&fm=27&gp=0.jpg'
+        realtimetemp = {'name':name, 'title':title, 'content':content, 'avatar':avatar}
+        realtimetemp_dic = {'realtimetemp':realtimetemp}
+
+        return realtimetemp_dic
+
+    def delete(self, todo_id):
+        pass
+
+    def put(self, todo_id):
+        pass
+
+
+class GrainFireAlarm(Resource):
+    def get(self,name,content):
+        name = ''
+        title = u'火灾预警'
+        content = ''
+        avatar = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1504847444729&di=8d63e49c779b5c58f828bdcb45efd73a&imgtype=0&src=http%3A%2F%2Fimgsrc.baidu.com%2Fimgad%2Fpic%2Fitem%2F0b55b319ebc4b745d353e132c5fc1e178b8215ca.jpg'
+        firealarm = {'name':name, 'title':title, 'content':content, 'avatar':avatar}
+        firealarm_dic = {'firealarm':firealarm}
+
+        return firealarm_dic
+
+    def delete(self, todo_id):
+        pass
+
+    def put(self, todo_id):
+        pass
+
+
+class GrainDynamicLinkage(Resource):
+    def get(self,name,content):
+        name = ''
+        title = u'动态联动'
+        content = ''
+        avatar = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1504847729495&di=f65bcca6a50ad1e5565c344eb05d0414&imgtype=jpg&src=http%3A%2F%2Fimg4.imgtn.bdimg.com%2Fit%2Fu%3D3709439994%2C3925194796%26fm%3D214%26gp%3D0.jpg'
+        dynamiclinkage = {'name':name, 'title':title, 'content':content, 'avatar':avatar}
+        dynamiclinkage_dic = {'dynamiclinkage':dynamiclinkage}
+
+        return dynamiclinkage_dic
+
+    def delete(self, todo_id):
+        pass
+
+    def put(self, todo_id):
+        pass
+
+
+class GrainSecurity(Resource):
+    def get(self,name,content):
+        name = ''
+        title = u'作业安全'
+        content = ''
+        avatar = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1504847487313&di=250cf0c99e194c4a5c3413f866aa2a42&imgtype=0&src=http%3A%2F%2Fdown.safehoo.com%2Flt%2Fforum%2F201311%2F18%2F144905a4jnod435ndzn7sj.jpg'
+        security = {'name':name, 'title':title, 'content':content, 'avatar':avatar}
+        security_dic = {'security':security}
+
+        return security_dic
+
+    def delete(self, todo_id):
+        pass
+
+    def put(self, todo_id):
+        pass
 
 class Menus(Resource):
     
     def get(self):
         menus = [
-  {
-    'id': '1',
-    'icon': 'laptop',
-    'name': '仪表板',
-    'route': '/dashboard',
-  },
-  {
-    'id': '2',
-    'bpid': '1',
-    'name': '粮库仪表板',
-    'icon': 'bulb',
-    'route': '/grain',
-  },
-  {
-    'id': '21',
-    'bpid': '1',
-    'name': '粮仓测温点',
-    'icon': 'bulb',
-    'route': '/aircondetail',
-  },
-  {
-    'id': '9',
-    'bpid': '1',
-    'name': '历史记录',
-    'icon': 'user',
-    'route': '/user',
-  },
-  {
-    'id': '7',
-    'bpid': '1',
-    'name': '历史记录',
-    'icon': 'shopping-cart',
-    'route': '/post',
-  },
-  {
-    'id': '21',
-    'mpid': '-1',
-    'bpid': '2',
-    'name': 'User Detail',
-    'route': '/user/:id',
-  },
-  {
-    'id': '3',
-    'bpid': '1',
-    'name': 'Request',
-    'icon': 'api',
-    'route': '/request',
-  },
-  {
-    'id': '4',
-    'bpid': '1',
-    'name': 'UI Element',
-    'icon': 'camera-o',
-  },
-  {
-    'id': '41',
-    'bpid': '4',
-    'mpid': '4',
-    'name': 'IconFont',
-    'icon': 'heart-o',
-    'route': '/UIElement/iconfont',
-  },
-  {
-    'id': '42',
-    'bpid': '4',
-    'mpid': '4',
-    'name': 'DataTable',
-    'icon': 'database',
-    'route': '/UIElement/dataTable',
-  },
-  {
-    'id': '43',
-    'bpid': '4',
-    'mpid': '4',
-    'name': 'DropOption',
-    'icon': 'bars',
-    'route': '/UIElement/dropOption',
-  },
-  {
-    'id': '44',
-    'bpid': '4',
-    'mpid': '4',
-    'name': 'Search',
-    'icon': 'search',
-    'route': '/UIElement/search',
-  },
-  {
-    'id': '45',
-    'bpid': '4',
-    'mpid': '4',
-    'name': 'Editor',
-    'icon': 'edit',
-    'route': '/UIElement/editor',
-  },
-  {
-    'id': '46',
-    'bpid': '4',
-    'mpid': '4',
-    'name': 'layer (Function)',
-    'icon': 'credit-card',
-    'route': '/UIElement/layer',
-  },
-  {
-    'id': '5',
-    'bpid': '1',
-    'name': '图表',
-    'icon': 'code-o',
-  },
-  {
-    'id': '51',
-    'bpid': '5',
-    'mpid': '5',
-    'name': '线状图',
-    'icon': 'line-chart',
-    'route': '/chart/lineChart',
-  },
-  {
-    'id': '52',
-    'bpid': '5',
-    'mpid': '5',
-    'name': '柱状图',
-    'icon': 'bar-chart',
-    'route': '/chart/barChart',
-  },
-  {
-    'id': '53',
-    'bpid': '5',
-    'mpid': '5',
-    'name': '面积图',
-    'icon': 'area-chart',
-    'route': '/chart/areaChart',
-  },
-  {
-    'id': '6',
-    'bpid': '1',
-    'name': 'Test Navigation',
-    'icon': 'setting',
-  },
-  {
-    'id': '61',
-    'bpid': '6',
-    'mpid': '6',
-    'name': 'Test Navigation1',
-    'route': '/navigation/navigation1',
-  },
-  {
-    'id': '62',
-    'bpid': '6',
-    'mpid': '6',
-    'name': 'Test Navigation2',
-    'route': '/navigation/navigation2',
-  },
-  {
-    'id': '621',
-    'bpid': '62',
-    'mpid': '62',
-    'name': 'Test Navigation21',
-    'route': '/navigation/navigation2/navigation1',
-  },
-  {
-    'id': '622',
-    'bpid': '62',
-    'mpid': '62',
-    'name': 'Test Navigation22',
-    'route': '/navigation/navigation2/navigation2',
-  },
-]
+          {
+            'id': '1',
+            'icon': 'laptop',
+            'name': '粮仓列表',
+            'route': '/grain',
+          },
+          {
+            'id': '2',
+            'bpid': '1',
+            'name': '粮仓仪表板',
+            'icon': 'bulb',
+            'route': '/graindashboard',
+          },
+          {
+            'id': '21',
+            'bpid': '1',
+            'name': '粮仓测温点',
+            'icon': 'bulb',
+            'route': '/aircondetail',
+          },
+          {
+            'id': '9',
+            'bpid': '1',
+            'name': '历史记录',
+            'icon': 'user',
+            'route': '/user',
+          },
+          {
+            'id': '7',
+            'bpid': '1',
+            'name': '历史记录',
+            'icon': 'shopping-cart',
+            'route': '/post',
+          },
+          {
+            'id': '21',
+            'mpid': '-1',
+            'bpid': '2',
+            'name': 'User Detail',
+            'route': '/user/:id',
+          },
+          {
+            'id': '3',
+            'bpid': '1',
+            'name': 'Request',
+            'icon': 'api',
+            'route': '/request',
+          },
+          {
+            'id': '4',
+            'bpid': '1',
+            'name': 'UI Element',
+            'icon': 'camera-o',
+          },
+          {
+            'id': '41',
+            'bpid': '4',
+            'mpid': '4',
+            'name': 'IconFont',
+            'icon': 'heart-o',
+            'route': '/UIElement/iconfont',
+          },
+          {
+            'id': '42',
+            'bpid': '4',
+            'mpid': '4',
+            'name': 'DataTable',
+            'icon': 'database',
+            'route': '/UIElement/dataTable',
+          },
+          {
+            'id': '43',
+            'bpid': '4',
+            'mpid': '4',
+            'name': 'DropOption',
+            'icon': 'bars',
+            'route': '/UIElement/dropOption',
+          },
+          {
+            'id': '44',
+            'bpid': '4',
+            'mpid': '4',
+            'name': 'Search',
+            'icon': 'search',
+            'route': '/UIElement/search',
+          },
+          {
+            'id': '45',
+            'bpid': '4',
+            'mpid': '4',
+            'name': 'Editor',
+            'icon': 'edit',
+            'route': '/UIElement/editor',
+          },
+          {
+            'id': '46',
+            'bpid': '4',
+            'mpid': '4',
+            'name': 'layer (Function)',
+            'icon': 'credit-card',
+            'route': '/UIElement/layer',
+          },
+          {
+            'id': '5',
+            'bpid': '1',
+            'name': '图表',
+            'icon': 'code-o',
+          },
+          {
+            'id': '51',
+            'bpid': '5',
+            'mpid': '5',
+            'name': '线状图',
+            'icon': 'line-chart',
+            'route': '/chart/lineChart',
+          },
+          {
+            'id': '52',
+            'bpid': '5',
+            'mpid': '5',
+            'name': '柱状图',
+            'icon': 'bar-chart',
+            'route': '/chart/barChart',
+          },
+          {
+            'id': '53',
+            'bpid': '5',
+            'mpid': '5',
+            'name': '面积图',
+            'icon': 'area-chart',
+            'route': '/chart/areaChart',
+          },
+          {
+            'id': '6',
+            'bpid': '1',
+            'name': 'Test Navigation',
+            'icon': 'setting',
+          },
+          {
+            'id': '61',
+            'bpid': '6',
+            'mpid': '6',
+            'name': 'Test Navigation1',
+            'route': '/navigation/navigation1',
+          },
+          {
+            'id': '62',
+            'bpid': '6',
+            'mpid': '6',
+            'name': 'Test Navigation2',
+            'route': '/navigation/navigation2',
+          },
+          {
+            'id': '621',
+            'bpid': '62',
+            'mpid': '62',
+            'name': 'Test Navigation21',
+            'route': '/navigation/navigation2/navigation1',
+          },
+          {
+            'id': '622',
+            'bpid': '62',
+            'mpid': '62',
+            'name': 'Test Navigation22',
+            'route': '/navigation/navigation2/navigation2',
+          },
+        ]
         return menus
 
     def delete(self, todo_id):
@@ -617,7 +727,6 @@ class Menus(Resource):
 
     def put(self, todo_id):
         pass
-        return conc_dash_dic
 
 
 
@@ -647,6 +756,14 @@ api.add_resource(AirConRealtimeTemp, '/api/v1/air-conditioner_temperature/<gatew
 
 api.add_resource(AirConTemps, '/api/v1/air-conditioner_temperatures/<gatewayAddr>/<nodeAddr>')
 api.add_resource(AirConTempRecord, '/api/v1/air-conditioner_temperature_record/<gatewayAddr>/<nodeAddr>/<startTime>/<endTime>')
+api.add_resource(AirConDashboard, '/api/v1/air-conditioner_dashboard/<gatewayAddr>/<barnNo>')
+api.add_resource(GrainQuote, '/api/v1/grain_quote/<name>/<content>')
+api.add_resource(GrainSmarttempCtrl, '/api/v1/grain_smart_temperature_control/<name>/<content>')
+api.add_resource(GrainRealtimeTemp, '/api/v1/grain_realtime_temperature/<name>/<content>')
+api.add_resource(GrainFireAlarm, '/api/v1/grain_fire_alarm/<name>/<content>')
+api.add_resource(GrainDynamicLinkage, '/api/v1/grain_dynamic_linkage/<name>/<content>')
+api.add_resource(GrainSecurity, '/api/v1/grain_security/<name>/<content>')
+
 
 
 if __name__ == '__main__':
