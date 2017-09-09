@@ -9,7 +9,7 @@ from sqlalchemy import and_
 import json
 import random
 import datetime
-
+from utils import random_color, index_color
 
 api = Api(app)
 
@@ -27,8 +27,7 @@ def abort_if_todo_doesnt_exist(todo_id):
     if todo_id not in TODOS:
         abort(404, message="Todo {} doesn't exist".format(todo_id))
 
-parser = reqparse.RequestParser()
-parser.add_argument('task')
+
 
 class LoraTemp(Resource):
 
@@ -432,7 +431,8 @@ class AirConDashboard(Resource):
                 and_(LoraGateway.gateway_addr == unicode(gatewayAddr), LoraNode.node_addr == node[0])).order_by(
                 GrainTemp.datetime.desc()).first()
             if temps:
-                status = {"name":node[0]+u"号空调","status":self.return_status(temps[0], temps[1], temps[2]),"content":"左：{0}℃, 中：{1}℃, 右：{2}℃".format(str(temps[0]),str(temps[1]),str(temps[2])),"avatar":"http://dummyimage.com/48x48/f279aa/757575.png&text={0}".format(node[0]),"date":datetime.datetime.strftime(temps[3], "%Y-%m-%d %H:%M:%S")}
+                status = {"name":node[0]+u"号空调","status":self.return_status(temps[0], temps[1], temps[2]),"content":"左：{0}℃, 中：{1}℃, 右：{2}℃".format(
+                    str(temps[0]),str(temps[1]),str(temps[2])),"avatar":"http://dummyimage.com/48x48/{0}/757575.png&text={1}".format(index_color(int(node[0]))[1:], node[0]),"date":datetime.datetime.strftime(temps[3], "%Y-%m-%d %H:%M:%S")}
                 statuses.append(status)
             else:
                 statuses = []
@@ -585,7 +585,7 @@ class Menus(Resource):
             'bpid': '1',
             'name': '历史记录',
             'icon': 'shopping-cart',
-            'route': '/post',
+            'route': '/grain_history',
           },
           {
             'id': '21',
@@ -729,7 +729,39 @@ class Menus(Resource):
         pass
 
 
+class GrainHistory(Resource):
 
+
+    def get(self):
+        get_parser = reqparse.RequestParser()
+        get_parser.add_argument('status', type=int, location='args', required=True)
+        args = get_parser.parse_args()
+        status = args.get('status')
+
+        history_records = db.session.query(GrainTemp.grain_barn_id, GrainTemp.lora_gateway_id, GrainTemp.lora_node_id, 
+            GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.battery_vol, GrainTemp.datetime).order_by(
+            GrainTemp.datetime.desc()).all()
+        print('*********history_records*************', history_records)
+
+        historys = []
+        for i in xrange(len(history_records)):
+
+            historys.append({"status":1, "grain_barn_id":"http://dummyimage.com/100x100/{0}/{1}.png&text={2}".format(index_color(history_records[i][0])[1:], '000000', str(history_records[i][0])), "lora_gateway_id":history_records[i][1], "lora_node_id":history_records[i][2],  
+                "temp1": history_records[i][3], "temp2": history_records[i][4], "temp3": history_records[i][5], "battery_vol":history_records[i][6], "datetime": history_records[i][7].strftime("%Y-%m-%d %H:%M:%S")})
+        
+        historys_reverse = historys[::-1]
+        print('-------------historys_reverse-------------', historys_reverse)
+
+        # history = [{"title":"Ikkovumf Zhrp Zhxe","author":"Thomas","categories":"ukev","tags":"ubhim","views":64,"comments":182,"date":"1974-03-21 02:24:20","id":10001,"visibility":"Public","image":"http://dummyimage.com/100x100/79f2d2/757575.png&text=T"},]
+        grain_history_dic = {'data':historys_reverse, "total":100}
+
+        return grain_history_dic
+
+    def delete(self, todo_id):
+        pass
+
+    def put(self, todo_id):
+        pass
 
 
 
@@ -763,7 +795,7 @@ api.add_resource(GrainRealtimeTemp, '/api/v1/grain_realtime_temperature/<name>/<
 api.add_resource(GrainFireAlarm, '/api/v1/grain_fire_alarm/<name>/<content>')
 api.add_resource(GrainDynamicLinkage, '/api/v1/grain_dynamic_linkage/<name>/<content>')
 api.add_resource(GrainSecurity, '/api/v1/grain_security/<name>/<content>')
-
+api.add_resource(GrainHistory, '/api/v1/grain_history')
 
 
 if __name__ == '__main__':
