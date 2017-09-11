@@ -28,7 +28,6 @@ def abort_if_todo_doesnt_exist(todo_id):
         abort(404, message="Todo {} doesn't exist".format(todo_id))
 
 
-
 class LoraTemp(Resource):
 
     def get(self, gatewayAddr, nodeAddr):
@@ -136,6 +135,7 @@ class LoraTempRecord(Resource):
     def put(self, todo_id):
         pass
 
+
 class LoRaBattery(Resource):
     '''
         get the latest baterry voltage.
@@ -148,6 +148,7 @@ class LoRaBattery(Resource):
 
     def post(self):
     	pass
+
 
 class Barns(Resource):
 
@@ -588,6 +589,13 @@ class Menus(Resource):
             'route': '/grain_history',
           },
           {
+            'id': '8',
+            'bpid': '1',
+            'name': '智能控温',
+            'icon': 'shopping-cart',
+            'route': '/aricon_control',
+          },
+          {
             'id': '21',
             'mpid': '-1',
             'bpid': '2',
@@ -731,7 +739,6 @@ class Menus(Resource):
 
 class GrainHistory(Resource):
 
-
     def get(self):
         get_parser = reqparse.RequestParser()
         get_parser.add_argument('status', type=int, location='args', required=True)
@@ -763,6 +770,34 @@ class GrainHistory(Resource):
     def put(self, todo_id):
         pass
 
+
+class AirConControl(Resource):
+
+    def get(self):
+        airconcontrol_dic = {'data':'airconcontrol'}
+
+        return airconcontrol_dic
+
+    def delete(self, todo_id):
+        pass
+
+    def put(self, todo_id):
+        pass
+
+
+class AirConControls(Resource):
+
+    def get(self):
+
+        airconcontrols_dic = {'data':'airconcontrols'}
+
+        return airconcontrols_dic
+
+    def delete(self, todo_id):
+        pass
+
+    def put(self, todo_id):
+        pass
 
 
 ##
@@ -796,6 +831,8 @@ api.add_resource(GrainFireAlarm, '/api/v1/grain_fire_alarm/<name>/<content>')
 api.add_resource(GrainDynamicLinkage, '/api/v1/grain_dynamic_linkage/<name>/<content>')
 api.add_resource(GrainSecurity, '/api/v1/grain_security/<name>/<content>')
 api.add_resource(GrainHistory, '/api/v1/grain_history')
+api.add_resource(AirConControl, '/api/v1/air-conditioner_control')
+api.add_resource(AirConControls, '/api/v1/air-conditioner_controls')
 
 
 if __name__ == '__main__':
