@@ -782,7 +782,23 @@ class AirConControl(Resource):
         pass
 
     def put(self, todo_id):
+
         pass
+
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('node_select', type=int)
+        parser.add_argument('wind_directtion', type=int)
+        parser.add_argument('wind_speed', type=int)
+        parser.add_argument('working_model', type=int)
+        parser.add_argument('temp_setting', type=int)
+        parser.add_argument('switch', type=int)
+
+        args = parser.parse_args()
+
+        print(args)
+        return args
+
 
 
 class AirConControls(Resource):
@@ -799,6 +815,13 @@ class AirConControls(Resource):
     def put(self, todo_id):
         pass
 
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('data', type=int, location='form')
+        args = parser.parse_args()
+
+        print(args)
+        return args
 
 ##
 ## Actually setup the Api resource routing here
