@@ -10,6 +10,7 @@ import json
 import random
 import datetime
 from utils import random_color, index_color
+from mqtt_publisher import mqtt_pub_air_con
 
 api = Api(app)
 
@@ -797,6 +798,27 @@ class AirConControl(Resource):
         args = parser.parse_args()
 
         print(args)
+
+        mqtt_pub_air_con(args)
+
+        # node_select = args['node_select']
+        # wind_directtion = args['wind_directtion']
+        # wind_speed = args['wind_speed']
+        # working_model = args['working_model']
+        # temp_setting = args['temp_setting']
+        # switch = args['switch']
+
+        # print(bin(node_select))
+        # print(bin(wind_directtion))
+        # print(bin(wind_speed))
+        # print(bin(working_model))
+        # print(bin(temp_setting))
+        # print(bin(switch))
+
+
+
+
+
         return args
 
 

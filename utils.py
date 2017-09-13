@@ -337,11 +337,13 @@ def crc_func(units):
 
     return _crc
 
+
 def bitwise_reverse(int_src):
     bin_str = bitstring.pack('uint:8',int_src).bin
     ret = "".join(map(lambda x: "1" if x == "0" else "0", bin_str))
     print(ret)
     return int(ret, 2)
+
 
 def sign(temp_sign):
     if not temp_sign:
