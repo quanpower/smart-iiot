@@ -330,8 +330,6 @@ def crc_func(units):
         if _crc > 255:
             _crc %= 256
 
-    print(_crc)
-
     _crc = bitwise_reverse(_crc)
     _crc += 1
 
