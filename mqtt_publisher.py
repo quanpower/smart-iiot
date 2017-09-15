@@ -93,8 +93,6 @@ def lora_unpacking(packet_data):
     packet_data.pos = 0
     if crc == crc_func(packet_data.read(56)):
         packet_data.pos = 0
-
-
     else:
         pass
 
@@ -128,7 +126,7 @@ def transmitMQTT(strMsg):
 #     mqttc.connect(strBroker, 1883, 60)
 #     mqttc.subscribe("001.downstream", 0)
 #     mqttc.loop_forever()
-def return_str_bin(node_addr, wind_direct, wind_speed, on_off, work_mode, temp, gateway_addr='0b001', trans_direct='0b1', func_code='0b0010001', model='0b0000101101'):
+def return_str_bin(node_addr, wind_direct, wind_speed, on_off, work_mode, temp, gateway_addr='0b001', trans_direct='0b1', func_code='0b0010001', model='0b1000111001'):
     return packing(gateway_addr, node_addr, trans_direct, func_code, wind_direct, wind_speed, model, on_off, work_mode, temp)
 
 
@@ -178,15 +176,15 @@ if __name__ == '__main__':
         time.sleep(10)
 
         gateway_addr = '0b001' # 1
-        node_addr = '0b0000000000010' # 1
+        node_addr = '0b0000000000011' # 1
         trans_direct = '0b1'  # 1
         func_code = '0b0010001' # 17
         wind_direct = '0b00' #auto
         wind_speed = '0b11' #1
-        # model = '0b1000111001' # sanling 569
-        model = '0b0000101101' # media 45
+        model = '0b1000111001' # sanling 569
+        # model = '0b0000101101' # media 45
 
-        on_off = '0b01' # on
+        on_off = '0b00' # on
         work_mode = '0b001' #cold
         temp = '0b11101' #28
 
