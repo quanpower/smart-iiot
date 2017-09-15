@@ -576,13 +576,6 @@ class Menus(Resource):
             'route': '/aircondetail',
           },
           {
-            'id': '9',
-            'bpid': '1',
-            'name': '历史记录',
-            'icon': 'user',
-            'route': '/user',
-          },
-          {
             'id': '7',
             'bpid': '1',
             'name': '历史记录',
@@ -594,7 +587,7 @@ class Menus(Resource):
             'bpid': '1',
             'name': '智能控温',
             'icon': 'shopping-cart',
-            'route': '/aricon_control',
+            'route': '/aircon_control',
           },
           {
             'id': '21',
