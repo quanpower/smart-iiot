@@ -838,6 +838,29 @@ class AirConControls(Resource):
         print(args)
         return args
 
+
+class ElectricPowerControl(Resource):
+
+    def get(self):
+
+        power_controls_dic = {'data':'power_controls'}
+
+        return power_controls_dic
+
+    def delete(self, todo_id):
+        pass
+
+    def put(self, todo_id):
+        pass
+
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('switch', type=int)
+        args = parser.parse_args()
+
+        print(args)
+        return args
+
 ##
 ## Actually setup the Api resource routing here
 ##
@@ -871,6 +894,9 @@ api.add_resource(GrainSecurity, '/api/v1/grain_security/<name>/<content>')
 api.add_resource(GrainHistory, '/api/v1/grain_history')
 api.add_resource(AirConControl, '/api/v1/air-conditioner_control')
 api.add_resource(AirConControls, '/api/v1/air-conditioner_controls')
+
+api.add_resource(ElectricPowerControl, '/api/v1/electric_power_control')
+
 
 
 if __name__ == '__main__':

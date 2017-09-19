@@ -11,7 +11,7 @@ obj.connect(("192.168.0.7", 26))
 
 while True:
 	time.sleep(5)
-	s_open = '010f00100004010fbf51'
+	s_open = '0101001300138c02'
 	s_close = '010f001000040100ff55'
 
 	bytearray_open = bytearray.fromhex(s_open)
@@ -25,16 +25,20 @@ while True:
 	inp = 'input'
 
 	if inp == "q":
-	    obj.sendall(bytes(inp,encoding="utf-8"))
+		obj.sendall(bytes(inp,encoding="utf-8"))
 	    # break
 	else:
-	    obj.sendall(hexstr_open)
-	    ret_bytes = obj.recv(1024)
-	    ret_str = str(ret_bytes)
-	    print(ret_str)
-	    time.sleep(5)
+		obj.sendall(hexstr_open)
+		ret_bytes = obj.recv(1024)
+		ret_str = str(ret_bytes)
+		print('get recv')
+		print(ret_str)
+		time.sleep(5)
+		print('after 5 seconds')
 
-	    obj.sendall(hexstr_close)
-	    ret_bytes = obj.recv(1024)
-	    ret_str = str(ret_bytes)
-	    print(ret_str)
+		# obj.sendall(hexstr_close)
+		# ret_bytes = obj.recv(1024)
+		# print('get recv2')
+
+		# ret_str = str(ret_bytes)
+		# print(ret_str)
