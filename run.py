@@ -9,7 +9,7 @@ from sqlalchemy import and_
 import json
 import random
 import datetime
-from utils import random_color, index_color
+from utils import random_color, index_color, rs485_socket_send, calc, str2hexstr
 from mqtt_publisher import mqtt_pub_air_con
 
 api = Api(app)
@@ -202,7 +202,7 @@ class Barns(Resource):
             else:
                 max_temp_value = 0
 
-            barn_temps_dic = {"icon": "home", "color": return_color(max_temp_value), "title": barn[1], "number": max_temp_value}
+            barn_temps_dic = {"icon": "home", "color": return_color(max_temp_value), "title": barn[1], "number": max_temp_value, "barnNo": barn[0]}
             barn_temps.append(barn_temps_dic)
         barn_dic = {"barns": barn_temps}
         # conc_dash_dic = {"concDash":[{"name":"1","status":1,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/f279aa/757575.png&text=1","date":"2017-08-19 23:38:45"},{"name":"White","status":2,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/79cdf2/757575.png&text=W","date":"2017-04-22 14:17:06"},{"name":"Martin","status":3,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/f1f279/757575.png&text=M","date":"2017-05-07 04:29:13"},{"name":"Johnson","status":1,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/d079f2/757575.png&text=J","date":"2017-01-14 02:38:37"},{"name":"Jones","status":2,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/79f2ac/757575.png&text=J","date":"2017-07-08 20:05:50"}]}
@@ -566,14 +566,28 @@ class Menus(Resource):
             'bpid': '1',
             'name': '粮仓仪表板',
             'icon': 'bulb',
-            'route': '/graindashboard',
+            'route': '/grain_dashboard/1',
           },
           {
-            'id': '21',
+            'id': '3',
             'bpid': '1',
-            'name': '粮仓测温点',
+            'name': '实时温度',
             'icon': 'bulb',
-            'route': '/aircondetail',
+            'route': '/aircondetail/1',
+          },
+          {
+            'id': '4',
+            'bpid': '1',
+            'name': '智能控温',
+            'icon': 'shopping-cart',
+            'route': '/aircon_control',
+          }, 
+          {
+            'id': '5',
+            'bpid': '1',
+            'name': '电力控制',
+            'icon': 'shopping-cart',
+            'route': '/fire_alarm/1',
           },
           {
             'id': '7',
@@ -581,145 +595,145 @@ class Menus(Resource):
             'name': '历史记录',
             'icon': 'shopping-cart',
             'route': '/grain_history',
+          },  
+
+          {
+            'id': 'b',
+            'bpid': '1',
+            'name': '图表报告',
+            'icon': 'code-o',
           },
           {
+            'id': 'b1',
+            'bpid': 'b',
+            'mpid': 'b',
+            'name': '线状图',
+            'icon': 'line-chart',
+            'route': '/chart/lineChart',
+          },
+          {
+            'id': 'b2',
+            'bpid': 'b',
+            'mpid': 'b',
+            'name': '柱状图',
+            'icon': 'bar-chart',
+            'route': '/chart/barChart',
+          },
+          {
+            'id': 'b3',
+            'bpid': 'b',
+            'mpid': 'b',
+            'name': '面积图',
+            'icon': 'area-chart',
+            'route': '/chart/areaChart',
+          },          {
             'id': '8',
             'bpid': '1',
-            'name': '智能控温',
-            'icon': 'shopping-cart',
-            'route': '/aircon_control',
+            'name': '用户管理',
+            'icon': 'user',
+            'route': '/user',
           },
           {
-            'id': '21',
+            'id': '81',
             'mpid': '-1',
-            'bpid': '2',
+            'bpid': '8',
             'name': 'User Detail',
             'route': '/user/:id',
           },
           {
-            'id': '3',
+            'id': 'c',
+            'bpid': '1',
+            'name': '系统设置',
+            'icon': 'setting',
+          },
+          {
+            'id': 'c1',
+            'bpid': 'c',
+            'mpid': 'c',
+            'name': '仓房设置',
+            'route': '/navigation/navigation1',
+          },
+          {
+            'id': 'c2',
+            'bpid': 'c',
+            'mpid': 'c',
+            'name': '联动设置',
+            'route': '/navigation/navigation2',
+          },
+          {
+            'id': 'c21',
+            'bpid': 'c2',
+            'mpid': 'c2',
+            'name': '上下限设置',
+            'route': '/navigation/navigation2/navigation1',
+          },
+          {
+            'id': 'c22',
+            'bpid': 'c2',
+            'mpid': 'c2',
+            'name': '电控设置',
+            'route': '/navigation/navigation2/navigation2',
+          },
+          {
+            'id': '9',
             'bpid': '1',
             'name': 'Request',
             'icon': 'api',
             'route': '/request',
           },
           {
-            'id': '4',
+            'id': 'a',
             'bpid': '1',
             'name': 'UI Element',
             'icon': 'camera-o',
           },
           {
-            'id': '41',
-            'bpid': '4',
-            'mpid': '4',
+            'id': 'a1',
+            'bpid': 'a',
+            'mpid': 'a',
             'name': 'IconFont',
             'icon': 'heart-o',
             'route': '/UIElement/iconfont',
           },
           {
-            'id': '42',
-            'bpid': '4',
-            'mpid': '4',
+            'id': 'a2',
+            'bpid': 'a',
+            'mpid': 'a',
             'name': 'DataTable',
             'icon': 'database',
             'route': '/UIElement/dataTable',
           },
           {
-            'id': '43',
-            'bpid': '4',
-            'mpid': '4',
+            'id': 'a3',
+            'bpid': 'a',
+            'mpid': 'a',
             'name': 'DropOption',
             'icon': 'bars',
             'route': '/UIElement/dropOption',
           },
           {
-            'id': '44',
-            'bpid': '4',
-            'mpid': '4',
+            'id': 'a4',
+            'bpid': 'a',
+            'mpid': 'a',
             'name': 'Search',
             'icon': 'search',
             'route': '/UIElement/search',
           },
           {
-            'id': '45',
-            'bpid': '4',
-            'mpid': '4',
+            'id': 'a5',
+            'bpid': 'a',
+            'mpid': 'a',
             'name': 'Editor',
             'icon': 'edit',
             'route': '/UIElement/editor',
           },
           {
-            'id': '46',
-            'bpid': '4',
-            'mpid': '4',
+            'id': 'a6',
+            'bpid': 'a',
+            'mpid': 'a',
             'name': 'layer (Function)',
             'icon': 'credit-card',
             'route': '/UIElement/layer',
-          },
-          {
-            'id': '5',
-            'bpid': '1',
-            'name': '图表',
-            'icon': 'code-o',
-          },
-          {
-            'id': '51',
-            'bpid': '5',
-            'mpid': '5',
-            'name': '线状图',
-            'icon': 'line-chart',
-            'route': '/chart/lineChart',
-          },
-          {
-            'id': '52',
-            'bpid': '5',
-            'mpid': '5',
-            'name': '柱状图',
-            'icon': 'bar-chart',
-            'route': '/chart/barChart',
-          },
-          {
-            'id': '53',
-            'bpid': '5',
-            'mpid': '5',
-            'name': '面积图',
-            'icon': 'area-chart',
-            'route': '/chart/areaChart',
-          },
-          {
-            'id': '6',
-            'bpid': '1',
-            'name': 'Test Navigation',
-            'icon': 'setting',
-          },
-          {
-            'id': '61',
-            'bpid': '6',
-            'mpid': '6',
-            'name': 'Test Navigation1',
-            'route': '/navigation/navigation1',
-          },
-          {
-            'id': '62',
-            'bpid': '6',
-            'mpid': '6',
-            'name': 'Test Navigation2',
-            'route': '/navigation/navigation2',
-          },
-          {
-            'id': '621',
-            'bpid': '62',
-            'mpid': '62',
-            'name': 'Test Navigation21',
-            'route': '/navigation/navigation2/navigation1',
-          },
-          {
-            'id': '622',
-            'bpid': '62',
-            'mpid': '62',
-            'name': 'Test Navigation22',
-            'route': '/navigation/navigation2/navigation2',
           },
         ]
         return menus
@@ -840,6 +854,7 @@ class AirConControls(Resource):
 
 
 class ElectricPowerControl(Resource):
+    # todo: use calc to auto generate hex_string 
 
     def get(self):
 
@@ -855,10 +870,35 @@ class ElectricPowerControl(Resource):
 
     def post(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('switch', type=int)
+        parser.add_argument('powerSwitch', type=int)
+        parser.add_argument('powerNo', type=int)
+
         args = parser.parse_args()
 
+        power_1_close = '010500100000CC0F'
+        power_1_open = '01050010FF008DFF'
+
+        power_2_close = '020500100000CC3C'
+        power_2_open = '02050010FF008DCC'
+
         print(args)
+        if args['powerNo'] == 1:
+            if args['powerSwitch'] == 1:
+                print("1 switch on!")
+                rs485_socket_send(str2hexstr(power_1_close))
+            else:
+                rs485_socket_send(str2hexstr(power_1_open))
+                print("1 switch off!")
+
+        elif args['powerNo'] == 2:
+            if args['powerSwitch'] == 1:
+                print("2 switch on!")
+                rs485_socket_send(str2hexstr(power_2_close))
+            else:
+                rs485_socket_send(str2hexstr(power_2_open))
+                print("2 switch off!")
+
+
         return args
 
 ##

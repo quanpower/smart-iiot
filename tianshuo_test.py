@@ -1,7 +1,7 @@
 import socket
 import time
 import select
-from utils import calc
+from utils import calc, str2hexstr
 
 timeout_in_seconds = 5
 
@@ -35,26 +35,27 @@ print(hex(calc(hexstr_switch)))
 
 
 while True:
-	time.sleep(300)
+	time.sleep(10)
 	# s_open = '010f00100004010fbf51'
 	# s_close = '010f001000040100ff55'
 
 	# s_open = '0101001300138c02'
 	
-	s_close = '010600000001480a'
-	s_open = '01060000000949cc'
+	power_1_close = '010500100000CC0F'
+	power_1_open = '01050010FF008DFF'
 
-	bytearray_open = bytearray.fromhex(s_open)
-	bytearray_close = bytearray.fromhex(s_close)
+	power_2_close = '020500100000CC3C'
+	power_2_open = '02050010FF008DCC'
 
-	hexstr_open = str(bytearray_open)
-	hexstr_close = str(bytearray_close)
+	power_1_close_hex = str2hexstr(power_1_close)
+	power_1_open_hex = str2hexstr(power_1_open)
 
-	print(hexstr_open)
-	print(hexstr_close)
+	power_2_close_hex = str2hexstr(power_2_close)
+	power_2_open_hex = str2hexstr(power_2_open)
+
 	inp = 'input'
 
-	rs485_socket.sendall(hexstr_open)
+	rs485_socket.sendall(power_1_close_hex)
 	ready = select.select([rs485_socket], [], [], timeout_in_seconds)
 
 	if ready[0]:
@@ -64,31 +65,45 @@ while True:
 		print(ret_str)
 
 
-	time.sleep(300)
+	time.sleep(10)
 
-	rs485_socket.sendall(hexstr_close)
-	ready1 = select.select([rs485_socket], [], [], timeout_in_seconds)
+	# rs485_socket.sendall(power_1_open_hex)
+	# ready1 = select.select([rs485_socket], [], [], timeout_in_seconds)
 
-	if ready1[0]:
-		data1 = rs485_socket.recv(1024)
+	# if ready1[0]:
+	# 	data1 = rs485_socket.recv(1024)
 
-		print('have close data!')
+	# 	print('have close data!')
 
 
-		ret_str = str(data1)
+	# 	ret_str = str(data1)
+	# 	print(ret_str)
+
+
+	rs485_socket.sendall(power_2_close_hex)
+	ready = select.select([rs485_socket], [], [], timeout_in_seconds)
+
+	if ready[0]:
+		print('have open data!')
+		data = rs485_socket.recv(1024)
+		ret_str = str(data)
 		print(ret_str)
 
-	# if inp == "q":
-	#     obj.sendall(bytes(inp,encoding="utf-8"))
-	#     # break
-	# else:
-	#     obj.sendall(hexstr_open)
-	#     ret_bytes = obj.recv(1024)
-	#     ret_str = str(ret_bytes)
-	#     print(ret_str)
-	#     time.sleep(5)
-    
-	#     obj.sendall(hexstr_close)
-	#     ret_bytes = obj.recv(1024)
-	#     ret_str = str(ret_bytes)
-	#     print(ret_str)
+
+	time.sleep(10)
+
+	# rs485_socket.sendall(power_2_open_hex)
+	# ready1 = select.select([rs485_socket], [], [], timeout_in_seconds)
+
+	# if ready1[0]:
+	# 	data1 = rs485_socket.recv(1024)
+
+	# 	print('have close data!')
+
+
+	# 	ret_str = str(data1)
+	# 	print(ret_str)
+
+
+
+

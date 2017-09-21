@@ -10,7 +10,8 @@ from flask_babel import lazy_gettext as _
 
 
 from app import db, appbuilder
-from .models import ContactGroup, Gender, Contact, GrainStorehouse, GrainBarn, LoraGateway, LoraNode, GrainTemp, ConcLocation, ConcGateway, ConcRegion, ConcNode, ConcTemp
+from .models import ContactGroup, Gender, Contact, GrainStorehouse, GrainBarn, LoraGateway, \
+    LoraNode, GrainTemp, PowerIoRs485, AlarmLevelSetting, PowerIoRs485Func, NodeMqttTransFunc  #ConcLocation, ConcGateway, ConcRegion, ConcNode, ConcTemp
 
 
 from flask_appbuilder import AppBuilder, BaseView, expose, has_access
@@ -173,38 +174,123 @@ class LoraGatewayModelView(ModelView):
 class GrainBarnModelView(ModelView):
     datamodel = SQLAInterface(GrainBarn)
 
-    list_columns = ['barn_no', 'barn_name', 'grain_storehouse.storehouse_no', 'lora_gateway.gateway_addr']
+    list_columns = ['barn_no', 'barn_name', 'grain_storehouse.storehouse_no', 'lora_gateway.gateway_addr', 'high_limit', 'low_limit']
 
     base_order = ('barn_no', 'asc')
     show_fieldsets = [
-        ('Summary', {'fields': ['barn_no', 'barn_name', 'grain_storehouse', 'lora_gateway']}),
+        ('Summary', {'fields': ['barn_no', 'barn_name', 'grain_storehouse', 'lora_gateway', 'high_limit', 'low_limit']}),
     ]
 
     add_fieldsets = [
-        ('Summary', {'fields': ['barn_no', 'barn_name', 'grain_storehouse', 'lora_gateway']}),
+        ('Summary', {'fields': ['barn_no', 'barn_name', 'grain_storehouse', 'lora_gateway', 'high_limit', 'low_limit']}),
     ]
 
     edit_fieldsets = [
-        ('Summary', {'fields': ['barn_no', 'barn_name', 'grain_storehouse', 'lora_gateway']}),
+        ('Summary', {'fields': ['barn_no', 'barn_name', 'grain_storehouse', 'lora_gateway', 'high_limit', 'low_limit']}),
     ]
+
+class PowerIoRs485ModelView(ModelView):
+    datamodel = SQLAInterface(PowerIoRs485)
+
+    list_columns = ['io_addr', 'io_name']
+
+    base_order = ('io_addr', 'asc')
+    show_fieldsets = [
+        ('Summary', {'fields': ['io_addr', 'io_name']}),
+    ]
+
+    add_fieldsets = [
+        ('Summary', {'fields': ['io_addr', 'io_name']}),
+    ]
+
+    edit_fieldsets = [
+        ('Summary', {'fields': ['io_addr', 'io_name']}),
+    ]
+
+
+class PowerIoRs485FuncModelView(ModelView):
+    datamodel = SQLAInterface(PowerIoRs485Func)
+
+    list_columns = ['function_name', 'function_code', 'start_at_reg_high', 'start_at_reg_low', 'num_of_reg_high', 'num_of_reg_low']
+
+    base_order = ('function_name', 'asc')
+    show_fieldsets = [
+        ('Summary', {'fields': ['function_name', 'function_code', 'start_at_reg_high', 'start_at_reg_low', 'num_of_reg_high', 'num_of_reg_low']}),
+    ]
+
+    add_fieldsets = [
+        ('Summary', {'fields': ['function_name', 'function_code', 'start_at_reg_high', 'start_at_reg_low', 'num_of_reg_high', 'num_of_reg_low']}),
+    ]
+
+    edit_fieldsets = [
+        ('Summary', {'fields': ['function_name', 'function_code', 'start_at_reg_high', 'start_at_reg_low', 'num_of_reg_high', 'num_of_reg_low']}),
+    ]
+
+
+class NodeMqttTransFuncModelView(ModelView):
+    datamodel = SQLAInterface(NodeMqttTransFunc)
+
+    list_columns = ['gateway_addr', 'node_addr', 'trans_direct', 'func_code', 'wind_direct', 'wind_speed', 'model', 'on_off', 'work_mode', 'temp']
+
+    base_order = ('node_addr', 'asc')
+    show_fieldsets = [
+        ('Summary', {'fields': ['node_addr', 'temp']}),
+        (
+            'Options',
+            {'fields': ['gateway_addr', 'trans_direct', 'func_code', 'wind_direct', 'wind_speed', 'model', 'on_off', 'work_mode'], 'expanded': False}),
+    ]
+
+    add_fieldsets = [
+        ('Summary', {'fields': ['node_addr', 'temp']}),
+        (
+            'Options',
+            {'fields': ['gateway_addr', 'trans_direct', 'func_code', 'wind_direct', 'wind_speed', 'model', 'on_off', 'work_mode'], 'expanded': False}),
+    ]
+    edit_fieldsets = [
+        ('Summary', {'fields': ['node_addr', 'temp']}),
+        (
+            'Options',
+            {'fields': ['gateway_addr', 'trans_direct', 'func_code', 'wind_direct', 'wind_speed', 'model', 'on_off', 'work_mode'], 'expanded': False}),
+    ]
+
+
+class AlarmLevelSettingModelView(ModelView):
+    datamodel = SQLAInterface(AlarmLevelSetting)
+
+    list_columns = ['warning', 'error']
+
+    base_order = ('id', 'asc')
+    show_fieldsets = [
+        ('Summary', {'fields': ['warning', 'error']}),
+    ]
+
+    add_fieldsets = [
+        ('Summary', {'fields': ['warning', 'error']}),
+    ]
+
+    edit_fieldsets = [
+        ('Summary', {'fields': ['warning', 'error']}),
+    ]
+
 
 class LoraNodeModelView(ModelView):
     datamodel = SQLAInterface(LoraNode)
 
-    list_columns = ['node_addr', 'grain_storehouse.storehouse_no', 'lora_gateway.gateway_addr', 'grain_barn.barn_no']
+    list_columns = ['node_addr', 'grain_storehouse.storehouse_no', 'lora_gateway.gateway_addr', 'grain_barn.barn_no', 'power_io_rs485.io_addr']
 
     base_order = ('node_addr', 'asc')
     show_fieldsets = [
-        ('Summary', {'fields': ['node_addr', 'grain_storehouse', 'lora_gateway', 'grain_barn']}),
+        ('Summary', {'fields': ['node_addr', 'grain_storehouse', 'lora_gateway', 'grain_barn', 'power_io_rs485.io_addr']}),
     ]
 
     add_fieldsets = [
-        ('Summary', {'fields': ['node_addr', 'grain_storehouse', 'lora_gateway', 'grain_barn']}),
+        ('Summary', {'fields': ['node_addr', 'grain_storehouse', 'lora_gateway', 'grain_barn', 'power_io_rs485.io_addr']}),
     ]
 
     edit_fieldsets = [
-        ('Summary', {'fields': ['node_addr', 'grain_storehouse', 'lora_gateway', 'grain_barn']}),
+        ('Summary', {'fields': ['node_addr', 'grain_storehouse', 'lora_gateway', 'grain_barn', 'power_io_rs485.io_addr']}),
     ]
+
 
 class CountryDirectChartView(DirectByChartView):
     datamodel = SQLAInterface(GrainTemp)
@@ -218,6 +304,7 @@ class CountryDirectChartView(DirectByChartView):
                    'college_perc']
     }
 ]
+
 
 class GrainTempModelView(ModelView):
     datamodel = SQLAInterface(GrainTemp)
@@ -245,6 +332,7 @@ class GrainTempModelView(ModelView):
             {'fields': ['temp1', 'temp2', 'temp3', 'battery_vol', 'datetime'], 'expanded': True}),
     ]
 
+
 class GrainTempChartView(DirectByChartView):
     datamodel = SQLAInterface(GrainTemp)
     chart_title = 'Direct Data Chart'
@@ -262,76 +350,76 @@ class GrainTempChartView(DirectByChartView):
 
 
 
-class ConcLocationModelView(ModelView):
-    datamodel = SQLAInterface(ConcLocation)
+# class ConcLocationModelView(ModelView):
+#     datamodel = SQLAInterface(ConcLocation)
 
-    list_columns = ['location_no', 'location_name']
-    base_order = ('location_no', 'asc')
-    show_fieldsets = [
-        ('Summary', {'fields': ['location_no', 'location_name']}),
-    ]
+#     list_columns = ['location_no', 'location_name']
+#     base_order = ('location_no', 'asc')
+#     show_fieldsets = [
+#         ('Summary', {'fields': ['location_no', 'location_name']}),
+#     ]
 
-    add_fieldsets = [
-        ('Summary', {'fields': ['location_no', 'location_name']}),
-    ]
+#     add_fieldsets = [
+#         ('Summary', {'fields': ['location_no', 'location_name']}),
+#     ]
 
-    edit_fieldsets = [
-        ('Summary', {'fields': ['location_no', 'location_name']}),
-    ]
+#     edit_fieldsets = [
+#         ('Summary', {'fields': ['location_no', 'location_name']}),
+#     ]
 
-class ConcGatewayModelView(ModelView):
-    datamodel = SQLAInterface(ConcGateway)
+# class ConcGatewayModelView(ModelView):
+#     datamodel = SQLAInterface(ConcGateway)
 
-    list_columns = ['gateway_addr', 'conc_location.location_no', 'conc_location.location_name']
+#     list_columns = ['gateway_addr', 'conc_location.location_no', 'conc_location.location_name']
 
-    base_order = ('gateway_addr', 'asc')
-    show_fieldsets = [
-        ('Summary', {'fields': ['gateway_addr', 'conc_location']}),
-    ]
+#     base_order = ('gateway_addr', 'asc')
+#     show_fieldsets = [
+#         ('Summary', {'fields': ['gateway_addr', 'conc_location']}),
+#     ]
 
-    add_fieldsets = [
-        ('Summary', {'fields': ['gateway_addr', 'conc_location']}),
-    ]
+#     add_fieldsets = [
+#         ('Summary', {'fields': ['gateway_addr', 'conc_location']}),
+#     ]
 
-    edit_fieldsets = [
-        ('Summary', {'fields': ['gateway_addr', 'conc_location']}),
-    ]
+#     edit_fieldsets = [
+#         ('Summary', {'fields': ['gateway_addr', 'conc_location']}),
+#     ]
 
-class ConcRegionModelView(ModelView):
-    datamodel = SQLAInterface(ConcRegion)
+# class ConcRegionModelView(ModelView):
+#     datamodel = SQLAInterface(ConcRegion)
 
-    list_columns = ['region_no', 'region_name', 'conc_location.location_no', 'conc_gateway.gateway_addr']
+#     list_columns = ['region_no', 'region_name', 'conc_location.location_no', 'conc_gateway.gateway_addr']
 
-    base_order = ('region_no', 'asc')
-    show_fieldsets = [
-        ('Summary', {'fields': ['region_no', 'region_name', 'conc_location', 'conc_gateway']}),
-    ]
+#     base_order = ('region_no', 'asc')
+#     show_fieldsets = [
+#         ('Summary', {'fields': ['region_no', 'region_name', 'conc_location', 'conc_gateway']}),
+#     ]
 
-    add_fieldsets = [
-        ('Summary', {'fields': ['region_no', 'region_name', 'conc_location', 'conc_gateway']}),
-    ]
+#     add_fieldsets = [
+#         ('Summary', {'fields': ['region_no', 'region_name', 'conc_location', 'conc_gateway']}),
+#     ]
 
-    edit_fieldsets = [
-        ('Summary', {'fields': ['region_no', 'region_name', 'conc_location', 'conc_gateway']}),
-    ]
+#     edit_fieldsets = [
+#         ('Summary', {'fields': ['region_no', 'region_name', 'conc_location', 'conc_gateway']}),
+#     ]
 
-class ConcNodeModelView(ModelView):
-    datamodel = SQLAInterface(ConcNode)
+# class ConcNodeModelView(ModelView):
+#     datamodel = SQLAInterface(ConcNode)
 
-    list_columns = ['node_addr', 'conc_location.location_no', 'conc_gateway.gateway_addr', 'conc_region.region_no']
+#     list_columns = ['node_addr', 'conc_location.location_no', 'conc_gateway.gateway_addr', 'conc_region.region_no']
 
-    base_order = ('node_addr', 'asc')
-    show_fieldsets = [
-        ('Summary', {'fields': ['node_addr', 'conc_location', 'conc_gateway', 'conc_region']}),
-    ]
+#     base_order = ('node_addr', 'asc')
+#     show_fieldsets = [
+#         ('Summary', {'fields': ['node_addr', 'conc_location', 'conc_gateway', 'conc_region']}),
+#     ]
 
-    add_fieldsets = [
-        ('Summary', {'fields': ['node_addr', 'conc_location', 'conc_gateway', 'conc_region']}),
-    ]
+#     add_fieldsets = [
+#         ('Summary', {'fields': ['node_addr', 'conc_location', 'conc_gateway', 'conc_region']}),
+#     ]
 
-    edit_fieldsets = [
-        ('Summary', {'fields': ['node_addr', 'conc_location', 'conc_gateway', 'conc_region']}),
-    ]
+#     edit_fieldsets = [
+#         ('Summary', {'fields': ['node_addr', 'conc_location', 'conc_gateway', 'conc_region']}),
+#     ]
 #
 # class CountryDirectChartView(DirectByChartView):
 #     datamodel = SQLAInterface(GrainTemp)
@@ -346,31 +434,31 @@ class ConcNodeModelView(ModelView):
 #     }
 # ]
 
-class ConcTempModelView(ModelView):
-    datamodel = SQLAInterface(ConcTemp)
+# class ConcTempModelView(ModelView):
+#     datamodel = SQLAInterface(ConcTemp)
 
-    list_columns = ['conc_location.location_no', 'conc_gateway.gateway_addr', 'conc_region.region_no', 'conc_node.node_addr']
+#     list_columns = ['conc_location.location_no', 'conc_gateway.gateway_addr', 'conc_region.region_no', 'conc_node.node_addr']
 
-    base_order = ('conc_node.node_addr', 'asc')
-    show_fieldsets = [
-        ('Summary', {'fields': ['conc_location', 'conc_gateway', 'conc_region', 'conc_node']}),
-        (
-            'TempData',
-            {'fields': ['temp1', 'temp2', 'temp3', 'battery_vol', 'datetime'], 'expanded': True}),
-    ]
+#     base_order = ('conc_node.node_addr', 'asc')
+#     show_fieldsets = [
+#         ('Summary', {'fields': ['conc_location', 'conc_gateway', 'conc_region', 'conc_node']}),
+#         (
+#             'TempData',
+#             {'fields': ['temp1', 'temp2', 'temp3', 'battery_vol', 'datetime'], 'expanded': True}),
+#     ]
 
-    add_fieldsets = [
-        ('Summary', {'fields': ['conc_location', 'conc_gateway', 'conc_region', 'conc_node']}),
-        (
-            'TempData',
-            {'fields': ['temp1', 'temp2', 'temp3', 'battery_vol', 'datetime'], 'expanded': True}),
-    ]
-    edit_fieldsets = [
-        ('Summary', {'fields': ['conc_location', 'conc_gateway', 'conc_region', 'conc_node']}),
-        (
-            'TempData',
-            {'fields': ['temp1', 'temp2', 'temp3', 'battery_vol', 'datetime'], 'expanded': True}),
-    ]
+#     add_fieldsets = [
+#         ('Summary', {'fields': ['conc_location', 'conc_gateway', 'conc_region', 'conc_node']}),
+#         (
+#             'TempData',
+#             {'fields': ['temp1', 'temp2', 'temp3', 'battery_vol', 'datetime'], 'expanded': True}),
+#     ]
+#     edit_fieldsets = [
+#         ('Summary', {'fields': ['conc_location', 'conc_gateway', 'conc_region', 'conc_node']}),
+#         (
+#             'TempData',
+#             {'fields': ['temp1', 'temp2', 'temp3', 'battery_vol', 'datetime'], 'expanded': True}),
+#     ]
 
 # class GrainTempChartView(DirectByChartView):
 #     datamodel = SQLAInterface(GrainTemp)
@@ -408,16 +496,21 @@ appbuilder.add_view(GrainTempModelView, "temperature records", icon="icon-list",
 appbuilder.add_view(GrainTempChartView, "temperature charts", icon="icon-bar-chart", label=_("Temperature Charts"), category="Temperature")
 
 
-appbuilder.add_view(ConcLocationModelView, "concrete location", icon="icon-home", label=_("Concrete Location"), category="Concrete", category_icon='icon-home', category_label=_("Concrete Setting"))
-appbuilder.add_view(ConcRegionModelView, "region", icon="icon-home", label=_("Region"), category="Concrete")
+appbuilder.add_view(AlarmLevelSettingModelView, "Alarm Level Setting", icon="icon-list", label=_("Alarm Level Setting"), category="Dynamic", category_icon='icon-signal ', category_label=_("Dynamic") )
+appbuilder.add_view(NodeMqttTransFuncModelView, "Node MQTT Trans Func", icon="icon-bar-chart", label=_("Node MQTT Trans Func"), category="Dynamic")
+appbuilder.add_view(PowerIoRs485ModelView, "Power RS485 IO Control", icon="icon-bar-chart", label=_("Power RS485 IO Control"), category="Dynamic")
+appbuilder.add_view(PowerIoRs485FuncModelView, "Power RS485 IO Func", icon="icon-bar-chart", label=_("Power RS485 IO Func"), category="Dynamic")
 
 
-appbuilder.add_view(ConcGatewayModelView, "concrete gateway", icon="icon-cloud", label=_("Concrete Gateway"), category="Lora", category_icon='icon-cog', category_label=_("Lora Setting"))
-appbuilder.add_view(ConcNodeModelView, "concrete node", icon=" icon-circle", label=_("Concrete Node"), category="Lora")
+# appbuilder.add_view(ConcLocationModelView, "concrete location", icon="icon-home", label=_("Concrete Location"), category="Concrete", category_icon='icon-home', category_label=_("Concrete Setting"))
+# appbuilder.add_view(ConcRegionModelView, "region", icon="icon-home", label=_("Region"), category="Concrete")
 
-appbuilder.add_view(ConcTempModelView, "temperature records", icon="icon-list", label=_("Concrete Temperature Records"), category="Concrete Temperature", category_icon='icon-signal ', category_label=_("Concrete Temperature") )
+
+# appbuilder.add_view(ConcGatewayModelView, "concrete gateway", icon="icon-cloud", label=_("Concrete Gateway"), category="Lora", category_icon='icon-cog', category_label=_("Lora Setting"))
+# appbuilder.add_view(ConcNodeModelView, "concrete node", icon=" icon-circle", label=_("Concrete Node"), category="Lora")
+
+# appbuilder.add_view(ConcTempModelView, "temperature records", icon="icon-list", label=_("Concrete Temperature Records"), category="Concrete Temperature", category_icon='icon-signal ', category_label=_("Concrete Temperature") )
 # appbuilder.add_view(GrainTempChartView, "temperature charts", icon="icon-bar-chart", label=_("Temperature Charts"), category="Temperature")
-
 
 
 appbuilder.add_view(MyView, "dashboard", icon='icon-desktop', label=_("Dashboard"), category='Dashboard', category_icon='icon-link', category_label=_('Dashboard'))

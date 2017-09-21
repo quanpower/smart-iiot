@@ -381,6 +381,72 @@ def calc(data):
     return crc
 
 
+def calc_modus_hex_str_to_send(address,function_code,start_at_reg_high,start_at_reg_low,num_of_reg_high,num_of_reg_low):
+
+    address = chr(address)
+    function_code = chr(function_code)
+    start_at_reg = chr(start_at_reg_high) + chr(start_at_reg_low)
+    num_of_reg = chr(num_of_reg_high) + chr(num_of_reg_low)
+
+    read_device = address + function_code + start_at_reg + num_of_reg
+    print(type(read_device))
+    print(read_device)
+
+    crc = calc(read_device)
+    crc_hi = crc/256
+    crc_lo = crc & 0xFF
+
+
+    # str_hex_crc_lo = str(hex(crc_lo))
+    # str_hex_crc_hi = str(hex(crc_hi))
+
+    # print "meter add: " + str(ord(address))
+    # print "crc_lo: " + str_hex_crc_lo
+    # print "crc_hi: " + str_hex_crc_hi
+
+    # if len(str_hex_crc_lo) < 2:
+    #     str_hex_crc_lo = '0'.join(str_hex_crc_lo)
+    # if len(str_hex_crc_hi) < 2:
+    #     start_at_reg_high = '0'.join(start_at_reg_high)
+
+    modus_hex_str_to_send = read_device + chr(crc_lo) + chr(crc_hi)
+
+    print(modus_hex_str_to_send)
+
+
+
+def rs485_socket_send(hexstr):
+    """
+    send data use Eth2RS485 by socket
+    """
+    import socket
+    import time
+    import select
+
+    timeout_in_seconds = 5
+
+    rs485_socket = socket.socket()
+    rs485_socket.connect(("192.168.0.7", 26))
+    rs485_socket.setblocking(0)
+
+
+    rs485_socket.sendall(hexstr)
+    ready = select.select([rs485_socket], [], [], timeout_in_seconds)
+
+    if ready[0]:
+        print('have received data!')
+        data = rs485_socket.recv(1024)
+        ret_str = str(data)
+        print('received ret_str:', ret_str)
+    rs485_socket.close()
+
+
+def str2hexstr(str_input):
+    bytearray_input = bytearray.fromhex(str_input)
+    hexstr_output = str(bytearray_input)
+    return hexstr_output
+
+
 def bitwise_reverse(int_src):
     bin_str = bitstring.pack('uint:8',int_src).bin
     ret = "".join(map(lambda x: "1" if x == "0" else "0", bin_str))
