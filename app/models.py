@@ -67,7 +67,7 @@ class LoraGateway(Model):
 
 class GrainBarn(Model):
     id = Column(Integer, primary_key=True)
-    barn_no = Column(String(10))
+    barn_no = Column(String(10), unique=True)
     barn_name = Column(String(50))
     grain_storehouse_id = Column(Integer, ForeignKey('grain_storehouse.id'), nullable=False)
     grain_storehouse = relationship("GrainStorehouse")
@@ -80,22 +80,22 @@ class GrainBarn(Model):
         return self.barn_name
 
 
-class PowerIoRs485(Model):
+class PowerIo(Model):
     id = Column(Integer, primary_key=True)
-    io_addr = Column(String(8), unique=True)
-    io_name = Column(String(50))
+    addr = Column(String(8), unique=True)
+    name = Column(String(50))
 
     def __repr__(self):
-        return self.io_addr
+        return self.addr
  
 
 class TianshuoRs485(Model):
     id = Column(Integer, primary_key=True)
-    tianshuo_addr = Column(String(8), unique=True)
-    tianshuo_name = Column(String(50))
+    addr = Column(String(8), unique=True)
+    name = Column(String(50))
 
     def __repr__(self):
-        return self.tianshuo_addr
+        return self.addr
 
 
 class LoraNode(Model):
@@ -107,8 +107,8 @@ class LoraNode(Model):
     lora_gateway = relationship("LoraGateway")
     grain_barn_id = Column(Integer, ForeignKey('grain_barn.id'), nullable=False)
     grain_barn = relationship("GrainBarn")
-    power_io_rs485_id = Column(Integer, ForeignKey('power_io_rs485.id'), nullable=False)
-    power_io_rs485 = relationship("PowerIoRs485")
+    power_io_id = Column(Integer, ForeignKey('power_io.id'), nullable=False)
+    power_io = relationship("PowerIo")
 
     def __repr__(self):
         return self.node_addr
@@ -117,13 +117,13 @@ class LoraNode(Model):
 class GrainTemp(Model):
     id = Column(Integer, primary_key=True)
     grain_storehouse_id = Column(Integer, ForeignKey('grain_storehouse.id'), nullable=False)
-    grain_storehouse = relationship("GrainStorehouse", backref='grain_storehouse')
+    grain_storehouse = relationship("GrainStorehouse")
     lora_gateway_id = Column(Integer, ForeignKey('lora_gateway.id'), nullable=False)
-    lora_gateway = relationship("LoraGateway", backref='lora_gateway')
+    lora_gateway = relationship("LoraGateway")
     grain_barn_id = Column(Integer, ForeignKey('grain_barn.id'), nullable=False)
-    grain_barn = relationship("GrainBarn", backre ='grain_barn')
+    grain_barn = relationship("GrainBarn")
     lora_node_id = Column(Integer, ForeignKey('lora_node.id'), nullable=False)
-    lora_node = relationship("LoraNode", backref='lora_node')
+    lora_node = relationship("LoraNode")
     switch = Column(Boolean)
     temp1 = Column(Float)
     temp2 = Column(Float)

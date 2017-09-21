@@ -11,7 +11,7 @@ from flask_babel import lazy_gettext as _
 
 from app import db, appbuilder
 from .models import ContactGroup, Gender, Contact, GrainStorehouse, GrainBarn, LoraGateway, \
-    LoraNode, GrainTemp, PowerIoRs485, AlarmLevelSetting, PowerIoRs485Func, NodeMqttTransFunc  #ConcLocation, ConcGateway, ConcRegion, ConcNode, ConcTemp
+    LoraNode, GrainTemp, PowerIo, AlarmLevelSetting, PowerIoRs485Func, NodeMqttTransFunc  #ConcLocation, ConcGateway, ConcRegion, ConcNode, ConcTemp
 
 
 from flask_appbuilder import AppBuilder, BaseView, expose, has_access
@@ -189,22 +189,22 @@ class GrainBarnModelView(ModelView):
         ('Summary', {'fields': ['barn_no', 'barn_name', 'grain_storehouse', 'lora_gateway', 'high_limit', 'low_limit']}),
     ]
 
-class PowerIoRs485ModelView(ModelView):
-    datamodel = SQLAInterface(PowerIoRs485)
+class PowerIoModelView(ModelView):
+    datamodel = SQLAInterface(PowerIo)
 
-    list_columns = ['io_addr', 'io_name']
+    list_columns = ['addr', 'name']
 
-    base_order = ('io_addr', 'asc')
+    base_order = ('addr', 'asc')
     show_fieldsets = [
-        ('Summary', {'fields': ['io_addr', 'io_name']}),
+        ('Summary', {'fields': ['addr', 'name']}),
     ]
 
     add_fieldsets = [
-        ('Summary', {'fields': ['io_addr', 'io_name']}),
+        ('Summary', {'fields': ['addr', 'name']}),
     ]
 
     edit_fieldsets = [
-        ('Summary', {'fields': ['io_addr', 'io_name']}),
+        ('Summary', {'fields': ['addr', 'name']}),
     ]
 
 
@@ -276,19 +276,19 @@ class AlarmLevelSettingModelView(ModelView):
 class LoraNodeModelView(ModelView):
     datamodel = SQLAInterface(LoraNode)
 
-    list_columns = ['node_addr', 'grain_storehouse.storehouse_no', 'lora_gateway.gateway_addr', 'grain_barn.barn_no', 'power_io_rs485.io_addr']
+    list_columns = ['node_addr', 'grain_storehouse.storehouse_no', 'lora_gateway.gateway_addr', 'grain_barn.barn_no', 'power_io.addr']
 
     base_order = ('node_addr', 'asc')
     show_fieldsets = [
-        ('Summary', {'fields': ['node_addr', 'grain_storehouse', 'lora_gateway', 'grain_barn', 'power_io_rs485.io_addr']}),
+        ('Summary', {'fields': ['node_addr', 'grain_storehouse', 'lora_gateway', 'grain_barn', 'power_io']}),
     ]
 
     add_fieldsets = [
-        ('Summary', {'fields': ['node_addr', 'grain_storehouse', 'lora_gateway', 'grain_barn', 'power_io_rs485.io_addr']}),
+        ('Summary', {'fields': ['node_addr', 'grain_storehouse', 'lora_gateway', 'grain_barn', 'power_io']}),
     ]
 
     edit_fieldsets = [
-        ('Summary', {'fields': ['node_addr', 'grain_storehouse', 'lora_gateway', 'grain_barn', 'power_io_rs485.io_addr']}),
+        ('Summary', {'fields': ['node_addr', 'grain_storehouse', 'lora_gateway', 'grain_barn', 'power_io']}),
     ]
 
 
@@ -476,7 +476,6 @@ class GrainTempChartView(DirectByChartView):
 # ]
 
 db.create_all()
-fill_gender()
 
 appbuilder.add_view(GroupModelView, "List Groups", icon="fa-folder-open-o", category="Contacts", category_icon='fa-envelope')
 appbuilder.add_view(ContactModelView, "List Contacts", icon="fa-envelope", category="Contacts")
@@ -498,7 +497,7 @@ appbuilder.add_view(GrainTempChartView, "temperature charts", icon="icon-bar-cha
 
 appbuilder.add_view(AlarmLevelSettingModelView, "Alarm Level Setting", icon="icon-list", label=_("Alarm Level Setting"), category="Dynamic", category_icon='icon-signal ', category_label=_("Dynamic") )
 appbuilder.add_view(NodeMqttTransFuncModelView, "Node MQTT Trans Func", icon="icon-bar-chart", label=_("Node MQTT Trans Func"), category="Dynamic")
-appbuilder.add_view(PowerIoRs485ModelView, "Power RS485 IO Control", icon="icon-bar-chart", label=_("Power RS485 IO Control"), category="Dynamic")
+appbuilder.add_view(PowerIoModelView, "Power RS485 IO Control", icon="icon-bar-chart", label=_("Power RS485 IO Control"), category="Dynamic")
 appbuilder.add_view(PowerIoRs485FuncModelView, "Power RS485 IO Func", icon="icon-bar-chart", label=_("Power RS485 IO Func"), category="Dynamic")
 
 
