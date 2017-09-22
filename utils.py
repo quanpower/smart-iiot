@@ -381,7 +381,7 @@ def calc(data):
     return crc
 
 
-def calc_modus_hex_str_to_send(address,function_code,start_at_reg_high,start_at_reg_low,num_of_reg_high,num_of_reg_low):
+def calc_modus_hex_str_to_send(address, function_code, start_at_reg_high, start_at_reg_low, num_of_reg_high, num_of_reg_low):
 
     address = chr(address)
     function_code = chr(function_code)
@@ -389,29 +389,20 @@ def calc_modus_hex_str_to_send(address,function_code,start_at_reg_high,start_at_
     num_of_reg = chr(num_of_reg_high) + chr(num_of_reg_low)
 
     read_device = address + function_code + start_at_reg + num_of_reg
-    print(type(read_device))
-    print(read_device)
 
     crc = calc(read_device)
     crc_hi = crc/256
     crc_lo = crc & 0xFF
 
+    crc_lo_hex = hex(crc_lo)
+    crc_hi_hex = hex(crc_hi)
 
-    # str_hex_crc_lo = str(hex(crc_lo))
-    # str_hex_crc_hi = str(hex(crc_hi))
-
-    # print "meter add: " + str(ord(address))
-    # print "crc_lo: " + str_hex_crc_lo
-    # print "crc_hi: " + str_hex_crc_hi
-
-    # if len(str_hex_crc_lo) < 2:
-    #     str_hex_crc_lo = '0'.join(str_hex_crc_lo)
-    # if len(str_hex_crc_hi) < 2:
-    #     start_at_reg_high = '0'.join(start_at_reg_high)
+    print('crc_lo_hex', crc_lo_hex)
+    print('crc_hi_hex', crc_hi_hex)
 
     modus_hex_str_to_send = read_device + chr(crc_lo) + chr(crc_hi)
-
-    print(modus_hex_str_to_send)
+    print('modus_hex_str_to_send', modus_hex_str_to_send)
+    return modus_hex_str_to_send
 
 
 
@@ -429,7 +420,6 @@ def rs485_socket_send(hexstr):
     rs485_socket.connect(("192.168.0.7", 26))
     rs485_socket.setblocking(0)
 
-
     rs485_socket.sendall(hexstr)
     ready = select.select([rs485_socket], [], [], timeout_in_seconds)
 
@@ -443,7 +433,9 @@ def rs485_socket_send(hexstr):
 
 def str2hexstr(str_input):
     bytearray_input = bytearray.fromhex(str_input)
+    print('bytearray_input', bytearray_input)
     hexstr_output = str(bytearray_input)
+    print('hexstr_output', hexstr_output)
     return hexstr_output
 
 
