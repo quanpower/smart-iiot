@@ -173,47 +173,44 @@ def mqtt_pub_air_con(data):
 
 if __name__ == '__main__':
 
-    while True:
 
-        time.sleep(10)
 
-        gateway_addr = '0b001' # 1
-        node_addr = '0b0000000000010' # 1
-        trans_direct = '0b1'  # 1
-        func_code = '0b0010010' # 18
-        new_gateway_addr = '0b001' 
-        new_node_addr = '0b0000000000010' 
-        # model = '0b1000111001' # sanling 569
-        reserve = '0b0000'
-        sleep_time = '0b0000000001'
-        send_power = '0b11'
+    gateway_addr = '0b001' # 1
+    node_addr = '0b0000000000100' # 1
+    trans_direct = '0b1'  # 1
+    func_code = '0b0010010' # 18
+    new_gateway_addr = '0b001'
+    new_node_addr = '0b0000000000100'
+    reserve = '0b0000'
+    sleep_time = '0b0100101100' #5 minute
+    send_power = '0b11'
 
-        def replace_0b(input):
-            return input.replace('0b','')
+    def replace_0b(input):
+        return input.replace('0b', '')
 
-        # str_bin1 = bitstring.pack(gateway_addr, node_addr, trans_direct, func_code)
-        # str_bin2 = bitstring.pack(new_gateway_addr, new_node_addr, reserve, sleep_time, send_power)
-        str_replaced = replace_0b(gateway_addr) + replace_0b(node_addr) + replace_0b(trans_direct) + replace_0b(func_code) + replace_0b(new_gateway_addr) + replace_0b(new_node_addr) + replace_0b(reserve) + replace_0b(sleep_time) + replace_0b(send_power)
-        print('str',str_replaced)
-        print(len(str_replaced))
-        str_bin = BitStream('0b' + str_replaced)
-        print('----str_bin------')
-        print(str_bin)
-        print('----len_str_bin------')
-        print(len(str_bin))
+    # str_bin1 = bitstring.pack(gateway_addr, node_addr, trans_direct, func_code)
+    # str_bin2 = bitstring.pack(new_gateway_addr, new_node_addr, reserve, sleep_time, send_power)
+    str_replaced = replace_0b(gateway_addr) + replace_0b(node_addr) + replace_0b(trans_direct) + replace_0b(func_code) + replace_0b(new_gateway_addr) + replace_0b(new_node_addr) + replace_0b(reserve) + replace_0b(sleep_time) + replace_0b(send_power)
+    print('str', str_replaced)
+    print(len(str_replaced))
+    str_bin = BitStream('0b' + str_replaced)
+    print('----str_bin------')
+    print(str_bin)
+    print('----len_str_bin------')
+    print(len(str_bin))
 
-        units = []
-        for i in range(int(len(str_bin) / 8)):
-            units.append(str_bin.read(8).uint)
-        print('units',units)
+    units = []
+    for i in range(int(len(str_bin) / 8)):
+        units.append(str_bin.read(8).uint)
+    print('units', units)
 
-        crc = crc_func(units)
-        print('-------send-hex------')
-        print(units,hex(crc))
+    crc = crc_func(units)
+    print('-------send-hex------')
+    print(units, hex(crc))
+    print(str_bin + hex(crc))
+    str_bytes=struct.pack('8B', units[0], units[1], units[2], units[3], units[4], units[5], units[6], crc)
+    print(str_bytes)
+    print(len(str_bytes))
+    print(repr(str_bytes))
 
-        str_bytes=struct.pack('8B', units[0], units[1], units[2], units[3], units[4], units[5], units[6], crc)
-        print(str_bytes)
-        print(len(str_bytes))
-        print(repr(str_bytes))
-
-        transmitMQTT(str_bytes)
+    transmitMQTT(str_bytes)

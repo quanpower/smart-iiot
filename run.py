@@ -4,7 +4,7 @@ from app import app
 from flasgger import Swagger, swag_from
 from flask_restful import reqparse, abort, Api, Resource
 from app import db
-from app.models import GrainTemp, LoraGateway, LoraNode, GrainBarn, GrainStorehouse, ConcGateway, ConcNode, ConcTemp
+from app.models import GrainTemp, LoraGateway, LoraNode, GrainBarn, GrainStorehouse #ConcGateway, ConcNode, ConcTemp
 from sqlalchemy import and_
 import json
 import random
@@ -219,110 +219,110 @@ class Barns(Resource):
         pass
 
 
-class ConcRealtimeTemp(Resource):
-
-    def get(self, gatewayAddr, nodeAddr):
-        # temps = db.session.query(ConcTemp.temp1, ConcTemp.temp2, ConcTemp.temp3, ConcTemp.battery_vol,ConcNode.node_addr ).filter(and_(ConcGateway.gateway_addr == gatewayAddr, ConcNode.node_addr == unicode(nodeAddr))).order_by(ConcTemp.datetime.desc()).first()
-        temps = db.session.query(ConcTemp.temp1, ConcTemp.temp2, ConcTemp.temp3, ConcTemp.battery_vol,ConcNode.node_addr ).filter(ConcNode.node_addr == unicode(nodeAddr)).order_by(ConcTemp.datetime.desc()).first()
-
-        print("temps:",temps)
-        conc_realtime_temp_dic = {"concRealtimeTemp": [{"icon": "bulb", "color": "#64ea91", "title": "上", "number": temps[0]}, {"icon": "bulb", "color": "#8fc9fb", "title": "中", "number": temps[1]}, {"icon": "bulb", "color": "#d897eb", "title": "下", "number": temps[2]}, {"icon": "home", "color": "#f69899", "title": "电池", "number": temps[3]}]}
-        return conc_realtime_temp_dic
-
-    def delete(self, todo_id):
-        pass
-
-    def put(self, todo_id):
-        pass
-
-
-class ConcTemps(Resource):
-    '''
-        get the lates 10 temps.
-    '''
-    def get(self, gatewayAddr, nodeAddr):
-
-        temp_records = db.session.query(ConcTemp.temp1, ConcTemp.temp2, ConcTemp.temp3, ConcTemp.datetime).filter(and_(ConcGateway.gateway_addr == gatewayAddr, ConcNode.node_addr == nodeAddr)).order_by(ConcTemp.datetime.desc()).limit(10).all()
-
-        temp_log = []
-        for i in xrange(len(temp_records)):
-            temp_log.append({"时间": temp_records[i][3].strftime("%Y-%m-%d %H:%M:%S"), "温度1": temp_records[i][0], "温度2": temp_records[i][1], "温度3": temp_records[i][2]})
-        
-        temps_reverse = temp_log[::-1]
-        print('------------temps_reverse--------------')
-        print(temps_reverse)
-
-        temps_dict = {"concTemps": temps_reverse}
-        return temps_dict
-
-    def delete(self, todo_id):
-        pass
-
-    def put(self, todo_id):
-        pass
-
-
-class ConcTempRecord(Resource):
-    '''
-        get the temp records by the input datetime. %H:%M:S%
-    '''
-    def get(self, gatewayAddr, nodeAddr, startTime, endTime):
-        startTime = datetime.datetime.strptime(startTime, "%Y-%m-%d %H:%M:%S")
-        endTime = datetime.datetime.strptime(endTime, "%Y-%m-%d %H:%M:%S")
-
-        print(startTime)
-        print(endTime)
-        temp_records = db.session.query(ConcTemp.temp1, ConcTemp.temp2, ConcTemp.temp3, ConcTemp.datetime).filter(and_(ConcGateway.gateway_addr == gatewayAddr, ConcNode.node_addr == nodeAddr, ConcTemp.datetime.between(startTime, endTime))).order_by(ConcTemp.datetime.desc()).all()
-
-        temp_log = []
-        for i in xrange(len(temp_records)):
-            temp_log.append({"key": i, "time": temp_records[i][3].strftime("%Y-%m-%d %H:%M:%S"), "Temp1": temp_records[i][0], "Temp2": temp_records[i][1], "Temp3": temp_records[i][2]})
-        
-        temps_reverse = temp_log[::-1]
-        print('------------temps_records--------------')
-        print(temps_reverse)
-
-        temps_record_dict = {"concTempRecord": temps_reverse}
-        return temps_record_dict
-
-    def delete(self, todo_id):
-        pass
-
-    def put(self, todo_id):
-        pass
-
-
-class ConcDashboard(Resource):
-    def return_status(self,a,b,c):
-        max_abc = max(a,b,c)
-        print('max_abc:', max_abc)
-        if max_abc < 35:
-            return 1
-        elif (35 <= max_abc) and (max_abc <= 50):
-            return 2
-        else:
-            return 3
-
-    def get(self):
-        nodes = db.session.query(ConcNode.node_addr).order_by(ConcNode.node_addr.desc()).all()
-        print("nodes are:", nodes)
-        statuses = []
-        for node in nodes:
-            print(type(node))
-
-            # todo: repalce geteway_addr
-            temps = db.session.query(ConcTemp.temp1, ConcTemp.temp2, ConcTemp.temp3, ConcTemp.datetime).filter(
-                and_(ConcGateway.gateway_addr == '1', ConcNode.node_addr == node[0])).order_by(
-                ConcTemp.datetime.desc()).first()
-            if temps:
-                status = {"name":node[0]+u"号测温点","status":self.return_status(temps[0], temps[1], temps[2]),"content":"上：{0}℃, 中：{1}℃, 下：{2}℃".format(str(temps[0]),str(temps[1]),str(temps[2])),"avatar":"http://dummyimage.com/48x48/f279aa/757575.png&text={0}".format(node[0]),"date":datetime.datetime.strftime(temps[3], "%Y-%m-%d %H:%M:%S")}
-                statuses.append(status)
-            else:
-                statuses = []
-        # conc_dash_dic = {"concDash":[{"name":"1","status":1,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/f279aa/757575.png&text=1","date":"2017-08-19 23:38:45"},{"name":"White","status":2,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/79cdf2/757575.png&text=W","date":"2017-04-22 14:17:06"},{"name":"Martin","status":3,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/f1f279/757575.png&text=M","date":"2017-05-07 04:29:13"},{"name":"Johnson","status":1,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/d079f2/757575.png&text=J","date":"2017-01-14 02:38:37"},{"name":"Jones","status":2,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/79f2ac/757575.png&text=J","date":"2017-07-08 20:05:50"}]}
-        conc_dash_dic = {"concDash":statuses}
-        print("conc_dash_dic", conc_dash_dic)
-
+# class ConcRealtimeTemp(Resource):
+#
+#     def get(self, gatewayAddr, nodeAddr):
+#         # temps = db.session.query(ConcTemp.temp1, ConcTemp.temp2, ConcTemp.temp3, ConcTemp.battery_vol,ConcNode.node_addr ).filter(and_(ConcGateway.gateway_addr == gatewayAddr, ConcNode.node_addr == unicode(nodeAddr))).order_by(ConcTemp.datetime.desc()).first()
+#         temps = db.session.query(ConcTemp.temp1, ConcTemp.temp2, ConcTemp.temp3, ConcTemp.battery_vol,ConcNode.node_addr ).filter(ConcNode.node_addr == unicode(nodeAddr)).order_by(ConcTemp.datetime.desc()).first()
+#
+#         print("temps:",temps)
+#         conc_realtime_temp_dic = {"concRealtimeTemp": [{"icon": "bulb", "color": "#64ea91", "title": "上", "number": temps[0]}, {"icon": "bulb", "color": "#8fc9fb", "title": "中", "number": temps[1]}, {"icon": "bulb", "color": "#d897eb", "title": "下", "number": temps[2]}, {"icon": "home", "color": "#f69899", "title": "电池", "number": temps[3]}]}
+#         return conc_realtime_temp_dic
+#
+#     def delete(self, todo_id):
+#         pass
+#
+#     def put(self, todo_id):
+#         pass
+#
+#
+# class ConcTemps(Resource):
+#     '''
+#         get the lates 10 temps.
+#     '''
+#     def get(self, gatewayAddr, nodeAddr):
+#
+#         temp_records = db.session.query(ConcTemp.temp1, ConcTemp.temp2, ConcTemp.temp3, ConcTemp.datetime).filter(and_(ConcGateway.gateway_addr == gatewayAddr, ConcNode.node_addr == nodeAddr)).order_by(ConcTemp.datetime.desc()).limit(10).all()
+#
+#         temp_log = []
+#         for i in xrange(len(temp_records)):
+#             temp_log.append({"时间": temp_records[i][3].strftime("%Y-%m-%d %H:%M:%S"), "温度1": temp_records[i][0], "温度2": temp_records[i][1], "温度3": temp_records[i][2]})
+#
+#         temps_reverse = temp_log[::-1]
+#         print('------------temps_reverse--------------')
+#         print(temps_reverse)
+#
+#         temps_dict = {"concTemps": temps_reverse}
+#         return temps_dict
+#
+#     def delete(self, todo_id):
+#         pass
+#
+#     def put(self, todo_id):
+#         pass
+#
+#
+# class ConcTempRecord(Resource):
+#     '''
+#         get the temp records by the input datetime. %H:%M:S%
+#     '''
+#     def get(self, gatewayAddr, nodeAddr, startTime, endTime):
+#         startTime = datetime.datetime.strptime(startTime, "%Y-%m-%d %H:%M:%S")
+#         endTime = datetime.datetime.strptime(endTime, "%Y-%m-%d %H:%M:%S")
+#
+#         print(startTime)
+#         print(endTime)
+#         temp_records = db.session.query(ConcTemp.temp1, ConcTemp.temp2, ConcTemp.temp3, ConcTemp.datetime).filter(and_(ConcGateway.gateway_addr == gatewayAddr, ConcNode.node_addr == nodeAddr, ConcTemp.datetime.between(startTime, endTime))).order_by(ConcTemp.datetime.desc()).all()
+#
+#         temp_log = []
+#         for i in xrange(len(temp_records)):
+#             temp_log.append({"key": i, "time": temp_records[i][3].strftime("%Y-%m-%d %H:%M:%S"), "Temp1": temp_records[i][0], "Temp2": temp_records[i][1], "Temp3": temp_records[i][2]})
+#
+#         temps_reverse = temp_log[::-1]
+#         print('------------temps_records--------------')
+#         print(temps_reverse)
+#
+#         temps_record_dict = {"concTempRecord": temps_reverse}
+#         return temps_record_dict
+#
+#     def delete(self, todo_id):
+#         pass
+#
+#     def put(self, todo_id):
+#         pass
+#
+#
+# class ConcDashboard(Resource):
+#     def return_status(self,a,b,c):
+#         max_abc = max(a,b,c)
+#         print('max_abc:', max_abc)
+#         if max_abc < 35:
+#             return 1
+#         elif (35 <= max_abc) and (max_abc <= 50):
+#             return 2
+#         else:
+#             return 3
+#
+#     def get(self):
+#         nodes = db.session.query(ConcNode.node_addr).order_by(ConcNode.node_addr.desc()).all()
+#         print("nodes are:", nodes)
+#         statuses = []
+#         for node in nodes:
+#             print(type(node))
+#
+#             # todo: repalce geteway_addr
+#             temps = db.session.query(ConcTemp.temp1, ConcTemp.temp2, ConcTemp.temp3, ConcTemp.datetime).filter(
+#                 and_(ConcGateway.gateway_addr == '1', ConcNode.node_addr == node[0])).order_by(
+#                 ConcTemp.datetime.desc()).first()
+#             if temps:
+#                 status = {"name":node[0]+u"号测温点","status":self.return_status(temps[0], temps[1], temps[2]),"content":"上：{0}℃, 中：{1}℃, 下：{2}℃".format(str(temps[0]),str(temps[1]),str(temps[2])),"avatar":"http://dummyimage.com/48x48/f279aa/757575.png&text={0}".format(node[0]),"date":datetime.datetime.strftime(temps[3], "%Y-%m-%d %H:%M:%S")}
+#                 statuses.append(status)
+#             else:
+#                 statuses = []
+#         # conc_dash_dic = {"concDash":[{"name":"1","status":1,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/f279aa/757575.png&text=1","date":"2017-08-19 23:38:45"},{"name":"White","status":2,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/79cdf2/757575.png&text=W","date":"2017-04-22 14:17:06"},{"name":"Martin","status":3,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/f1f279/757575.png&text=M","date":"2017-05-07 04:29:13"},{"name":"Johnson","status":1,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/d079f2/757575.png&text=J","date":"2017-01-14 02:38:37"},{"name":"Jones","status":2,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/79f2ac/757575.png&text=J","date":"2017-07-08 20:05:50"}]}
+#         conc_dash_dic = {"concDash":statuses}
+#         print("conc_dash_dic", conc_dash_dic)
+#
 
 class AirConRealtimeTemp(Resource):
 
@@ -911,14 +911,13 @@ api.add_resource(LoraTempRecord, '/api/v1/loranode_temperature_record/<gatewayAd
 api.add_resource(BarnTemp, '/api/v1/barn_temperatures/<barn_no>')
 api.add_resource(Barns, '/api/v1/barns')
 
-api.add_resource(ConcDashboard, '/api/v1/concrete_dashboard')
 api.add_resource(Menus, '/api/v1/menus')
 
 # api.add_resource(ConcTemp, '/api/v1/concrete_temperature/<gatewayAddr>/<nodeAddr>')
-api.add_resource(ConcRealtimeTemp, '/api/v1/concrete_temperature/<gatewayAddr>/<nodeAddr>')
-
-api.add_resource(ConcTemps, '/api/v1/concrete_temperatures/<gatewayAddr>/<nodeAddr>')
-api.add_resource(ConcTempRecord, '/api/v1/concrete_temperature_record/<gatewayAddr>/<nodeAddr>/<startTime>/<endTime>')
+# api.add_resource(ConcDashboard, '/api/v1/concrete_dashboard')
+# api.add_resource(ConcRealtimeTemp, '/api/v1/concrete_temperature/<gatewayAddr>/<nodeAddr>')
+# api.add_resource(ConcTemps, '/api/v1/concrete_temperatures/<gatewayAddr>/<nodeAddr>')
+# api.add_resource(ConcTempRecord, '/api/v1/concrete_temperature_record/<gatewayAddr>/<nodeAddr>/<startTime>/<endTime>')
 
 api.add_resource(AirConRealtimeTemp, '/api/v1/air-conditioner_temperature/<gatewayAddr>/<nodeAddr>')
 

@@ -176,7 +176,7 @@ if __name__ == '__main__':
         time.sleep(10)
 
         gateway_addr = '0b001' # 1
-        node_addr = '0b0000000000011' # 1
+        node_addr = '0b0000000000010' # 1
         trans_direct = '0b1'  # 1
         func_code = '0b0010001' # 17
         wind_direct = '0b00' #auto
@@ -184,7 +184,7 @@ if __name__ == '__main__':
         model = '0b1000111001' # sanling 569
         # model = '0b0000101101' # media 45
 
-        on_off = '0b00' # on
+        on_off = '0b01' # on
         work_mode = '0b001' #cold
         temp = '0b11101' #28
 

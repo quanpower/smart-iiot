@@ -9,6 +9,9 @@ from mqtt_publisher import mqtt_pub_air_con,transmitMQTT
 import bitstring
 from bitstring import BitArray, BitStream
 import struct
+import time
+
+
 
 # FIRE_ALARM_HIGH_LIMIT = 40
 # AIR_CONDITIONER_HIGH_LIMIT = 40
@@ -134,18 +137,16 @@ def dynamic_link():
                     print('airSenserTempHighLimit', airSenserTempHighLimit)
                     print('airSenserTempLowLimit', airSenserTempLowLimit)
 
-                    # if airSenserTemp > airSenserTempHighLimit:
-                    if True:
-
+                    if airSenserTemp > airSenserTempHighLimit:
                         print('temp higher than highlimit, transmit ')
-                        on_off = '00'
-                        mqtt_auto_control_air(node_mqtt_trans_func, on_off)
-                    # elif airSenserTemp < airSenserTempLowLimit:
-                    elif True:
-
-                        print('temp lower than highlimit, transmit ')
                         on_off = '01'
+                        mqtt_auto_control_air(node_mqtt_trans_func, on_off)
+                    elif airSenserTemp < airSenserTempLowLimit:
+                        print('temp lower than highlimit, transmit ')
+                        on_off = '00'
                         mqtt_auto_control_air(node_mqtt_trans_func, on_off)
 
 if __name__ == '__main__':
-    dynamic_link()
+    while True:
+        dynamic_link()
+        time.sleep(60)
