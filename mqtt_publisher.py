@@ -16,6 +16,15 @@ import logging
 import paho.mqtt.publish as publish
 import time 
 from utils import crc_func
+
+
+from app import db
+from app.models import LoraGateway, LoraNode, GrainBarn, AlarmLevelSetting, PowerIoRs485Func, PowerIo, NodeMqttTransFunc, GrainTemp, GrainStorehouse
+from sqlalchemy import and_
+from utils import rs485_socket_send, calc_modus_hex_str_to_send, crc_func, str2hexstr, calc
+
+import struct
+
 #======================================================    
 
 log = logging.getLogger(__name__)
@@ -77,7 +86,6 @@ def on_message(mqttc, obj, msg):
         print('--------packet_data.bin--------')
         print(packet_data.bin)
 
-
         on_exec(str(msg.payload))
     else:
         print('nothings!')
@@ -96,6 +104,7 @@ def lora_unpacking(packet_data):
     else:
         pass
 
+
 def packing(gateway_addr, node_addr , trans_direct, func_code, wind_direct, wind_speed, model, on_off, work_mode, temp):
     return bitstring.pack('bin, bin, bin, bin, bin, bin, bin, bin, bin, bin', gateway_addr, node_addr , trans_direct, func_code, wind_direct, wind_speed, model, on_off, work_mode, temp)
     
@@ -110,24 +119,39 @@ def transmitMQTT(strMsg):
     # strMsg += strcurtime
     publish.single(strMqttChannel, strMsg, hostname = strMqttBroker, auth = {'username':'iiot', 'password':'smartlinkcloud'})
 
-#=====================================================
-# if __name__ == '__main__': 
-#     mqttc = mqtt.Client("mynodeserver")
-#     mqttc.username_pw_set("iiot", "smartlinkcloud")
-#     mqttc.on_message = on_message
-#     mqttc.on_connect = on_connect
-#     mqttc.on_publish = on_publish
-#     mqttc.on_subscribe = on_subscribe
-#     mqttc.on_log = on_log
 
-#     #strBroker = "localhost"
-#     strBroker = "101.200.158.2"
-
-#     mqttc.connect(strBroker, 1883, 60)
-#     mqttc.subscribe("001.downstream", 0)
-#     mqttc.loop_forever()
 def return_str_bin(node_addr, wind_direct, wind_speed, on_off, work_mode, temp, gateway_addr='0b001', trans_direct='0b1', func_code='0b0010001', model='0b1000111001'):
     return packing(gateway_addr, node_addr, trans_direct, func_code, wind_direct, wind_speed, model, on_off, work_mode, temp)
+
+
+def return_crc(str_bin):
+    print('----str_bin------')
+    print(str_bin)
+    print('----len_str_bin------')
+    print(len(str_bin))
+
+    units = []
+    for i in range(int(len(str_bin) / 8)):
+        units.append(str_bin.read(8).uint)
+    print('units', units)
+
+    crc = crc_func(units)
+    print('-------send-hex------')
+    print(str_bin + hex(crc))
+    return units,crc
+
+
+def return_air_con_mqtt_str_bytes_to_send(str_bin):
+    units,crc = return_crc(str_bin)
+
+    str_bytes=struct.pack('7B', units[0], units[1], units[2], units[3], units[4], units[5], crc)
+    print(len(str_bytes))
+    print(repr(str_bytes))
+    return str_bytes
+
+
+def replace_0b(input):
+    return input.replace('0b', '')
 
 
 def mqtt_pub_air_con(data):
@@ -141,31 +165,53 @@ def mqtt_pub_air_con(data):
     temp = bitstring.pack('uint:5',data['temp_setting']).bin
 
     str_bin = return_str_bin(node_addr, wind_direct, wind_speed, on_off, work_mode, temp)
+    str_bytes = return_air_con_mqtt_str_bytes_to_send(str_bin)
 
-    print('----str_bin------')
-    print(str_bin.bin)
-    print('----len_str_bin------')
-    print(len(str_bin))
+    transmitMQTT(str_bytes)
 
-    units = []
-    for i in range(int(len(str_bin) / 8)):
-        units.append(str_bin.read(8).uint)
-    print('units',units)
 
-    crc = crc_func(units)
-    print('-------send-hex------')
-    print(units,hex(crc))
+def mqtt_auto_control_air(node_mqtt_trans_func, on_off):
 
-    str_bytes=struct.pack('7B', units[0], units[1], units[2], units[3], units[4], units[5], crc)
+    gateway_addr = node_mqtt_trans_func[0][0]
+    node_addr = node_mqtt_trans_func[0][1]
+    trans_direct = node_mqtt_trans_func[0][2]
+    func_code = node_mqtt_trans_func[0][3]
+    wind_direct = node_mqtt_trans_func[0][4]
+    wind_speed = node_mqtt_trans_func[0][5]
+    model = node_mqtt_trans_func[0][6]
+    work_mode = node_mqtt_trans_func[0][8]
+    temp = node_mqtt_trans_func[0][9]
+    
+    str_origin = gateway_addr + node_addr + trans_direct + func_code +\
+                 wind_direct + wind_speed + model + on_off + work_mode + temp
+    
+    str_bin = BitStream('0b' + str_origin)
+    str_bytes = return_air_con_mqtt_str_bytes_to_send(str_bin)
+
+    transmitMQTT(str_bytes)
+
+
+def mqtt_pub_node_setting():
+    gateway_addr = '0b001' # 1
+    node_addr = '0b0000000000100' # 1
+    trans_direct = '0b1'  # 1
+    func_code = '0b0010010' # 18
+    new_gateway_addr = '0b001'
+    new_node_addr = '0b0000000000100'
+    reserve = '0b0000'
+    sleep_time = '0b0100101100' #5 minute
+    send_power = '0b11'
+
+    str_replaced = replace_0b(gateway_addr) + replace_0b(node_addr) + replace_0b(trans_direct) + replace_0b(func_code) + replace_0b(new_gateway_addr) + replace_0b(new_node_addr) + replace_0b(reserve) + replace_0b(sleep_time) + replace_0b(send_power)
+
+    str_bin = BitStream('0b' + str_replaced)
+    units,crc = return_crc(str_bin)
+    str_bytes=struct.pack('8B', units[0], units[1], units[2], units[3], units[4], units[5], units[6], crc)
     print(str_bytes)
     print(len(str_bytes))
     print(repr(str_bytes))
 
     transmitMQTT(str_bytes)
-
-
-    print ("Send msg ok.{0}".format(i))
-
 
 
 
@@ -199,23 +245,7 @@ if __name__ == '__main__':
         print('str',str_replaced)
         print(len(str_replaced))
         str_bin = BitStream('0b' + str_replaced)
-        print('----str_bin------')
-        print(str_bin)
-        print('----len_str_bin------')
-        print(len(str_bin))
-
-        units = []
-        for i in range(int(len(str_bin) / 8)):
-            units.append(str_bin.read(8).uint)
-        print('units',units)
-
-        crc = crc_func(units)
-        print('-------send-hex------')
-        print(units,hex(crc))
-
-        str_bytes=struct.pack('7B', units[0], units[1], units[2], units[3], units[4], units[5], crc)
-        print(str_bytes)
-        print(len(str_bytes))
-        print(repr(str_bytes))
+        str_bytes = return_air_con_mqtt_str_bytes_to_send(str_bin)
 
         transmitMQTT(str_bytes)
+        

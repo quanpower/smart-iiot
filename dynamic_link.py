@@ -5,56 +5,15 @@ from app import db
 from app.models import LoraGateway, LoraNode, GrainBarn, AlarmLevelSetting, PowerIoRs485Func, PowerIo, NodeMqttTransFunc, GrainTemp, GrainStorehouse
 from sqlalchemy import and_
 from utils import rs485_socket_send, calc_modus_hex_str_to_send, crc_func, str2hexstr, calc
-from mqtt_publisher import mqtt_pub_air_con,transmitMQTT
+from mqtt_publisher import mqtt_pub_air_con, transmitMQTT, mqtt_auto_control_air
 import bitstring
 from bitstring import BitArray, BitStream
 import struct
 import time
+from rs485_socket import rs485_socket_send
 
 
 
-# FIRE_ALARM_HIGH_LIMIT = 40
-# AIR_CONDITIONER_HIGH_LIMIT = 40
-# AIR_CONDITIONER_LOW_LIMIT = 30
-
-
-
-def mqtt_auto_control_air(node_mqtt_trans_func, on_off):
-
-    gateway_addr = node_mqtt_trans_func[0][0]
-    node_addr = node_mqtt_trans_func[0][1]
-    trans_direct = node_mqtt_trans_func[0][2]
-    func_code = node_mqtt_trans_func[0][3]
-    wind_direct = node_mqtt_trans_func[0][4]
-    wind_speed = node_mqtt_trans_func[0][5]
-    model = node_mqtt_trans_func[0][6]
-    work_mode = node_mqtt_trans_func[0][8]
-    temp = node_mqtt_trans_func[0][9]
-
-    
-    str_origin = gateway_addr + node_addr + trans_direct + func_code +\
-                 wind_direct + wind_speed + model + on_off + work_mode + temp
-    
-    str_bin = BitStream('0b' + str_origin)
-    print('----str_bin------')
-    print(str_bin)
-    print('----len_str_bin------')
-    print(len(str_bin))
-
-    units = []
-    for i in range(int(len(str_bin) / 8)):
-        units.append(str_bin.read(8).uint)
-    print('units', units)
-
-    crc = crc_func(units)
-    print('-------send-hex------')
-    print(units, hex(crc))
-
-    str_bytes=struct.pack('7B', units[0], units[1], units[2], units[3], units[4], units[5], crc)
-    print(len(str_bytes))
-    print(repr(str_bytes))
-
-    transmitMQTT(str_bytes)
 
 def dynamic_link():
     """
@@ -120,10 +79,7 @@ def dynamic_link():
                 print('******node[0]******', node[0])
 
                 mqtt_node_addr = bitstring.pack('uint:13', node[0]).bin
-
                 print('-------mqtt_node_addr--------', mqtt_node_addr)
-
-
 
                 node_mqtt_trans_func = db.session.query(NodeMqttTransFunc.gateway_addr, NodeMqttTransFunc.node_addr, NodeMqttTransFunc.trans_direct, NodeMqttTransFunc.func_code,
                     NodeMqttTransFunc.wind_direct, NodeMqttTransFunc.wind_speed, NodeMqttTransFunc.model, NodeMqttTransFunc.on_off,

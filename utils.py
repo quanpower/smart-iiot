@@ -1,20 +1,14 @@
 import sys
 import datetime
-import socket, sys
 import struct
 import bitstring
 from bitstring import BitArray, BitStream
 import binascii
-# from app.models import GrainTemp
 import logging
-# from app import db
 
 import paho.mqtt.publish as publish
 import time
 import random
-
-
-
 
 
 def random_color():
@@ -403,32 +397,6 @@ def calc_modus_hex_str_to_send(address, function_code, start_at_reg_high, start_
     modus_hex_str_to_send = read_device + chr(crc_lo) + chr(crc_hi)
     print('modus_hex_str_to_send', modus_hex_str_to_send)
     return modus_hex_str_to_send
-
-
-
-def rs485_socket_send(hexstr):
-    """
-    send data use Eth2RS485 by socket
-    """
-    import socket
-    import time
-    import select
-
-    timeout_in_seconds = 5
-
-    rs485_socket = socket.socket()
-    rs485_socket.connect(("192.168.0.7", 26))
-    rs485_socket.setblocking(0)
-
-    rs485_socket.sendall(hexstr)
-    ready = select.select([rs485_socket], [], [], timeout_in_seconds)
-
-    if ready[0]:
-        print('have received data!')
-        data = rs485_socket.recv(1024)
-        ret_str = str(data)
-        print('received ret_str:', ret_str)
-    rs485_socket.close()
 
 
 def str2hexstr(str_input):
