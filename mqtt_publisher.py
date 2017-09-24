@@ -21,7 +21,7 @@ from utils import crc_func
 from app import db
 from app.models import LoraGateway, LoraNode, GrainBarn, AlarmLevelSetting, PowerIoRs485Func, PowerIo, NodeMqttTransFunc, GrainTemp, GrainStorehouse
 from sqlalchemy import and_
-from utils import rs485_socket_send, calc_modus_hex_str_to_send, crc_func, str2hexstr, calc
+from utils import calc_modus_hex_str_to_send, crc_func, str2hexstr, calc
 
 import struct
 
@@ -199,12 +199,15 @@ def mqtt_pub_node_setting():
     new_gateway_addr = '0b001'
     new_node_addr = '0b0000000000100'
     reserve = '0b0000'
-    sleep_time = '0b0100101100' #5 minute
+    # sleep_time = '0b0100101100' #5 minute
+    sleep_time = '0b0000110111' #55 second
+
     send_power = '0b11'
 
     str_replaced = replace_0b(gateway_addr) + replace_0b(node_addr) + replace_0b(trans_direct) + replace_0b(func_code) + replace_0b(new_gateway_addr) + replace_0b(new_node_addr) + replace_0b(reserve) + replace_0b(sleep_time) + replace_0b(send_power)
-
+    print('str_repalced:', str_replaced)
     str_bin = BitStream('0b' + str_replaced)
+    print('str_bin:', str_bin)
     units,crc = return_crc(str_bin)
     str_bytes=struct.pack('8B', units[0], units[1], units[2], units[3], units[4], units[5], units[6], crc)
     print(str_bytes)
@@ -216,13 +219,15 @@ def mqtt_pub_node_setting():
 
 
 if __name__ == '__main__':
+    # while 1:
+    #     mqtt_pub_node_setting()
+    #     time.sleep(10)
+    # while True:
 
-    while True:
-
-        time.sleep(10)
-
+    # time.sleep(10)
+    for i in range(2):
         gateway_addr = '0b001' # 1
-        node_addr = '0b0000000000010' # 1
+        node_addr = '0b0000000000011' # 1
         trans_direct = '0b1'  # 1
         func_code = '0b0010001' # 17
         wind_direct = '0b00' #auto
@@ -230,9 +235,9 @@ if __name__ == '__main__':
         model = '0b1000111001' # sanling 569
         # model = '0b0000101101' # media 45
 
-        on_off = '0b01' # on
+        on_off = '0b00' # on
         work_mode = '0b001' #cold
-        temp = '0b11101' #28
+        temp = '0b10000' #16
 
         def replace_0b(input):
             return input.replace('0b','')
@@ -248,4 +253,7 @@ if __name__ == '__main__':
         str_bytes = return_air_con_mqtt_str_bytes_to_send(str_bin)
 
         transmitMQTT(str_bytes)
+
+        time.sleep(2)
+
         

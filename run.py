@@ -9,8 +9,10 @@ from sqlalchemy import and_
 import json
 import random
 import datetime
-from utils import random_color, index_color, rs485_socket_send, calc, str2hexstr
+from utils import random_color, index_color, calc, str2hexstr
 from mqtt_publisher import mqtt_pub_air_con
+from rs485_socket import rs485_socket_send
+
 
 api = Api(app)
 
@@ -326,7 +328,20 @@ class Barns(Resource):
 
 class AirConRealtimeTemp(Resource):
 
-    def get(self, gatewayAddr, nodeAddr):
+    def get(self):
+
+        parser = reqparse.RequestParser()
+        parser.add_argument('gateway_addr', type=str)
+        parser.add_argument('node_addr', type=str)
+
+        args = parser.parse_args()
+
+        print('-----realtimetemp args-----', args)
+
+        gatewayAddr = args['gateway_addr']
+        nodeAddr = args['node_addr']
+
+
         temps = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.battery_vol).join(
             LoraNode, LoraNode.id == GrainTemp.lora_node_id).join(
             LoraGateway, LoraGateway.id == GrainTemp.lora_gateway_id).filter(
@@ -334,7 +349,7 @@ class AirConRealtimeTemp(Resource):
             GrainTemp.datetime.desc()).first()
 
         print("temps:",temps)
-        air_con_realtime_temp_dic = {"airConRealtimeTemp": [{"icon": "bulb", "color": "#64ea91", "title": "左", "number": temps[0]}, {"icon": "bulb", "color": "#8fc9fb", "title": "中", "number": temps[1]}, {"icon": "bulb", "color": "#d897eb", "title": "右", "number": temps[2]}, {"icon": "message", "color": "#f69899", "title": "电池", "number": temps[3]}]}
+        air_con_realtime_temp_dic = {"airConRealtimeTemp": [{"icon": "bulb", "color": "#64ea91", "title": "空调", "number": temps[0]}, {"icon": "bulb", "color": "#8fc9fb", "title": "插座", "number": temps[1]}, {"icon": "bulb", "color": "#d897eb", "title": "仓温", "number": temps[2]}, {"icon": "message", "color": "#f69899", "title": "电池", "number": temps[3]}]}
         return air_con_realtime_temp_dic
 
     def delete(self, todo_id):
@@ -348,13 +363,25 @@ class AirConTemps(Resource):
     '''
         get the lates 10 temps.
     '''
-    def get(self, gatewayAddr, nodeAddr):
+    def get(self):
+
+        parser = reqparse.RequestParser()
+        parser.add_argument('gateway_addr', type=str)
+        parser.add_argument('node_addr', type=str)
+
+        args = parser.parse_args()
+
+        print('-------aircontemps args---------', args)
+
+        gatewayAddr = args['gateway_addr']
+        nodeAddr = args['node_addr']
 
         temp_records = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.datetime).join(
             LoraNode, LoraNode.id == GrainTemp.lora_node_id).join(
             LoraGateway, LoraGateway.id == GrainTemp.lora_gateway_id).filter(
             and_(LoraNode.node_addr == unicode(nodeAddr), LoraGateway.gateway_addr == unicode(gatewayAddr))).order_by(
             GrainTemp.datetime.desc()).limit(10).all()
+
         temp_log = []
         for i in xrange(len(temp_records)):
             temp_log.append({"时间": temp_records[i][3].strftime("%Y-%m-%d %H:%M:%S"), "温度1": temp_records[i][0], "温度2": temp_records[i][1], "温度3": temp_records[i][2]})
@@ -377,12 +404,25 @@ class AirConTempRecord(Resource):
     '''
         get the temp records by the input datetime. %H:%M:S%
     '''
-    def get(self, gatewayAddr, nodeAddr, startTime, endTime):
-        startTime = datetime.datetime.strptime(startTime, "%Y-%m-%d %H:%M:%S")
-        endTime = datetime.datetime.strptime(endTime, "%Y-%m-%d %H:%M:%S")
+    def get(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('gateway_addr', type=str)
+        parser.add_argument('node_addr', type=str)
+        parser.add_argument('start_time', type=str)
+        parser.add_argument('end_time', type=str)
+
+        args = parser.parse_args()
+
+        print('--------AirConTempRecord-------', args)
+
+        gatewayAddr = args['gateway_addr']
+        nodeAddr = args['node_addr']
+        startTime = datetime.datetime.strptime(args['start_time'], "%Y-%m-%d %H:%M:%S")
+        endTime = datetime.datetime.strptime(args['end_time'], "%Y-%m-%d %H:%M:%S")
 
         print(startTime)
         print(endTime)
+        
         temp_records = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.datetime).join(
             LoraNode, LoraNode.id == GrainTemp.lora_node_id).join(
             LoraGateway, LoraGateway.id == GrainTemp.lora_gateway_id).filter(
@@ -422,11 +462,11 @@ class AirConDashboard(Resource):
 
     def get(self, gatewayAddr, barnNo):
         nodes = db.session.query(LoraNode.node_addr).join(GrainBarn, GrainBarn.id == LoraNode.grain_barn_id).filter(
-            GrainBarn.barn_no == unicode(barnNo)).order_by(LoraNode.node_addr.desc()).all()
+            GrainBarn.barn_no == unicode(barnNo)).order_by(LoraNode.node_addr.asc()).all()
         print("nodes are:", nodes)
         statuses = []
-        for node in nodes:
-
+        for i in range(len(nodes)):
+            node = nodes[i]
             # todo: repalce geteway_addr
             temps = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.datetime).join(
                 LoraGateway, LoraGateway.id == GrainTemp.lora_gateway_id).join(LoraNode, LoraNode.id == GrainTemp.lora_node_id).filter(
@@ -434,7 +474,8 @@ class AirConDashboard(Resource):
                 GrainTemp.datetime.desc()).first()
             if temps:
                 status = {"name":node[0]+u"号空调","status":self.return_status(temps[0], temps[1], temps[2]),"content":"左：{0}℃, 中：{1}℃, 右：{2}℃".format(
-                    str(temps[0]),str(temps[1]),str(temps[2])),"avatar":"http://dummyimage.com/48x48/{0}/757575.png&text={1}".format(index_color(int(node[0]))[1:], node[0]),"date":datetime.datetime.strftime(temps[3], "%Y-%m-%d %H:%M:%S")}
+                    str(temps[0]),str(temps[1]),str(temps[2])),"avatar":"http://dummyimage.com/48x48/{0}/757575.png&text={1}".format(index_color(int(node[0]))[1:], node[0]),
+                "date":datetime.datetime.strftime(temps[3], "%Y-%m-%d %H:%M:%S"), "nodeAddr":node[0]}
                 statuses.append(status)
             else:
                 statuses = []
@@ -901,10 +942,10 @@ api.add_resource(Menus, '/api/v1/menus')
 # api.add_resource(ConcTemps, '/api/v1/concrete_temperatures/<gatewayAddr>/<nodeAddr>')
 # api.add_resource(ConcTempRecord, '/api/v1/concrete_temperature_record/<gatewayAddr>/<nodeAddr>/<startTime>/<endTime>')
 
-api.add_resource(AirConRealtimeTemp, '/api/v1/air-conditioner_temperature/<gatewayAddr>/<nodeAddr>')
+api.add_resource(AirConRealtimeTemp, '/api/v1/air-conditioner_temperature')
 
-api.add_resource(AirConTemps, '/api/v1/air-conditioner_temperatures/<gatewayAddr>/<nodeAddr>')
-api.add_resource(AirConTempRecord, '/api/v1/air-conditioner_temperature_record/<gatewayAddr>/<nodeAddr>/<startTime>/<endTime>')
+api.add_resource(AirConTemps, '/api/v1/air-conditioner_temperatures')
+api.add_resource(AirConTempRecord, '/api/v1/air-conditioner_temperature_record')
 api.add_resource(AirConDashboard, '/api/v1/air-conditioner_dashboard/<gatewayAddr>/<barnNo>')
 api.add_resource(GrainQuote, '/api/v1/grain_quote/<name>/<content>')
 api.add_resource(GrainSmarttempCtrl, '/api/v1/grain_smart_temperature_control/<name>/<content>')
