@@ -9,10 +9,11 @@ from sqlalchemy import and_
 import json
 import random
 import datetime
-from utils import random_color, index_color, calc, str2hexstr
+from utils import random_color, index_color, calc, str2hexstr, calc_modus_hex_str_to_send
 from rs485_socket import rs485_socket_send
 from mqtt_publisher import mqtt_pub_air_con, transmitMQTT, mqtt_auto_control_air
 import bitstring
+
 
 api = Api(app)
 
@@ -627,6 +628,15 @@ class Menus(Resource):
             'route': '/aircon_control',
           }, 
           {
+            'id': '41',
+            'bpid': '4',
+            'mpid': '4',
+
+            'name': '天硕空调开关控制',
+            'icon': 'shopping-cart',
+            'route': '/tianshuo_on_off',
+          }, 
+          {
             'id': '5',
             'bpid': '1',
             'name': '电力控制',
@@ -973,6 +983,46 @@ class ElectricPowerControl(Resource):
 
         return args
 
+
+
+class TianshuoOnOffControl(Resource):
+    # todo: use calc to auto generate hex_string 
+
+    def get(self):
+
+        power_controls_dic = {'data':'power_controls'}
+
+        return power_controls_dic
+
+    def delete(self, todo_id):
+        pass
+
+    def put(self, todo_id):
+        pass
+
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('tianshuoSwitch', type=int)
+        parser.add_argument('tianshuoNo', type=int)
+
+        args = parser.parse_args()
+        print(args)
+
+        tianshuoNo = args['tianshuoNo']
+        tianshuoSwitch = args['tianshuoSwitch']
+        
+        if tianshuoSwitch == 1:
+            output_hex = calc_modus_hex_str_to_send(tianshuoNo, 6, 0, 0, 0, 9)
+            rs485_socket_send(output_hex)
+            print("{0} switch on!".format(tianshuoNo))
+
+        elif tianshuoSwitch == 0:
+            output_hex = calc_modus_hex_str_to_send(tianshuoNo, 6, 0, 0, 0, 1)
+            rs485_socket_send(output_hex)
+            print("{0} switch off!".format(tianshuoNo))
+
+
+
 ##
 ## Actually setup the Api resource routing here
 ##
@@ -1007,7 +1057,7 @@ api.add_resource(AirConControl, '/api/v1/air-conditioner_control')
 api.add_resource(AirConControls, '/api/v1/air-conditioner_controls')
 api.add_resource(AirConControlOnOff, '/api/v1/air-conditioner_control_on_off')
 api.add_resource(ElectricPowerControl, '/api/v1/electric_power_control')
-
+api.add_resource(TianshuoOnOffControl, '/api/v1/tianshuo_on_off_control')
 
 
 if __name__ == '__main__':
