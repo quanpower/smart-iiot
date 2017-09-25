@@ -4,14 +4,14 @@ from app import app
 from flasgger import Swagger, swag_from
 from flask_restful import reqparse, abort, Api, Resource
 from app import db
-from app.models import GrainTemp, LoraGateway, LoraNode, GrainBarn, GrainStorehouse #ConcGateway, ConcNode, ConcTemp
+from app.models import GrainTemp, LoraGateway, LoraNode, GrainBarn, GrainStorehouse, NodeMqttTransFunc #ConcGateway, ConcNode, ConcTemp
 from sqlalchemy import and_
 import json
 import random
 import datetime
 from utils import random_color, index_color, calc, str2hexstr
-from mqtt_publisher import mqtt_pub_air_con
 from rs485_socket import rs485_socket_send
+from mqtt_publisher import mqtt_pub_air_con, transmitMQTT, mqtt_auto_control_air
 
 
 api = Api(app)
@@ -855,6 +855,51 @@ class AirConControl(Resource):
         return args
 
 
+class AirConControlOnOff(Resource):
+
+    def get(self):
+        airconcontrol_dic = {'data':'airconcontrol'}
+
+        return airconcontrol_dic
+
+    def delete(self, todo_id):
+        pass
+
+    def put(self, todo_id):
+
+        pass
+
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('airconSwitch', type=int)
+        parser.add_argument('nodeAddr', type=str)
+
+        args = parser.parse_args()
+        print(args)
+
+        airconSwitch = args['airconSwitch']
+        mqtt_node_addr = args['nodeAddr']
+
+        node_mqtt_trans_func = db.session.query(NodeMqttTransFunc.gateway_addr, NodeMqttTransFunc.node_addr, NodeMqttTransFunc.trans_direct, NodeMqttTransFunc.func_code,
+            NodeMqttTransFunc.wind_direct, NodeMqttTransFunc.wind_speed, NodeMqttTransFunc.model, NodeMqttTransFunc.on_off,
+            NodeMqttTransFunc.work_mode, NodeMqttTransFunc.temp).filter(NodeMqttTransFunc.node_addr == mqtt_node_addr).all()
+
+        print('******node_mqtt_trans_func******', node_mqtt_trans_func)
+
+        if node_mqtt_trans_func:
+
+            if airconSwitch == 1:
+                print('airconditoner switch to on!')
+                on_off = '01'
+                mqtt_auto_control_air(node_mqtt_trans_func, on_off)
+            elif airconSwitch == 0:
+                print('airconditoner switch to off!')
+                on_off = '00'
+                mqtt_auto_control_air(node_mqtt_trans_func, on_off)
+
+        return args
+
+
 
 class AirConControls(Resource):
 
@@ -959,7 +1004,7 @@ api.add_resource(GrainSecurity, '/api/v1/grain_security/<name>/<content>')
 api.add_resource(GrainHistory, '/api/v1/grain_history')
 api.add_resource(AirConControl, '/api/v1/air-conditioner_control')
 api.add_resource(AirConControls, '/api/v1/air-conditioner_controls')
-
+api.add_resource(AirConControlOnOff, '/api/v1/air-conditioner_control_on_off')
 api.add_resource(ElectricPowerControl, '/api/v1/electric_power_control')
 
 
