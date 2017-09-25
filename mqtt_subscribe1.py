@@ -1,6 +1,4 @@
-#!/usr/bin/python
-# This shows a service of an MQTT subscriber.
-# Copyright (c) 2010-2015, By openthings@163.com.
+# -*- coding:utf-8 -*-
 
 import sys
 import datetime
@@ -13,9 +11,38 @@ import logging
 from app import db
 from utils import crc_func, sign
 
+
+# 第一步，创建一个logger  
+logger = logging.getLogger()  
+logger.setLevel(logging.INFO)    # Log等级总开关  
+  
+# 第二步，创建一个handler，用于写入日志文件  
+logfile = './log/logger.txt'  
+fh = logging.FileHandler(logfile, mode='w')  
+fh.setLevel(logging.DEBUG)   # 输出到file的log等级的开关  
+  
+# 第三步，再创建一个handler，用于输出到控制台  
+ch = logging.StreamHandler()  
+ch.setLevel(logging.WARNING)   # 输出到console的log等级的开关  
+  
+# 第四步，定义handler的输出格式  
+formatter = logging.Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")  
+fh.setFormatter(formatter)  
+ch.setFormatter(formatter)  
+  
+# 第五步，将logger添加到handler里面  
+logger.addHandler(fh)  
+logger.addHandler(ch)  
+  
+# 日志  
+logger.debug('this is a logger debug message')  
+logger.info('this is a logger info message')  
+logger.warning('this is a logger warning message')  
+logger.error('this is a logger error message')  
+logger.critical('this is a logger critical message') 
+
 #======================================================    
 
-log = logging.getLogger(__name__)
 
 # try:
 #     db.session.query(GrainTemp).delete()
@@ -35,30 +62,32 @@ except ImportError:
 #======================================================
 # def on_connect(mqttc, obj, rc):
 def on_connect(client, userdata, flags, rc):
-    print("OnConnetc, rc: "+str(rc))
+    logger.info("OnConnetc, rc: "+str(rc))
 
 def on_publish(mqttc, obj, mid):
-    print("OnPublish, mid: "+str(mid))
+    logger.info("OnPublish, mid: "+str(mid))
 
 def on_subscribe(mqttc, obj, mid, granted_qos):
-    print("Subscribed: "+str(mid)+" "+str(granted_qos))
+    logger.info("Subscribed: "+str(mid)+" "+str(granted_qos))
 
 def on_log(mqttc, obj, level, string):
-    print("Log:"+string)
+    logger.info("Log:"+string)
 
 def on_message(mqttc, obj, msg):
     curtime = datetime.datetime.now()
     strcurtime = curtime.strftime("%Y-%m-%d %H:%M:%S")
-    print(strcurtime + ": " + msg.topic+" "+str(msg.qos)+" "+str(msg.payload))
-
+    logger.info(strcurtime + ": " + msg.topic+" "+str(msg.qos)+" "+str(msg.payload))  
+    
     payload_length = len(msg.payload)
     un_int = struct.unpack(str(payload_length) + 'B', msg.payload)
-    print('-------units-----')
-    print(un_int)
+    
+    logger.debug('-------units-----')
+    logger.debug(un_int)
+
     uints = list(un_int)
 
     if uints[payload_length-1] == crc_func(uints[:payload_length-1]):
-        print('CRC checked!')
+        logger.debug('CRC checked!')
 
         if payload_length == 5:
             lora_unpacking_ack(uints)
@@ -68,23 +97,23 @@ def on_message(mqttc, obj, msg):
             # '{:0>2x}'.format(1) #dic to hex,append 0
             packet_data = BitStream('0x'+ b)
 
-            print('--------packet_data--------')
-            print(packet_data)
-            print('--------packet_data.bin--------')
-            print(packet_data.bin)
+            logger.debug('--------packet_data--------')
+            logger.debug(packet_data)
+            logger.debug('--------packet_data.bin--------')
+            logger.debug(packet_data.bin)
 
             realtime_data = lora_unpacking_realtime_data(packet_data)
 
             save_realtime_data(realtime_data)
         else:
-            print('bytes unknown!')
+            logger.debug('bytes unknown!')
 
     else:
-        print('CRC check fail!')
+        logger.error('CRC check fail!')
 
 
 def on_exec(strcmd):
-    print "Exec:",strcmd
+    logger.debug( "Exec:",strcmd)
     strExec = strcmd
 
 def lora_unpacking(packet_data):
@@ -93,13 +122,11 @@ def lora_unpacking(packet_data):
     packet_data.pos = 0
     if crc == crc_func(packet_data.read(56)):
         packet_data.pos = 0
-
-
     else:
         pass
 
 def lora_unpacking_realtime_data(packet_data):
-    print('--------real data process beginning-----------')
+    logger.info('--------real data process beginning-----------')
 
     gateway_addr = str(packet_data.read(3).uint)
     node_addr = str(packet_data.read(13).int)
@@ -120,41 +147,39 @@ def lora_unpacking_realtime_data(packet_data):
     temprature2 = (sign(temp2_sign) * temp2)/10.0
     temprature3 = (sign(temp3_sign) * temp3)/10.0
 
-    print('gateway_addr:',gateway_addr)
-    print('-------------------')
-    print('node_addr:',node_addr)
-    print('-------------------')
+    logger.debug('gateway_addr: %s',gateway_addr)
+    logger.info('-------------------')
+    logger.info('node_addr: %s',node_addr)
+    logger.info('-------------------')
 
-    print('tran_direct:',tran_direct)
-    print('-------------------')
+    logger.debug('tran_direct: %s',tran_direct)
+    logger.debug('-------------------')
 
-    print('func_code:',func_code)
-    print('-------------------')
+    logger.debug('func_code: %s',func_code)
+    logger.debug('-------------------')
 
-    print('switch:',switch)
-    print('-------------------')
+    logger.debug('switch: %s',switch)
+    logger.debug('-------------------')
 
-    print('temp1_sign',temp1_sign)
-    print('-------------------')
+    logger.debug('temp1_sign',temp1_sign)
+    logger.debug('-------------------')
 
-    print('temp2_sign',temp2_sign)
-    print('-------------------')
+    logger.debug('temp2_sign',temp2_sign)
+    logger.debug('-------------------')
 
-    print('temp3_sign',temp3_sign)
-    print('-------------------')
+    logger.debug('temp3_sign',temp3_sign)
+    logger.debug('-------------------')
 
-    print('temp1:',temp1)
-    print('-------------------')
+    logger.info('temp1: %s',temp1)
 
-    print('temp2:',temp2)
-    print('-------------------')
+    logger.info('temp2: %s',temp2)
 
-    print('temp3:',temp3)
-    print('-------------------')
+    logger.info('temp3: %s',temp3)
+    logger.info('-------------------')
 
-    print('battery_vol:',battery_vol)
+    logger.info('battery_vol: %s',battery_vol)
     
-    print(temprature1, temprature2, temprature3, battery_vol)
+    logger.info('values : %s, %s, %s, %s', temprature1, temprature2, temprature3, battery_vol)
 
     return (gateway_addr, node_addr, switch, temprature1, temprature2, temprature3, battery_vol)
 
@@ -174,15 +199,15 @@ def save_realtime_data(data):
     db.session.add(c)
     try:
         db.session.commit()
-        print "inserted", c
+        logger.debug('inserted!') 
     except Exception, e:
-        log.error("Inserting Grian_temp: %s", e)
+        logger.error("Inserting Grian_temp: %s", e)
         db.session.rollback()
 
 
 def lora_unpacking_ack(packet_data):
     # todo
-    print('-------- ack data process beginning -----------')
+    logger.info('-------- ack data process beginning -----------')
 
 #=====================================================
 if __name__ == '__main__': 
