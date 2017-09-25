@@ -12,7 +12,7 @@ import datetime
 from utils import random_color, index_color, calc, str2hexstr
 from rs485_socket import rs485_socket_send
 from mqtt_publisher import mqtt_pub_air_con, transmitMQTT, mqtt_auto_control_air
-
+import bitstring
 
 api = Api(app)
 
@@ -872,13 +872,14 @@ class AirConControlOnOff(Resource):
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('airconSwitch', type=int)
-        parser.add_argument('nodeAddr', type=str)
+        parser.add_argument('nodeAddr', type=int)
 
         args = parser.parse_args()
         print(args)
 
         airconSwitch = args['airconSwitch']
-        mqtt_node_addr = args['nodeAddr']
+        node_addr = args['nodeAddr']
+        mqtt_node_addr = bitstring.pack('uint:13', node_addr).bin
 
         node_mqtt_trans_func = db.session.query(NodeMqttTransFunc.gateway_addr, NodeMqttTransFunc.node_addr, NodeMqttTransFunc.trans_direct, NodeMqttTransFunc.func_code,
             NodeMqttTransFunc.wind_direct, NodeMqttTransFunc.wind_speed, NodeMqttTransFunc.model, NodeMqttTransFunc.on_off,
@@ -945,7 +946,7 @@ class ElectricPowerControl(Resource):
         parser.add_argument('powerNo', type=int)
 
         args = parser.parse_args()
-
+        # todo: replace it with dynamic_link's function
         power_1_close = '010500100000CC0F'
         power_1_open = '01050010FF008DFF'
 
