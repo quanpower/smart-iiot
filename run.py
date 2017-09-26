@@ -620,15 +620,22 @@ class Menus(Resource):
             'icon': 'bulb',
             'route': '/aircondetail/1',
           },
-          {
+           {
             'id': '4',
             'bpid': '1',
             'name': '智能控温',
+            'icon': 'code-o',
+          },
+          {
+            'id': '41',
+            'bpid': '4',
+            'mpid': '4',
+            'name': '壁挂空调控温',
             'icon': 'shopping-cart',
             'route': '/aircon_control',
           }, 
           {
-            'id': '41',
+            'id': '42',
             'bpid': '4',
             'mpid': '4',
 
