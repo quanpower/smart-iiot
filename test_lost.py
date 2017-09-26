@@ -14,8 +14,8 @@ import logging
 #                     format='%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s') 
 
 nodeAddr = '4'
-startTime = datetime.datetime.strptime('2017-09-24 21:21:00', "%Y-%m-%d %H:%M:%S")
-endTime = datetime.datetime.strptime('2017-09-25 09:21:00', "%Y-%m-%d %H:%M:%S")
+startTime = datetime.datetime.strptime('2017-09-26 01:21:00', "%Y-%m-%d %H:%M:%S")
+endTime = datetime.datetime.strptime('2017-09-26 09:21:00', "%Y-%m-%d %H:%M:%S")
 
 temp_records = db.session.query(GrainTemp.lora_node_id, GrainTemp.datetime).join(
             LoraNode, LoraNode.id == GrainTemp.lora_node_id).filter(
@@ -28,7 +28,7 @@ print(temp_records)
 lost = 0
 for i in range(1,len(temp_records)):
 	temp_record = temp_records[i]
-	if (temp_record[1] - temp_records[i-1][1]).seconds > 60:
+	if (temp_record[1] - temp_records[i-1][1]).seconds > 150:
 		lost += 1
 		print((temp_record[1] - temp_records[i-1][1]).seconds)
 	else:

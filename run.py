@@ -881,7 +881,7 @@ class AirConControlOnOff(Resource):
 
     def post(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('airconSwitch', type=int)
+        parser.add_argument('airconSwitch', type=str)
         parser.add_argument('nodeAddr', type=int)
 
         args = parser.parse_args()
@@ -899,11 +899,11 @@ class AirConControlOnOff(Resource):
 
         if node_mqtt_trans_func:
 
-            if airconSwitch == 1:
+            if airconSwitch == '1':
                 print('airconditoner switch to on!')
                 on_off = '01'
                 mqtt_auto_control_air(node_mqtt_trans_func, on_off)
-            elif airconSwitch == 0:
+            elif airconSwitch == '0':
                 print('airconditoner switch to off!')
                 on_off = '00'
                 mqtt_auto_control_air(node_mqtt_trans_func, on_off)
@@ -915,9 +915,7 @@ class AirConControlOnOff(Resource):
 class AirConControls(Resource):
 
     def get(self):
-
         airconcontrols_dic = {'data':'airconcontrols'}
-
         return airconcontrols_dic
 
     def delete(self, todo_id):
@@ -952,7 +950,7 @@ class ElectricPowerControl(Resource):
 
     def post(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('powerSwitch', type=int)
+        parser.add_argument('powerSwitch', type=str)
         parser.add_argument('powerNo', type=int)
 
         args = parser.parse_args()
@@ -965,7 +963,7 @@ class ElectricPowerControl(Resource):
 
         print(args)
         if args['powerNo'] == 1:
-            if args['powerSwitch'] == 1:
+            if args['powerSwitch'] == '1':
                 print("1 switch on!")
                 rs485_socket_send(str2hexstr(power_1_close))
             else:
@@ -973,7 +971,7 @@ class ElectricPowerControl(Resource):
                 print("1 switch off!")
 
         elif args['powerNo'] == 2:
-            if args['powerSwitch'] == 1:
+            if args['powerSwitch'] == '1':
                 print("2 switch on!")
                 rs485_socket_send(str2hexstr(power_2_close))
             else:
@@ -1002,7 +1000,7 @@ class TianshuoOnOffControl(Resource):
 
     def post(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('tianshuoSwitch', type=int)
+        parser.add_argument('tianshuoSwitch', type=str)
         parser.add_argument('tianshuoNo', type=int)
 
         args = parser.parse_args()
@@ -1011,12 +1009,12 @@ class TianshuoOnOffControl(Resource):
         tianshuoNo = args['tianshuoNo']
         tianshuoSwitch = args['tianshuoSwitch']
         
-        if tianshuoSwitch == 1:
+        if tianshuoSwitch == '1':
             output_hex = calc_modus_hex_str_to_send(tianshuoNo, 6, 0, 0, 0, 9)
             rs485_socket_send(output_hex)
             print("{0} switch on!".format(tianshuoNo))
 
-        elif tianshuoSwitch == 0:
+        elif tianshuoSwitch == '0':
             output_hex = calc_modus_hex_str_to_send(tianshuoNo, 6, 0, 0, 0, 1)
             rs485_socket_send(output_hex)
             print("{0} switch off!".format(tianshuoNo))
