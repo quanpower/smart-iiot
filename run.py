@@ -20,9 +20,6 @@ api = Api(app)
 swagger = Swagger(app)
 
 
-
-
-
 TODOS = {
     'todo1': {'task': 'build an API'},
     'todo2': {'task': '?????'},
@@ -169,9 +166,9 @@ class Barns(Resource):
 
         def return_color(max_abc):
             print('max_abc:', max_abc)
-            if max_abc < 35:
+            if max_abc < 40:
                 return "#64ea91"
-            elif (35 <= max_abc) and (max_abc <= 50):
+            elif (40 <= max_abc) and (max_abc <= 50):
                 return "#8fc9fb"
             else:
                 return "#f69899"
@@ -457,9 +454,9 @@ class AirConDashboard(Resource):
     def return_status(self,a,b,c):
         max_abc = max(a,b,c)
         print('max_abc:', max_abc)
-        if max_abc < 35:
+        if max_abc < 40:
             return 1
-        elif (35 <= max_abc) and (max_abc <= 50):
+        elif (40 <= max_abc) and (max_abc <= 50):
             return 2
         else:
             return 3
@@ -477,7 +474,7 @@ class AirConDashboard(Resource):
                 and_(LoraGateway.gateway_addr == unicode(gatewayAddr), LoraNode.node_addr == node[0])).order_by(
                 GrainTemp.datetime.desc()).first()
             if temps:
-                status = {"name":node[0]+u"号空调","status":self.return_status(temps[0], temps[1], temps[2]),"content":"左：{0}℃, 中：{1}℃, 右：{2}℃".format(
+                status = {"name":node[0]+u"号空调","status":self.return_status(temps[0], temps[1], temps[2]),"content":"空调：{0}℃, 插座：{1}℃, 仓温：{2}℃".format(
                     str(temps[0]),str(temps[1]),str(temps[2])),"avatar":"http://dummyimage.com/48x48/{0}/757575.png&text={1}".format(index_color(int(node[0]))[1:], node[0]),
                 "date":datetime.datetime.strftime(temps[3], "%Y-%m-%d %H:%M:%S"), "nodeAddr":node[0]}
                 statuses.append(status)
@@ -488,23 +485,6 @@ class AirConDashboard(Resource):
         print("air_con_dash_dic", air_con_dash_dic)
         return air_con_dash_dic
 
-
-class GrainQuote(Resource):
-    def get(self,name,content):
-        name = name
-        title = u'公告栏'
-        content = content
-        avatar = 'http://img.hb.aicdn.com/bc442cf0cc6f7940dcc567e465048d1a8d634493198c4-sPx5BR_fw236'
-        quote = {'name':name, 'title':title, 'content':content, 'avatar':avatar}
-        quote_dic = {'quote':quote}
-
-        return quote_dic
-
-    def delete(self, todo_id):
-        pass
-
-    def put(self, todo_id):
-        pass
 
 
 class GrainSmarttempCtrl(Resource):
@@ -553,6 +533,24 @@ class GrainFireAlarm(Resource):
         firealarm_dic = {'firealarm':firealarm}
 
         return firealarm_dic
+
+    def delete(self, todo_id):
+        pass
+
+    def put(self, todo_id):
+        pass
+
+
+class GrainUnmanned(Resource):
+    def get(self,name,content):
+        name = ''
+        title = u'无人值守'
+        content = ''
+        avatar = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1506452820706&di=2f39620de906300a10d3bc2e5920d45c&imgtype=0&src=http%3A%2F%2Fimg.taopic.com%2Fuploads%2Fallimg%2F120712%2F201699-120G2224T175.jpg'
+        unmanned = {'name':name, 'title':title, 'content':content, 'avatar':avatar}
+        unmanned_dic = {'unmanned':unmanned}
+
+        return unmanned_dic
 
     def delete(self, todo_id):
         pass
@@ -616,11 +614,11 @@ class Menus(Resource):
           {
             'id': '3',
             'bpid': '1',
-            'name': '实时温度',
+            'name': '在线监测',
             'icon': 'bulb',
             'route': '/aircondetail/1',
           },
-           {
+          {
             'id': '4',
             'bpid': '1',
             'name': '智能控温',
@@ -646,18 +644,17 @@ class Menus(Resource):
           {
             'id': '5',
             'bpid': '1',
-            'name': '电力控制',
+            'name': '智能控电',
             'icon': 'shopping-cart',
             'route': '/fire_alarm/1',
           },
           {
             'id': '7',
             'bpid': '1',
-            'name': '历史记录',
+            'name': '数据追溯',
             'icon': 'shopping-cart',
             'route': '/grain_history',
           },  
-
           {
             'id': 'b',
             'bpid': '1',
@@ -844,7 +841,6 @@ class AirConControl(Resource):
 
     def get(self):
         airconcontrol_dic = {'data':'airconcontrol'}
-
         return airconcontrol_dic
 
     def delete(self, todo_id):
@@ -876,7 +872,6 @@ class AirConControlOnOff(Resource):
 
     def get(self):
         airconcontrol_dic = {'data':'airconcontrol'}
-
         return airconcontrol_dic
 
     def delete(self, todo_id):
@@ -920,7 +915,6 @@ class AirConControlOnOff(Resource):
 
 
 class AirConControls(Resource):
-
     def get(self):
         airconcontrols_dic = {'data':'airconcontrols'}
         return airconcontrols_dic
@@ -1051,10 +1045,10 @@ api.add_resource(AirConRealtimeTemp, '/api/v1/air-conditioner_temperature')
 api.add_resource(AirConTemps, '/api/v1/air-conditioner_temperatures')
 api.add_resource(AirConTempRecord, '/api/v1/air-conditioner_temperature_record')
 api.add_resource(AirConDashboard, '/api/v1/air-conditioner_dashboard/<gatewayAddr>/<barnNo>')
-api.add_resource(GrainQuote, '/api/v1/grain_quote/<name>/<content>')
 api.add_resource(GrainSmarttempCtrl, '/api/v1/grain_smart_temperature_control/<name>/<content>')
 api.add_resource(GrainRealtimeTemp, '/api/v1/grain_realtime_temperature/<name>/<content>')
 api.add_resource(GrainFireAlarm, '/api/v1/grain_fire_alarm/<name>/<content>')
+api.add_resource(GrainUnmanned, '/api/v1/grain_unmanned/<name>/<content>')
 api.add_resource(GrainDynamicLinkage, '/api/v1/grain_dynamic_linkage/<name>/<content>')
 api.add_resource(GrainSecurity, '/api/v1/grain_security/<name>/<content>')
 api.add_resource(GrainHistory, '/api/v1/grain_history')
