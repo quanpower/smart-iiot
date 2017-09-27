@@ -87,12 +87,16 @@ except Exception, e:
     db.session.rollback()
 
 
+def today():
+    return datetime.datetime.now()
+
+
 try:
     lora_nodes = list()
-    lora_nodes.append(LoraNode(node_addr='1', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], grain_barn=grain_barns[0], power_io=power_ios[0]))
-    lora_nodes.append(LoraNode(node_addr='2', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], grain_barn=grain_barns[0], power_io=power_ios[0]))
-    lora_nodes.append(LoraNode(node_addr='3', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], grain_barn=grain_barns[0], power_io=power_ios[1]))
-    lora_nodes.append(LoraNode(node_addr='4', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], grain_barn=grain_barns[0], power_io=power_ios[1]))
+    lora_nodes.append(LoraNode(node_addr='1', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], grain_barn=grain_barns[0], power_io=power_ios[0], auto_manual='auto', auto_start_time=today(), auto_end_time=today() + datetime.timedelta(seconds=600)))
+    lora_nodes.append(LoraNode(node_addr='2', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], grain_barn=grain_barns[0], power_io=power_ios[0], auto_manual='auto', auto_start_time=today(), auto_end_time=today() + datetime.timedelta(seconds=600)))
+    lora_nodes.append(LoraNode(node_addr='3', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], grain_barn=grain_barns[0], power_io=power_ios[1], auto_manual='manual', auto_start_time=today(), auto_end_time=today() + datetime.timedelta(seconds=600)))
+    lora_nodes.append(LoraNode(node_addr='4', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], grain_barn=grain_barns[0], power_io=power_ios[1], auto_manual='manual', auto_start_time=today(), auto_end_time=today() + datetime.timedelta(seconds=600)))
 
     db.session.add(lora_nodes[0])
     db.session.add(lora_nodes[1])
@@ -103,9 +107,6 @@ try:
 except Exception, e:
     log.error("Creating lora_node: %s", e)
     db.session.rollback()
-
-def today():
-    return datetime.datetime.now()
 
 
 for i in range(1, 100):
@@ -188,7 +189,7 @@ for i in range(1, 13):
 
 try:
     alarm_level_setting = list()
-    alarm_level_setting.append(AlarmLevelSetting(warning=35, error=45))
+    alarm_level_setting.append(AlarmLevelSetting(warning=40, error=50))
 
     db.session.add(alarm_level_setting[0])
 

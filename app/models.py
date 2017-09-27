@@ -109,6 +109,10 @@ class LoraNode(Model):
     grain_barn = relationship("GrainBarn")
     power_io_id = Column(Integer, ForeignKey('power_io.id'), nullable=False)
     power_io = relationship("PowerIo")
+    auto_manual = Column(String(8), default='auto')
+    auto_start_time = Column(DateTime)
+    auto_end_time = Column(DateTime)
+
 
     def __repr__(self):
         return self.node_addr

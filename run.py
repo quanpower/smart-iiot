@@ -1020,6 +1020,51 @@ class TianshuoOnOffControl(Resource):
             rs485_socket_send(output_hex)
             print("{0} switch off!".format(tianshuoNo))
 
+class LoraNodeUpdate(Resource):
+    # todo: use calc to auto generate hex_string 
+
+    def get(self):
+
+        power_controls_dic = {'data':'power_controls'}
+
+        return power_controls_dic
+
+    def delete(self, todo_id):
+        pass
+
+    def put(self, todo_id):
+        pass
+
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('nodeAddr', type=int)
+
+        parser.add_argument('timeDelta', type=str)
+
+        args = parser.parse_args()
+        print(args)
+
+        nodeAddr = args['nodeAddr']
+        timeDelta = args['timeDelta']
+        print('timeDelta', timeDelta)
+
+        time_now = datetime.datetime.now()
+        auto_start_time = time_now
+        auto_end_time = time_now + datetime.timedelta(hours=float(timeDelta)) 
+
+        lora_node = db.session.query(LoraNode).filter_by(node_addr=nodeAddr).first()  
+        lora_node.auto_start_time = auto_start_time
+        lora_node.auto_end_time = auto_end_time
+
+        try:
+            db.session.commit()
+            print("lora node updated!")
+        except Exception, e:
+            log.error("Updating LoraNode: %s", e)
+            db.session.rollback()
+
+
+        return 'lora node start/end time updated!'
 
 
 ##
@@ -1057,6 +1102,7 @@ api.add_resource(AirConControls, '/api/v1/air-conditioner_controls')
 api.add_resource(AirConControlOnOff, '/api/v1/air-conditioner_control_on_off')
 api.add_resource(ElectricPowerControl, '/api/v1/electric_power_control')
 api.add_resource(TianshuoOnOffControl, '/api/v1/tianshuo_on_off_control')
+api.add_resource(LoraNodeUpdate, '/api/v1/lora_node_datetime_update')
 
 
 if __name__ == '__main__':
