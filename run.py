@@ -36,12 +36,6 @@ class LoraTemp(Resource):
 
     def get(self, gatewayAddr, nodeAddr):
 
-        # get_parser = reqparse.RequestParser()
-        # get_parser.add_argument('id', type=int, location='args', required=True)
-        #
-        # args = get_parser.parse_args()
-        # id = args.get('id')
-
         temps = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.battery_vol).filter(and_(LoraGateway.gateway_addr == gatewayAddr, LoraNode.node_addr == nodeAddr)).order_by(GrainTemp.datetime.desc()).first()
         temp_dic = {"numbers": [{"icon": "apple", "color": "#64ea91", "title": "温度1", "number": temps[0]}, {"icon": "apple", "color": "#8fc9fb", "title": "温度2", "number": temps[1]}, {"icon": "apple", "color": "#d897eb", "title": "温度3", "number": temps[2]}, {"icon": "message", "color": "#f69899", "title": "电池", "number": temps[3]}]}
         return temp_dic
@@ -56,12 +50,6 @@ class LoraTemp(Resource):
 class BarnTemp(Resource):
 
     def get(self, barn_no):
-
-        # get_parser = reqparse.RequestParser()
-        # get_parser.add_argument('id', type=int, location='args', required=True)
-        #
-        # args = get_parser.parse_args()
-        # id = args.get('id')
 
         temps = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.battery_vol).filter(and_(LoraGateway.gateway_addr == '1', LoraNode.node_addr == '1')).order_by(GrainTemp.datetime.desc()).first()
         print('---------temps-----------')
@@ -157,12 +145,6 @@ class LoRaBattery(Resource):
 class Barns(Resource):
 
     def get(self):
-
-        # (get_parser = reqparse.RequestParser()
-        # get_parser.add_argument('id', type=int, location='args', required=True)
-        #
-        # args = get_parser.parse_args()
-        # id = args.get('id')
 
         def return_color(max_abc):
             print('max_abc:', max_abc)
