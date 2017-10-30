@@ -945,6 +945,59 @@ class LoraNodeUpdate(Resource):
         return 'lora node start/end time updated!'
 
 
+class BarnLoraNodeUpdate(Resource):
+    # todo: use calc to auto generate hex_string 
+
+    def get(self):
+
+        power_controls_dic = {'data':'power_controls'}
+
+        return power_controls_dic
+
+    def delete(self, todo_id):
+        pass
+
+    def put(self, todo_id):
+        pass
+
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('barnNo', type=str)
+
+        parser.add_argument('timeDelta', type=str)
+
+        args = parser.parse_args()
+        print(args)
+
+        barnNo = args['barnNo']
+        timeDelta = args['timeDelta']
+        print('timeDelta', timeDelta)
+
+        nodes = db.session.query(LoraNode.node_addr).join(GrainBarn, GrainBarn.id == LoraNode.grain_barn_id).filter(
+            GrainBarn.barn_no == barnNo).order_by(LoraNode.node_addr.asc()).all()
+        print("nodes are:", nodes)
+
+        time_now = datetime.datetime.now()
+        auto_start_time = time_now
+        auto_end_time = time_now + datetime.timedelta(hours=float(timeDelta)) 
+        
+        for node in nodes:
+            nodeAddr = node[0]
+            lora_node = db.session.query(LoraNode).filter_by(node_addr=nodeAddr).first()  
+            lora_node.auto_start_time = auto_start_time
+            lora_node.auto_end_time = auto_end_time
+
+        try:
+            db.session.commit()
+            print("lora node updated!")
+        except Exception, e:
+            log.error("Updating LoraNode: %s", e)
+            db.session.rollback()
+
+
+        return 'lora node start/end time updated!'
+
+
 
 class NodeAddressByBarnNo(Resource):
     # todo: use calc to auto generate hex_string 
@@ -978,19 +1031,107 @@ class NodeAddressByBarnNo(Resource):
     def post(self):
         pass
 
+
+class AirConOnOffAllOneKey(Resource):
+    # todo: use calc to auto generate hex_string 
+
+    def get(self):
+        parser = reqparse.RequestParser()
+
+        parser.add_argument('airconSwitch', type=str)
+        parser.add_argument('barnNo', type=str)
+
+
+        args = parser.parse_args()
+        print(args)
+
+        barnNo = args['barnNo']
+        airconSwitch = args['airconSwitch']
+
+        nodes = db.session.query(LoraNode.node_addr).join(GrainBarn, GrainBarn.id == LoraNode.grain_barn_id).filter(
+            GrainBarn.barn_no == barnNo).order_by(LoraNode.node_addr.asc()).all()
+        print("nodes are:", nodes)
+        if airconSwitch == '1':
+            pass
+        elif airconSwitch == '0':
+            pass
+        else:
+            print('airconSwitch is :', airconSwitch)
+        return nodes
+
+    def delete(self, todo_id):
+        pass
+
+    def put(self, todo_id):
+        pass
+
+    def post(self):
+        parser = reqparse.RequestParser()
+
+        parser.add_argument('airconSwitch', type=str)
+        parser.add_argument('barnNo', type=str)
+
+
+        args = parser.parse_args()
+        print(args)
+
+        barnNo = args['barnNo']
+        airconSwitch = args['airconSwitch']
+
+        nodes = db.session.query(LoraNode.node_addr).join(GrainBarn, GrainBarn.id == LoraNode.grain_barn_id).filter(
+            GrainBarn.barn_no == barnNo).order_by(LoraNode.node_addr.asc()).all()
+        print("nodes are:", nodes)
+
+
+        if airconSwitch == '1':
+            for node in nodes:
+                node_addr = node[0]
+                print('node_addr is:',node_addr)
+                mqtt_node_addr = bitstring.pack('uint:13', node_addr).bin
+
+                node_mqtt_trans_func = db.session.query(NodeMqttTransFunc.gateway_addr, NodeMqttTransFunc.node_addr, NodeMqttTransFunc.trans_direct, NodeMqttTransFunc.func_code,
+                    NodeMqttTransFunc.wind_direct, NodeMqttTransFunc.wind_speed, NodeMqttTransFunc.model, NodeMqttTransFunc.on_off,
+                    NodeMqttTransFunc.work_mode, NodeMqttTransFunc.temp).filter(NodeMqttTransFunc.node_addr == mqtt_node_addr).all()
+
+                print('******node_mqtt_trans_func******', node_mqtt_trans_func)
+
+                if node_mqtt_trans_func:
+                    print('airconditoner switch to on!')
+                    on_off = '01'
+                    mqtt_auto_control_air(node_mqtt_trans_func, on_off)
+
+        elif airconSwitch == '0':
+            for node in nodes:
+                node_addr = node[0]
+                print('node_addr is:',node_addr)
+                mqtt_node_addr = bitstring.pack('uint:13', node_addr).bin
+
+                node_mqtt_trans_func = db.session.query(NodeMqttTransFunc.gateway_addr, NodeMqttTransFunc.node_addr, NodeMqttTransFunc.trans_direct, NodeMqttTransFunc.func_code,
+                    NodeMqttTransFunc.wind_direct, NodeMqttTransFunc.wind_speed, NodeMqttTransFunc.model, NodeMqttTransFunc.on_off,
+                    NodeMqttTransFunc.work_mode, NodeMqttTransFunc.temp).filter(NodeMqttTransFunc.node_addr == mqtt_node_addr).all()
+
+                print('******node_mqtt_trans_func******', node_mqtt_trans_func)
+                if node_mqtt_trans_func:
+                    print('airconditoner switch to off!')
+                    on_off = '00'
+                    mqtt_auto_control_air(node_mqtt_trans_func, on_off)
+        else:
+            print('airconSwitch is :', airconSwitch)
+        return nodes,args
+
+
+
 ##
 ## Actually setup the Api resource routing here
 ##
+api.add_resource(Menus, '/api/v1/menus')
+
 api.add_resource(LoRaBattery, '/api/v1/loranode_battery/<gatewayAddr>/<nodeAddr>')
 api.add_resource(LoraTemp, '/api/v1/loranode_temperature/<gatewayAddr>/<nodeAddr>')
 api.add_resource(LoraTemps, '/api/v1/loranode_temperatures/<gatewayAddr>/<nodeAddr>')
 api.add_resource(LoraTempRecord, '/api/v1/loranode_temperature_record/<gatewayAddr>/<nodeAddr>/<startTime>/<endTime>')
 api.add_resource(BarnTemp, '/api/v1/barn_temperatures/<barn_no>')
 api.add_resource(Barns, '/api/v1/barns')
-
-api.add_resource(Menus, '/api/v1/menus')
-
-
 api.add_resource(AirConRealtimeTemp, '/api/v1/air-conditioner_temperature')
 
 api.add_resource(AirConTemps, '/api/v1/air-conditioner_temperatures')
@@ -1009,7 +1150,9 @@ api.add_resource(AirConControlOnOff, '/api/v1/air-conditioner_control_on_off')
 api.add_resource(ElectricPowerControl, '/api/v1/electric_power_control')
 api.add_resource(TianshuoOnOffControl, '/api/v1/tianshuo_on_off_control')
 api.add_resource(LoraNodeUpdate, '/api/v1/lora_node_datetime_update')
+api.add_resource(BarnLoraNodeUpdate, '/api/v1/barn_lora_node_datetime_update')
 api.add_resource(NodeAddressByBarnNo, '/api/v1/node_address_by_barn_no')
+api.add_resource(AirConOnOffAllOneKey, '/api/v1/air-conditioner_on_off_all_one_key')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8888, debug=True)
