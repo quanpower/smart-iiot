@@ -11,7 +11,7 @@ from flask_babel import lazy_gettext as _
 
 from app import db, appbuilder
 from .models import ContactGroup, Gender, Contact, GrainStorehouse, GrainBarn, LoraGateway, \
-    LoraNode, GrainTemp, PowerIo, AlarmLevelSetting, PowerIoRs485Func, NodeMqttTransFunc  #ConcLocation, ConcGateway, ConcRegion, ConcNode, ConcTemp
+    LoraNode, GrainTemp, PowerIo, AlarmLevelSetting, PowerIoRs485Func, NodeMqttTransFunc  
 
 
 from flask_appbuilder import AppBuilder, BaseView, expose, has_access
@@ -349,132 +349,6 @@ class GrainTempChartView(DirectByChartView):
 ]
 
 
-
-# class ConcLocationModelView(ModelView):
-#     datamodel = SQLAInterface(ConcLocation)
-
-#     list_columns = ['location_no', 'location_name']
-#     base_order = ('location_no', 'asc')
-#     show_fieldsets = [
-#         ('Summary', {'fields': ['location_no', 'location_name']}),
-#     ]
-
-#     add_fieldsets = [
-#         ('Summary', {'fields': ['location_no', 'location_name']}),
-#     ]
-
-#     edit_fieldsets = [
-#         ('Summary', {'fields': ['location_no', 'location_name']}),
-#     ]
-
-# class ConcGatewayModelView(ModelView):
-#     datamodel = SQLAInterface(ConcGateway)
-
-#     list_columns = ['gateway_addr', 'conc_location.location_no', 'conc_location.location_name']
-
-#     base_order = ('gateway_addr', 'asc')
-#     show_fieldsets = [
-#         ('Summary', {'fields': ['gateway_addr', 'conc_location']}),
-#     ]
-
-#     add_fieldsets = [
-#         ('Summary', {'fields': ['gateway_addr', 'conc_location']}),
-#     ]
-
-#     edit_fieldsets = [
-#         ('Summary', {'fields': ['gateway_addr', 'conc_location']}),
-#     ]
-
-# class ConcRegionModelView(ModelView):
-#     datamodel = SQLAInterface(ConcRegion)
-
-#     list_columns = ['region_no', 'region_name', 'conc_location.location_no', 'conc_gateway.gateway_addr']
-
-#     base_order = ('region_no', 'asc')
-#     show_fieldsets = [
-#         ('Summary', {'fields': ['region_no', 'region_name', 'conc_location', 'conc_gateway']}),
-#     ]
-
-#     add_fieldsets = [
-#         ('Summary', {'fields': ['region_no', 'region_name', 'conc_location', 'conc_gateway']}),
-#     ]
-
-#     edit_fieldsets = [
-#         ('Summary', {'fields': ['region_no', 'region_name', 'conc_location', 'conc_gateway']}),
-#     ]
-
-# class ConcNodeModelView(ModelView):
-#     datamodel = SQLAInterface(ConcNode)
-
-#     list_columns = ['node_addr', 'conc_location.location_no', 'conc_gateway.gateway_addr', 'conc_region.region_no']
-
-#     base_order = ('node_addr', 'asc')
-#     show_fieldsets = [
-#         ('Summary', {'fields': ['node_addr', 'conc_location', 'conc_gateway', 'conc_region']}),
-#     ]
-
-#     add_fieldsets = [
-#         ('Summary', {'fields': ['node_addr', 'conc_location', 'conc_gateway', 'conc_region']}),
-#     ]
-
-#     edit_fieldsets = [
-#         ('Summary', {'fields': ['node_addr', 'conc_location', 'conc_gateway', 'conc_region']}),
-#     ]
-#
-# class CountryDirectChartView(DirectByChartView):
-#     datamodel = SQLAInterface(GrainTemp)
-#     chart_title = 'Direct Data Example'
-#
-#     definitions = [
-#     {
-#         'label': 'Unemployment',
-#         'group': 'stat_date',
-#         'series': ['unemployed_perc',
-#                    'college_perc']
-#     }
-# ]
-
-# class ConcTempModelView(ModelView):
-#     datamodel = SQLAInterface(ConcTemp)
-
-#     list_columns = ['conc_location.location_no', 'conc_gateway.gateway_addr', 'conc_region.region_no', 'conc_node.node_addr']
-
-#     base_order = ('conc_node.node_addr', 'asc')
-#     show_fieldsets = [
-#         ('Summary', {'fields': ['conc_location', 'conc_gateway', 'conc_region', 'conc_node']}),
-#         (
-#             'TempData',
-#             {'fields': ['temp1', 'temp2', 'temp3', 'battery_vol', 'datetime'], 'expanded': True}),
-#     ]
-
-#     add_fieldsets = [
-#         ('Summary', {'fields': ['conc_location', 'conc_gateway', 'conc_region', 'conc_node']}),
-#         (
-#             'TempData',
-#             {'fields': ['temp1', 'temp2', 'temp3', 'battery_vol', 'datetime'], 'expanded': True}),
-#     ]
-#     edit_fieldsets = [
-#         ('Summary', {'fields': ['conc_location', 'conc_gateway', 'conc_region', 'conc_node']}),
-#         (
-#             'TempData',
-#             {'fields': ['temp1', 'temp2', 'temp3', 'battery_vol', 'datetime'], 'expanded': True}),
-#     ]
-
-# class GrainTempChartView(DirectByChartView):
-#     datamodel = SQLAInterface(GrainTemp)
-#     chart_title = 'Direct Data Chart'
-#
-#     definitions = [
-#     {
-#         'label': 'temperature',
-#         'group': 'datetime',
-#         'series': ['temp1',
-#                    'temp2',
-#                    'temp3',
-#                    'battery_vol']
-#     }
-# ]
-
 db.create_all()
 
 appbuilder.add_view(GroupModelView, "List Groups", icon="fa-folder-open-o", category="Contacts", category_icon='fa-envelope')
@@ -500,16 +374,6 @@ appbuilder.add_view(NodeMqttTransFuncModelView, "Node MQTT Trans Func", icon="ic
 appbuilder.add_view(PowerIoModelView, "Power RS485 IO Control", icon="icon-bar-chart", label=_("Power RS485 IO Control"), category="Dynamic")
 appbuilder.add_view(PowerIoRs485FuncModelView, "Power RS485 IO Func", icon="icon-bar-chart", label=_("Power RS485 IO Func"), category="Dynamic")
 
-
-# appbuilder.add_view(ConcLocationModelView, "concrete location", icon="icon-home", label=_("Concrete Location"), category="Concrete", category_icon='icon-home', category_label=_("Concrete Setting"))
-# appbuilder.add_view(ConcRegionModelView, "region", icon="icon-home", label=_("Region"), category="Concrete")
-
-
-# appbuilder.add_view(ConcGatewayModelView, "concrete gateway", icon="icon-cloud", label=_("Concrete Gateway"), category="Lora", category_icon='icon-cog', category_label=_("Lora Setting"))
-# appbuilder.add_view(ConcNodeModelView, "concrete node", icon=" icon-circle", label=_("Concrete Node"), category="Lora")
-
-# appbuilder.add_view(ConcTempModelView, "temperature records", icon="icon-list", label=_("Concrete Temperature Records"), category="Concrete Temperature", category_icon='icon-signal ', category_label=_("Concrete Temperature") )
-# appbuilder.add_view(GrainTempChartView, "temperature charts", icon="icon-bar-chart", label=_("Temperature Charts"), category="Temperature")
 
 
 appbuilder.add_view(MyView, "dashboard", icon='icon-desktop', label=_("Dashboard"), category='Dashboard', category_icon='icon-link', category_label=_('Dashboard'))
