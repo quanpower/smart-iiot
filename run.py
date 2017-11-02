@@ -587,28 +587,42 @@ class Menus(Resource):
             'bpid': 'c',
             'mpid': 'c',
             'name': '仓房设置',
-            'route': '/navigation/navigation1',
+            'route': '/setting/storehouse_setting',
+          },
+          {
+            'id': 'c11',
+            'bpid': 'c1',
+            'mpid': 'c1',
+            'name': '上下限设置',
+            'route': '/setting/storehouse_setting/navigation1',
+          },
+          {
+            'id': 'c12',
+            'bpid': 'c1',
+            'mpid': 'c1',
+            'name': '上下限设置',
+            'route': '/setting/storehouse_setting/navigation1',
           },
           {
             'id': 'c2',
             'bpid': 'c',
             'mpid': 'c',
-            'name': '联动设置',
-            'route': '/navigation/navigation2',
+            'name': '空调设置',
+            'route': '/setting/airconditoner_setting',
           },
           {
             'id': 'c21',
             'bpid': 'c2',
             'mpid': 'c2',
             'name': '上下限设置',
-            'route': '/navigation/navigation2/navigation1',
+            'route': '/setting/airconditoner_setting/start_end_time',
           },
           {
             'id': 'c22',
             'bpid': 'c2',
             'mpid': 'c2',
             'name': '电控设置',
-            'route': '/navigation/navigation2/navigation2',
+            'route': '/setting/airconditoner_setting/navigation2',
           },
           {
             'id': '9',
@@ -861,7 +875,6 @@ class ElectricPowerControl(Resource):
         return args
 
 
-
 class TianshuoOnOffControl(Resource):
     # todo: use calc to auto generate hex_string 
 
@@ -897,6 +910,7 @@ class TianshuoOnOffControl(Resource):
             output_hex = calc_modus_hex_str_to_send(tianshuoNo, 6, 0, 0, 0, 1)
             rs485_socket_send(output_hex)
             print("{0} switch off!".format(tianshuoNo))
+
 
 class LoraNodeUpdate(Resource):
     # todo: use calc to auto generate hex_string 

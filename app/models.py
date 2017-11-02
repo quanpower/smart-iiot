@@ -1,5 +1,5 @@
 import datetime
-from sqlalchemy import Column, Integer, String, ForeignKey, Date,DateTime, SmallInteger, Float, Boolean
+from sqlalchemy import Column, Integer, String, ForeignKey, Date, Time, DateTime, SmallInteger, Float, Boolean
 from sqlalchemy.orm import relationship
 from flask_appbuilder import Model
 
@@ -73,8 +73,9 @@ class GrainBarn(Model):
     grain_storehouse = relationship("GrainStorehouse")
     lora_gateway_id = Column(Integer, ForeignKey('lora_gateway.id'), nullable=False)
     lora_gateway = relationship("LoraGateway")
-    high_limit = Column(SmallInteger)
-    low_limit = Column(SmallInteger)
+    high_limit = Column(Float)
+    low_limit = Column(Float)
+    current_limit = Column(Float)
 
     def __repr__(self):
         return self.barn_name
@@ -109,9 +110,12 @@ class LoraNode(Model):
     grain_barn = relationship("GrainBarn")
     power_io_id = Column(Integer, ForeignKey('power_io.id'), nullable=False)
     power_io = relationship("PowerIo")
+    current = Column(Float)
     auto_manual = Column(String(8), default='auto')
-    auto_start_time = Column(DateTime)
-    auto_end_time = Column(DateTime)
+    manual_start_time = Column(DateTime)
+    manual_end_time = Column(DateTime)
+    auto_start_time = Column(Time)
+    auto_end_time = Column(Time)
 
     def __repr__(self):
         return self.node_addr
