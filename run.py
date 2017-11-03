@@ -607,15 +607,15 @@ class Menus(Resource):
             'id': 'c21',
             'bpid': 'c2',
             'mpid': 'c2',
-            'name': '启停时间设置',
+            'name': '时间/上下限设置',
             'route': '/setting/airconditoner_setting/start_end_time/1',
           },
           {
             'id': 'c22',
             'bpid': 'c2',
             'mpid': 'c2',
-            'name': '上下限设置',
-            'route': '/setting/airconditoner_setting/navigation2',
+            'name': '天硕空调设置',
+            'route': '/setting/airconditoner_setting/tianshuo_setting/1',
           },
           {
             'id': '9',
