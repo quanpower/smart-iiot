@@ -114,8 +114,8 @@ class LoraNode(Model):
     auto_manual = Column(String(8), default='auto')
     manual_start_time = Column(DateTime)
     manual_end_time = Column(DateTime)
-    auto_start_time = Column(Time)
-    auto_end_time = Column(Time)
+    auto_start_time = Column(DateTime)
+    auto_end_time = Column(DateTime)
 
     def __repr__(self):
         return self.node_addr

@@ -593,14 +593,7 @@ class Menus(Resource):
             'id': 'c11',
             'bpid': 'c1',
             'mpid': 'c1',
-            'name': '上下限设置',
-            'route': '/setting/storehouse_setting/navigation1',
-          },
-          {
-            'id': 'c12',
-            'bpid': 'c1',
-            'mpid': 'c1',
-            'name': '上下限设置',
+            'name': '仓号设置',
             'route': '/setting/storehouse_setting/navigation1',
           },
           {
@@ -614,14 +607,14 @@ class Menus(Resource):
             'id': 'c21',
             'bpid': 'c2',
             'mpid': 'c2',
-            'name': '上下限设置',
-            'route': '/setting/airconditoner_setting/start_end_time',
+            'name': '启停时间设置',
+            'route': '/setting/airconditoner_setting/start_end_time/1',
           },
           {
             'id': 'c22',
             'bpid': 'c2',
             'mpid': 'c2',
-            'name': '电控设置',
+            'name': '上下限设置',
             'route': '/setting/airconditoner_setting/navigation2',
           },
           {
@@ -941,12 +934,12 @@ class LoraNodeUpdate(Resource):
         print('timeDelta', timeDelta)
 
         time_now = datetime.datetime.now()
-        auto_start_time = time_now
-        auto_end_time = time_now + datetime.timedelta(hours=float(timeDelta)) 
+        manual_start_time = time_now
+        manual_end_time = time_now + datetime.timedelta(hours=float(timeDelta)) 
 
         lora_node = db.session.query(LoraNode).filter_by(node_addr=nodeAddr).first()  
-        lora_node.auto_start_time = auto_start_time
-        lora_node.auto_end_time = auto_end_time
+        lora_node.manual_start_time = manual_start_time
+        lora_node.manual_end_time = manual_end_time
 
         try:
             db.session.commit()
@@ -992,14 +985,14 @@ class BarnLoraNodeUpdate(Resource):
         print("nodes are:", nodes)
 
         time_now = datetime.datetime.now()
-        auto_start_time = time_now
-        auto_end_time = time_now + datetime.timedelta(hours=float(timeDelta)) 
+        manual_start_time = time_now
+        manual_end_time = time_now + datetime.timedelta(hours=float(timeDelta)) 
         
         for node in nodes:
             nodeAddr = node[0]
             lora_node = db.session.query(LoraNode).filter_by(node_addr=nodeAddr).first()  
-            lora_node.auto_start_time = auto_start_time
-            lora_node.auto_end_time = auto_end_time
+            lora_node.manual_start_time = manual_start_time
+            lora_node.manual_end_time = manual_end_time
 
         try:
             db.session.commit()
@@ -1135,6 +1128,50 @@ class AirConOnOffAllOneKey(Resource):
 
 
 
+class OneAirConStartEndTimeUpdate(Resource):
+
+    def get(self):
+        pass
+
+    def delete(self, todo_id):
+        pass
+
+    def put(self, todo_id):
+        pass
+
+    def post(self):
+        parser = reqparse.RequestParser()
+
+        parser.add_argument('startTime', type=str)
+        parser.add_argument('endTime', type=str)
+        parser.add_argument('nodeAddr', type=str)
+
+        args = parser.parse_args()
+        print(args)
+
+        startTime = args['startTime']
+        endTime = args['endTime']
+        nodeAddr = args['nodeAddr']
+        auto_start_time = datetime.datetime.strptime('1901-01-01 '+startTime+':00', "%Y-%m-%d %H:%M:%S")
+        auto_end_time = datetime.datetime.strptime('1901-01-01 '+endTime+':00', "%Y-%m-%d %H:%M:%S")
+
+        lora_node = db.session.query(LoraNode).filter_by(node_addr=nodeAddr).first()  
+        lora_node.auto_start_time = auto_start_time
+        lora_node.auto_end_time = auto_end_time
+
+        try:
+            db.session.commit()
+            print("lora node updated!")
+        except Exception, e:
+            log.error("Updating LoraNode: %s", e)
+            db.session.rollback()
+
+
+        return 'lora node start/end time updated!'
+
+        
+        return nodes,args
+
 ##
 ## Actually setup the Api resource routing here
 ##
@@ -1167,6 +1204,7 @@ api.add_resource(LoraNodeUpdate, '/api/v1/lora_node_datetime_update')
 api.add_resource(BarnLoraNodeUpdate, '/api/v1/barn_lora_node_datetime_update')
 api.add_resource(NodeAddressByBarnNo, '/api/v1/node_address_by_barn_no')
 api.add_resource(AirConOnOffAllOneKey, '/api/v1/air-conditioner_on_off_all_one_key')
+api.add_resource(OneAirConStartEndTimeUpdate, '/api/v1/one_air-conditioner_start_end_time_update')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8888, debug=True)

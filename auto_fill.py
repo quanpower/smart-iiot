@@ -4,7 +4,7 @@ import logging
 from app import db
 import random
 from datetime import datetime
-import datetime
+import datetime, time
 import bitstring
 
 log = logging.getLogger(__name__)
@@ -36,18 +36,18 @@ except Exception, e:
 
 try:
     grain_barns = list()
-    grain_barns.append(GrainBarn(barn_no='1', barn_name=u'9号仓', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], high_limit=30, low_limit=20 ))
-    grain_barns.append(GrainBarn(barn_no='2', barn_name=u'11号仓', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], high_limit=30, low_limit=20 ))
-    grain_barns.append(GrainBarn(barn_no='3', barn_name=u'3号仓', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], high_limit=30, low_limit=20 ))
-    grain_barns.append(GrainBarn(barn_no='4', barn_name=u'4号仓', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], high_limit=30, low_limit=20 ))
-    grain_barns.append(GrainBarn(barn_no='5', barn_name=u'5号仓', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], high_limit=30, low_limit=20 ))
-    grain_barns.append(GrainBarn(barn_no='6', barn_name=u'6号仓', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], high_limit=30, low_limit=20 ))
-    grain_barns.append(GrainBarn(barn_no='7', barn_name=u'7号仓', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], high_limit=30, low_limit=20 ))
-    grain_barns.append(GrainBarn(barn_no='8', barn_name=u'8号仓', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], high_limit=30, low_limit=20 ))
-    grain_barns.append(GrainBarn(barn_no='9', barn_name=u'1号仓', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], high_limit=30, low_limit=20 ))
-    grain_barns.append(GrainBarn(barn_no='10', barn_name=u'10号仓', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], high_limit=30, low_limit=20 ))
-    grain_barns.append(GrainBarn(barn_no='11', barn_name=u'2号仓', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], high_limit=30, low_limit=20 ))
-    grain_barns.append(GrainBarn(barn_no='12', barn_name=u'12号仓', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], high_limit=30, low_limit=20 ))
+    grain_barns.append(GrainBarn(barn_no='1', barn_name=u'9号仓', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], high_limit=30, low_limit=20, current_limit=8.0 ))
+    grain_barns.append(GrainBarn(barn_no='2', barn_name=u'11号仓', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], high_limit=30, low_limit=20, current_limit=8.0 ))
+    grain_barns.append(GrainBarn(barn_no='3', barn_name=u'3号仓', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], high_limit=30, low_limit=20, current_limit=8.0 ))
+    grain_barns.append(GrainBarn(barn_no='4', barn_name=u'4号仓', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], high_limit=30, low_limit=20, current_limit=8.0 ))
+    grain_barns.append(GrainBarn(barn_no='5', barn_name=u'5号仓', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], high_limit=30, low_limit=20, current_limit=8.0 ))
+    grain_barns.append(GrainBarn(barn_no='6', barn_name=u'6号仓', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], high_limit=30, low_limit=20, current_limit=8.0 ))
+    grain_barns.append(GrainBarn(barn_no='7', barn_name=u'7号仓', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], high_limit=30, low_limit=20, current_limit=8.0 ))
+    grain_barns.append(GrainBarn(barn_no='8', barn_name=u'8号仓', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], high_limit=30, low_limit=20, current_limit=8.0 ))
+    grain_barns.append(GrainBarn(barn_no='9', barn_name=u'1号仓', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], high_limit=30, low_limit=20, current_limit=8.0 ))
+    grain_barns.append(GrainBarn(barn_no='10', barn_name=u'10号仓', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], high_limit=30, low_limit=20, current_limit=8.0 ))
+    grain_barns.append(GrainBarn(barn_no='11', barn_name=u'2号仓', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], high_limit=30, low_limit=20, current_limit=8.0 ))
+    grain_barns.append(GrainBarn(barn_no='12', barn_name=u'12号仓', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], high_limit=30, low_limit=20, current_limit=8.0 ))
 
     for i in range(len(grain_barns)):
         db.session.add(grain_barns[i])
@@ -93,10 +93,10 @@ def today():
 
 try:
     lora_nodes = list()
-    lora_nodes.append(LoraNode(node_addr='1', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], grain_barn=grain_barns[0], power_io=power_ios[0], auto_manual='auto', auto_start_time=today(), auto_end_time=today() + datetime.timedelta(seconds=600)))
-    lora_nodes.append(LoraNode(node_addr='2', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], grain_barn=grain_barns[0], power_io=power_ios[0], auto_manual='auto', auto_start_time=today(), auto_end_time=today() + datetime.timedelta(seconds=600)))
-    lora_nodes.append(LoraNode(node_addr='3', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], grain_barn=grain_barns[0], power_io=power_ios[1], auto_manual='manual', auto_start_time=today(), auto_end_time=today() + datetime.timedelta(seconds=600)))
-    lora_nodes.append(LoraNode(node_addr='4', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], grain_barn=grain_barns[0], power_io=power_ios[1], auto_manual='manual', auto_start_time=today(), auto_end_time=today() + datetime.timedelta(seconds=600)))
+    lora_nodes.append(LoraNode(node_addr='1', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], grain_barn=grain_barns[0], power_io=power_ios[0], current=1.0, auto_manual='auto', manual_start_time=today(), manual_end_time=today() + datetime.timedelta(seconds=600), auto_start_time=datetime.datetime.strptime('1901-01-01 08:00:00', "%Y-%m-%d %H:%M:%S"), auto_end_time=datetime.datetime.strptime('1901-01-01 18:00:00', "%Y-%m-%d %H:%M:%S")))
+    lora_nodes.append(LoraNode(node_addr='2', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], grain_barn=grain_barns[0], power_io=power_ios[0], current=1.0, auto_manual='auto', manual_start_time=today(), manual_end_time=today() + datetime.timedelta(seconds=600), auto_start_time=datetime.datetime.strptime('1901-01-01 08:00:00', "%Y-%m-%d %H:%M:%S"), auto_end_time=datetime.datetime.strptime('1901-01-01 18:00:00', "%Y-%m-%d %H:%M:%S")))
+    lora_nodes.append(LoraNode(node_addr='3', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], grain_barn=grain_barns[0], power_io=power_ios[1], current=1.0, auto_manual='manual', manual_start_time=today(), manual_end_time=today() + datetime.timedelta(seconds=600), auto_start_time=datetime.datetime.strptime('1901-01-01 08:00:00', "%Y-%m-%d %H:%M:%S"), auto_end_time=datetime.datetime.strptime('1901-01-01 18:00:00', "%Y-%m-%d %H:%M:%S")))
+    lora_nodes.append(LoraNode(node_addr='4', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0], grain_barn=grain_barns[0], power_io=power_ios[1], current=1.0, auto_manual='manual', manual_start_time=today(), manual_end_time=today() + datetime.timedelta(seconds=600), auto_start_time=datetime.datetime.strptime('1901-01-01 08:00:00', "%Y-%m-%d %H:%M:%S"), auto_end_time=datetime.datetime.strptime('1901-01-01 18:00:00', "%Y-%m-%d %H:%M:%S")))
 
     db.session.add(lora_nodes[0])
     db.session.add(lora_nodes[1])
