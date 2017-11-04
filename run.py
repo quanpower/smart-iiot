@@ -707,7 +707,8 @@ class GrainHistory(Resource):
             historys.append({"status":1, "grain_barn_id":"http://dummyimage.com/100x100/{0}/{1}.png&text={2}".format(index_color(history_records[i][0])[1:], '000000', str(history_records[i][0])), "lora_gateway_id":history_records[i][1], "lora_node_id":history_records[i][2],  
                 "temp1": history_records[i][3], "temp2": history_records[i][4], "temp3": history_records[i][5], "battery_vol":history_records[i][6], "datetime": history_records[i][7].strftime("%Y-%m-%d %H:%M:%S")})
         
-        historys_reverse = historys[::-1]
+        # historys_reverse = historys[::-1]
+        historys_reverse = historys
         print('-------------historys_reverse-------------', historys_reverse)
 
         # history = [{"title":"Ikkovumf Zhrp Zhxe","author":"Thomas","categories":"ukev","tags":"ubhim","views":64,"comments":182,"date":"1974-03-21 02:24:20","id":10001,"visibility":"Public","image":"http://dummyimage.com/100x100/79f2d2/757575.png&text=T"},]
