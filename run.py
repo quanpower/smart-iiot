@@ -32,6 +32,49 @@ def abort_if_todo_doesnt_exist(todo_id):
         abort(404, message="Todo {} doesn't exist".format(todo_id))
 
 
+
+class Login(Resource):
+
+    def get(self):
+        pass
+
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('username', type=str)
+        parser.add_argument('password', type=str)
+
+        args = parser.parse_args()
+
+        print('-----realtimetemp args-----', args)
+
+        username = args['username']
+        password = args['password']
+        return { 'success': True, 'message': 'Ok' }
+
+    def delete(self):
+        pass
+
+    def put(self):
+        pass
+
+
+
+class Logout(Resource):
+
+    def get(self):
+        pass
+
+    def post(self):
+        pass
+
+    def delete(self):
+        pass
+
+    def put(self):
+        pass
+
+
+
 class LoraTemp(Resource):
 
     def get(self, gatewayAddr, nodeAddr):
@@ -1177,6 +1220,10 @@ class OneAirConStartEndTimeUpdate(Resource):
 ## Actually setup the Api resource routing here
 ##
 api.add_resource(Menus, '/api/v1/menus')
+api.add_resource(Login, '/api/v1/user/login')
+api.add_resource(Logout, '/api/v1/user/logout')
+
+
 
 api.add_resource(LoRaBattery, '/api/v1/loranode_battery/<gatewayAddr>/<nodeAddr>')
 api.add_resource(LoraTemp, '/api/v1/loranode_temperature/<gatewayAddr>/<nodeAddr>')
