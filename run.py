@@ -407,7 +407,6 @@ class AirConDashboard(Resource):
         return air_con_dash_dic
 
 
-
 class GrainSmarttempCtrl(Resource):
     def get(self,name,content):
         name = ''
@@ -514,6 +513,7 @@ class GrainSecurity(Resource):
 
     def put(self, todo_id):
         pass
+
 
 class Menus(Resource):
     
@@ -842,7 +842,6 @@ class AirConControlOnOff(Resource):
         return args
 
 
-
 class AirConControls(Resource):
     def get(self):
         airconcontrols_dic = {'data':'airconcontrols'}
@@ -1049,7 +1048,6 @@ class BarnLoraNodeUpdate(Resource):
         return 'lora node start/end time updated!'
 
 
-
 class NodeAddressByBarnNo(Resource):
     # todo: use calc to auto generate hex_string 
 
@@ -1171,7 +1169,6 @@ class AirConOnOffAllOneKey(Resource):
         return nodes,args
 
 
-
 class OneAirConStartEndTimeUpdate(Resource):
 
     def get(self):
@@ -1210,7 +1207,6 @@ class OneAirConStartEndTimeUpdate(Resource):
             log.error("Updating LoraNode: %s", e)
             db.session.rollback()
 
-
         return 'lora node start/end time updated!'
 
         
@@ -1222,8 +1218,6 @@ class OneAirConStartEndTimeUpdate(Resource):
 api.add_resource(Menus, '/api/v1/menus')
 api.add_resource(Login, '/api/v1/user/login')
 api.add_resource(Logout, '/api/v1/user/logout')
-
-
 
 api.add_resource(LoRaBattery, '/api/v1/loranode_battery/<gatewayAddr>/<nodeAddr>')
 api.add_resource(LoraTemp, '/api/v1/loranode_temperature/<gatewayAddr>/<nodeAddr>')
