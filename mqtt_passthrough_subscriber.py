@@ -80,37 +80,72 @@ def on_message(mqttc, obj, msg):
     logger.info(strcurtime + ": " + msg.topic+" "+str(msg.qos)+" "+str(msg.payload))  
     
     payload_length = len(msg.payload)
-    un_int = struct.unpack(str(payload_length) + 'B', msg.payload)
+    print('-------payload_length---------')
+    print(msg.payload)
+    print(payload_length)
+
+    line = msg.payload
+
+    s= line.encode('hex')
+    print(s)
+
+    p = ' '.join('{:02X}'.format(ord(i)) for i in line)
+    q = [binascii.hexlify(c).upper() for c in line] 
+    t = struct.unpack('13c', line)
+    print(s)
+    print(p)
+    print(' '.join(q))
+    print(t)
+    current_bytes_1 = line[3:7]
+    current_bytes_2 = line[7:11]
     
-    logger.debug('-------units-----')
-    logger.debug(un_int)
+    print('-----current_bytes------')
+    print(current_bytes_1.encode('hex'))
 
-    uints = list(un_int)
+    current_value_mA_1 = struct.unpack('!f', current_bytes_1)[0]
+    current_value_A_1 = 10 * ((current_value_mA_1-3.92)/16)
+    current_value_mA_2 = struct.unpack('!f', current_bytes_2)[0]
+    current_value_A_2 = 10 * ((current_value_mA_2-3.92)/16)
 
-    if uints[payload_length-1] == crc_func(uints[:payload_length-1]):
-        logger.debug('CRC checked!')
+    print('-----current_value_mA------')
+    print(current_value_mA_1)
+    print('-----current_value_A------')
+    print(current_value_A_1)
 
-        if payload_length == 5:
-            lora_unpacking_ack(uints)
-        elif payload_length == 8:
-            b = binascii.b2a_hex(msg.payload)
-            # packet_data = BitStream('0x4001004751E47533')
-            # '{:0>2x}'.format(1) #dic to hex,append 0
-            packet_data = BitStream('0x'+ b)
 
-            logger.debug('--------packet_data--------')
-            logger.debug(packet_data)
-            logger.debug('--------packet_data.bin--------')
-            logger.debug(packet_data.bin)
+    # un_int = struct.unpack(str(payload_length) + 'B', msg.payload)
+    
+    # logger.debug('-------units-----')
+    # logger.debug(un_int)
 
-            realtime_data = lora_unpacking_realtime_data(packet_data)
+    # uints = list(un_int)
 
-            save_realtime_data(realtime_data)
-        else:
-            logger.debug('bytes unknown!')
+    # print(uints)
 
-    else:
-        logger.error('CRC check fail!')
+    # if uints[payload_length-1] == crc_func(uints[:payload_length-1]):
+    #     logger.debug('CRC checked!')
+
+    #     if payload_length == 5:
+    #         lora_unpacking_ack(uints)
+    #     elif payload_length == 8:
+    #         b = binascii.b2a_hex(msg.payload)
+    #         # packet_data = BitStream('0x4001004751E47533')
+    #         # '{:0>2x}'.format(1) #dic to hex,append 0
+    #         packet_data = BitStream('0x'+ b)
+
+    #         logger.debug('--------packet_data--------')
+    #         logger.debug(packet_data)
+    #         logger.debug('--------packet_data.bin--------')
+    #         logger.debug(packet_data.bin)
+
+    #         realtime_data = lora_unpacking_realtime_data(packet_data)
+
+    #         save_realtime_data(realtime_data)
+    #     else:
+    #         logger.debug('bytes unknown!')
+
+    # else:
+    #     logger.error('CRC check fail!')
 
 
 def on_exec(strcmd):
@@ -212,7 +247,7 @@ def lora_unpacking_ack(packet_data):
 
 #=====================================================
 if __name__ == '__main__': 
-    mqttc = mqtt.Client("001.transparent_transmission_downstream.subscriber")
+    mqttc = mqtt.Client("001.passthrough_subscriber")
     mqttc.username_pw_set("iiot", "smartlinkcloud")
     mqttc.on_message = on_message
     mqttc.on_connect = on_connect

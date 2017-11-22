@@ -225,14 +225,14 @@ if __name__ == '__main__':
     # while True:
 
     # time.sleep(10)
-    for i in range(10):
+    for i in range(1000):
         gateway_addr = '0b001' # 1
-        node_addr = '0b0000000000011' # 1
+        node_addr = '0b0000000001100' # 1
         trans_direct = '0b1'  # 1
         func_code = '0b0010001' # 17
         wind_direct = '0b01' #
         wind_speed = '0b11' #1
-        model = '0b1000111001' # sanling 569
+        model = '0b0000010110' # sanling 569
         # model = '0b0000101101' # media 45
 
         on_off = '0b01' # on
@@ -254,6 +254,6 @@ if __name__ == '__main__':
 
         transmitMQTT(str_bytes)
 
-        time.sleep(180)
+        time.sleep(30)
 
         
