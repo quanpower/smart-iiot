@@ -2,18 +2,20 @@
 
 from app import app
 from flasgger import Swagger, swag_from
+from flask import Flask, redirect, url_for, request, jsonify, make_response
 from flask_restful import reqparse, abort, Api, Resource
 from app import db
 from app.models import GrainTemp, LoraGateway, LoraNode, GrainBarn, GrainStorehouse, NodeMqttTransFunc 
 from sqlalchemy import and_
 import json
 import random
-import datetime
+import datetime,time
 from utils import random_color, index_color, calc, str2hexstr, calc_modus_hex_str_to_send
 from rs485_socket import rs485_socket_send
 from mqtt_publisher import mqtt_pub_air_con, transmitMQTT, mqtt_auto_control_air
 import bitstring
-
+import json
+import urllib
 
 api = Api(app)
 
@@ -49,7 +51,19 @@ class Login(Resource):
 
         username = args['username']
         password = args['password']
-        return { 'success': True, 'message': 'Ok' }
+        if password == 'admin':
+            id = 0
+            resp = make_response("Set cookie")
+            outdate=datetime.datetime.today() + datetime.timedelta(days=30) 
+            # token = json.dumps({'id':id, 'deadline':time.time()})
+            token = urllib.quote({'id':id, 'deadline':time.time()})
+            print('-----token------')
+            print(token)
+            resp.set_cookie("token", token , expires=outdate)
+            return resp
+
+
+        # return { 'success': True, 'message': 'Ok' }
 
     def delete(self):
         pass
@@ -62,7 +76,9 @@ class Login(Resource):
 class Logout(Resource):
 
     def get(self):
-        pass
+        resp = make_response("Delete cookie")
+        resp.delete_cookie('token')
+        return resp
 
     def post(self):
         pass
