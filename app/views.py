@@ -292,6 +292,8 @@ class LoraNodeModelView(ModelView):
     ]
 
 
+
+
 class CountryDirectChartView(DirectByChartView):
     datamodel = SQLAInterface(GrainTemp)
     chart_title = 'Direct Data Example'
