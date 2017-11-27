@@ -19,8 +19,6 @@ from app.models import User, Follow, Role, Permission, Post, Comment
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 
-print('---FLASK_CONFIG----')
-print(os.getenv('FLASK_CONFIG'))
 
 migrate = Migrate(app, db)
 
