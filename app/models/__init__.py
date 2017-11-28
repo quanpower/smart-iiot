@@ -3,7 +3,6 @@ from .grain import GrainStorehouse, LoraGateway, GrainBarn, PowerIo, TianshuoRs4
     TianshuoRs485Func, NodeMqttTransFunc, AlarmLevelSetting
 
 __all__ = [
-    'User',
     'Permission',
     'Role',
     'Follow',

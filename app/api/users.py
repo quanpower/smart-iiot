@@ -55,7 +55,7 @@ def get_user_followed_posts(id):
 
 
 
-@api.route('/user/login')
+@api.route('/users/login')
 def user_login():
     user = User.query.get_or_404(id)
     page = request.args.get('page', 1, type=int)
@@ -78,7 +78,7 @@ def user_login():
 
 
 
-@api.route('/user/logout')
+@api.route('/users/logout')
 def user_logout():
     user = User.query.get_or_404(id)
     page = request.args.get('page', 1, type=int)
@@ -101,7 +101,7 @@ def user_logout():
 
 
 
-@api.route('/user')
+@api.route('/users')
 def api_get_user():
     EnumRoleType = {
         'ADMIN': 'admin',

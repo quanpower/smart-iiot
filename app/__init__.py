@@ -8,10 +8,6 @@ from flask_pagedown import PageDown
 from config import config
 
 
-from .main import main as main_blueprint
-from .api import api as api_blueprint
-from .auth import auth as auth_blueprint
-
 bootstrap = Bootstrap()
 mail = Mail()
 moment = Moment()
@@ -53,6 +49,11 @@ def configure_extensions(app):
 def register_blueprints(app):
     """register all blueprints for application
     """
+
+    from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
+    from .auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
+    from .api import api as api_blueprint
     app.register_blueprint(api_blueprint, url_prefix='/api/v1')
+

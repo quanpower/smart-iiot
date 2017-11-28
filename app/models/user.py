@@ -10,7 +10,6 @@ from app.exceptions import ValidationError
 from app import db, login_manager
 
 
-
 class Permission:
     FOLLOW = 1
     COMMENT = 2
@@ -366,4 +365,3 @@ class Comment(db.Model):
 
 
 db.event.listen(Comment.body, 'set', Comment.on_changed_body)
-

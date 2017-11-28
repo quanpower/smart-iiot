@@ -1,15 +1,12 @@
-# -*- coding:utf-8 -*-
-
-from app import app
 from flasgger import Swagger, swag_from
 from flask import Flask, redirect, url_for, request, jsonify, make_response
 from flask_restful import reqparse, abort, Api, Resource
 from app import db
-from app.models import GrainTemp, LoraGateway, LoraNode, GrainBarn, GrainStorehouse, NodeMqttTransFunc 
+from app.models import GrainTemp, LoraGateway, LoraNode, GrainBarn, GrainStorehouse, NodeMqttTransFunc
 from sqlalchemy import and_
 import json
 import random
-import datetime,time
+import datetime, time
 from utils import random_color, index_color, calc, str2hexstr, calc_modus_hex_str_to_send
 from rs485_socket import rs485_socket_send
 from mqtt_publisher import mqtt_pub_air_con, transmitMQTT, mqtt_auto_control_air
@@ -17,216 +14,74 @@ import bitstring
 import json
 import urllib
 
-api = Api(app)
+# api = Api(app)
+#
+# swagger = Swagger(app)
 
-swagger = Swagger(app)
-
-
-TODOS = {
-    'todo1': {'task': 'build an API'},
-    'todo2': {'task': '?????'},
-    'todo3': {'task': 'profit!'},
-    '42': {'task': 'Use Flasgger'}
-}
-
-def abort_if_todo_doesnt_exist(todo_id):
-    if todo_id not in TODOS:
-        abort(404, message="Todo {} doesn't exist".format(todo_id))
-
-
-
-class Login(Resource):
-
-    def get(self):
-        pass
-
-    def post(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('username', type=str)
-        parser.add_argument('password', type=str)
-
-        args = parser.parse_args()
-
-        username = args['username']
-        password = args['password']
-        if password == 'admin':
-            id = 0
-            resp = make_response("Set cookie")
-            outdate=datetime.datetime.today() + datetime.timedelta(days=30) 
-            time_now = time.time()
-            deadline = time_now + 3600 * 24
-            token = json.dumps({'id':id, 'deadline':deadline})
-
-            resp.set_cookie("token", token , expires=outdate)
-            resp.status = 'success'
-            resp.status_code = 200
-            return resp
-
-
-        # return jsonify({ 'success': True, 'message': 'Ok' })
-
-    def delete(self):
-        pass
-
-    def put(self):
-        pass
-
-
-
-class Logout(Resource):
-
-    def get(self):
-        resp = make_response("Delete cookie")
-        resp.delete_cookie('token')
-        return resp
-
-    def post(self):
-        pass
-
-    def delete(self):
-        pass
-
-    def put(self):
-        pass
-
-
-class User(Resource):
-    def get(self):
-
-        EnumRoleType = {
-            'ADMIN': 'admin',
-            'DEFAULT': 'guest',
-            'DEVELOPER': 'developer',
-            }
-
-        userPermission = {
-            'DEFAULT': {
-                'visit': ['1', '2', '21', '7', '5', '51', '52', '53'],
-                'role': EnumRoleType['DEFAULT'],
-            },
-            'ADMIN': {
-                'role': EnumRoleType['ADMIN'],
-            },
-            'DEVELOPER': {
-                'role': EnumRoleType['DEVELOPER'],
-            },
-            }
-
-
-        adminUsers = [
-          {
-            'id': 0,
-            'username': 'admin',
-            'password': 'admin',
-            'permissions': userPermission['ADMIN'],
-          }, {
-            'id': 1,
-            'username': 'guest',
-            'password': 'guest',
-            'permissions': userPermission['DEFAULT'],
-          }, {
-            'id': 2,
-            'username': '吴彦祖',
-            'password': '123456',
-            'permissions': userPermission['DEVELOPER'],
-          },
-        ]
-
-
-        cookie = request.cookies
-        print(cookie)
-
-        if cookie:
-            try: 
-                token = cookie['token']
-                print('------token-------')
-                print(token)
-                token_dict = json.loads(token)
-                print(token_dict)
-
-                expires= token_dict['deadline']
-                print('------expires------')
-                print(expires)
-                time_now = time.time()
-                if expires > time_now:
-                    print('in deadline')
-                    print(expires-time_now)
-                    userItem = filter(lambda x: x['id'] == 0, adminUsers)[0]
-                    print(userItem)
-
-                    user = {}
-                    user['permissions'] = userItem['permissions']
-                    user['username'] = userItem['username']
-                    user['id'] = userItem['id']
-                    print(user)
-
-                    return jsonify({"success":True, "user":user})
-            except:
-                return jsonify({"success":False, 'msg':'have no token'})
-
-        return jsonify({"success":False, 'msg':'have no cookie'})
-
-    def post(self):
-        pass
-
-    def delete(self):
-        pass
-
-    def put(self):
-        pass
 
 
 class LoraTemp(Resource):
-
     def get(self, gatewayAddr, nodeAddr):
-
-        temps = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.battery_vol).filter(and_(LoraGateway.gateway_addr == gatewayAddr, LoraNode.node_addr == nodeAddr)).order_by(GrainTemp.datetime.desc()).first()
-        temp_dic = {"numbers": [{"icon": "apple", "color": "#64ea91", "title": "温度1", "number": temps[0]}, {"icon": "apple", "color": "#8fc9fb", "title": "温度2", "number": temps[1]}, {"icon": "apple", "color": "#d897eb", "title": "温度3", "number": temps[2]}, {"icon": "message", "color": "#f69899", "title": "电池", "number": temps[3]}]}
+        temps = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.battery_vol).filter(
+            and_(LoraGateway.gateway_addr == gatewayAddr, LoraNode.node_addr == nodeAddr)).order_by(
+            GrainTemp.datetime.desc()).first()
+        temp_dic = {"numbers": [{"icon": "apple", "color": "#64ea91", "title": "温度1", "number": temps[0]},
+                                {"icon": "apple", "color": "#8fc9fb", "title": "温度2", "number": temps[1]},
+                                {"icon": "apple", "color": "#d897eb", "title": "温度3", "number": temps[2]},
+                                {"icon": "message", "color": "#f69899", "title": "电池", "number": temps[3]}]}
         return temp_dic
 
     def delete(self, todo_id):
-		pass
+        pass
 
     def put(self, todo_id):
-		pass
+        pass
 
 
 class BarnTemp(Resource):
-
     def get(self, barn_no):
-
-        temps = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.battery_vol).filter(and_(LoraGateway.gateway_addr == '1', LoraNode.node_addr == '1')).order_by(GrainTemp.datetime.desc()).first()
+        temps = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.battery_vol).filter(
+            and_(LoraGateway.gateway_addr == '1', LoraNode.node_addr == '1')).order_by(
+            GrainTemp.datetime.desc()).first()
         print('---------temps-----------')
         print(temps)
 
-        temp_dic1 = {"air_conditioner": [{"title": "温度1", "value": temps[0]}, {"title": "温度2", "value": temps[1]}, {"title": "温度3", "value": temps[2]}, {"title": "电池", "value": temps[3]}]}
-        temp_dic2 = {"air_conditioner": [{"title": "温度1", "value": temps[0]}, {"title": "温度2", "value": temps[1]}, {"title": "温度3", "value": temps[2]}, {"title": "电池", "value": temps[3]}]}
-        temp_dic3 = {"air_conditioner": [{"title": "温度1", "value": temps[0]}, {"title": "温度2", "value": temps[1]}, {"title": "温度3", "value": temps[2]}, {"title": "电池", "value": temps[3]}]}
-        temp_dic4 = {"air_conditioner": [{"title": "温度1", "value": temps[0]}, {"title": "温度2", "value": temps[1]}, {"title": "温度3", "value": temps[2]}, {"title": "电池", "value": temps[3]}]}
+        temp_dic1 = {"air_conditioner": [{"title": "温度1", "value": temps[0]}, {"title": "温度2", "value": temps[1]},
+                                         {"title": "温度3", "value": temps[2]}, {"title": "电池", "value": temps[3]}]}
+        temp_dic2 = {"air_conditioner": [{"title": "温度1", "value": temps[0]}, {"title": "温度2", "value": temps[1]},
+                                         {"title": "温度3", "value": temps[2]}, {"title": "电池", "value": temps[3]}]}
+        temp_dic3 = {"air_conditioner": [{"title": "温度1", "value": temps[0]}, {"title": "温度2", "value": temps[1]},
+                                         {"title": "温度3", "value": temps[2]}, {"title": "电池", "value": temps[3]}]}
+        temp_dic4 = {"air_conditioner": [{"title": "温度1", "value": temps[0]}, {"title": "温度2", "value": temps[1]},
+                                         {"title": "温度3", "value": temps[2]}, {"title": "电池", "value": temps[3]}]}
 
-        temps_dict = {"air_conditioner_data": [temp_dic1, temp_dic2, temp_dic3, temp_dic4], "alarm": random.randint(0,1)}
+        temps_dict = {"air_conditioner_data": [temp_dic1, temp_dic2, temp_dic3, temp_dic4],
+                      "alarm": random.randint(0, 1)}
 
         return temps_dict
 
     def delete(self, todo_id):
-		pass
+        pass
 
     def put(self, todo_id):
-		pass
+        pass
 
 
 class LoraTemps(Resource):
     '''
         get the lates 10 temps.
     '''
-    def get(self, gatewayAddr, nodeAddr):
 
-        temp_records = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.datetime).filter(and_(LoraGateway.gateway_addr == gatewayAddr, LoraNode.node_addr == nodeAddr)).order_by(GrainTemp.datetime.desc()).limit(10).all()
+    def get(self, gatewayAddr, nodeAddr):
+        temp_records = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.datetime).filter(
+            and_(LoraGateway.gateway_addr == gatewayAddr, LoraNode.node_addr == nodeAddr)).order_by(
+            GrainTemp.datetime.desc()).limit(10).all()
 
         temp_log = []
-        for i in xrange(len(temp_records)):
-            temp_log.append({"时间": temp_records[i][3].strftime("%Y-%m-%d %H:%M:%S"), "温度1": temp_records[i][0], "温度2": temp_records[i][1], "温度3": temp_records[i][2]})
-        
+        for i in range(len(temp_records)):
+            temp_log.append({"时间": temp_records[i][3].strftime("%Y-%m-%d %H:%M:%S"), "温度1": temp_records[i][0],
+                             "温度2": temp_records[i][1], "温度3": temp_records[i][2]})
+
         temps_reverse = temp_log[::-1]
         print('------------temps_reverse--------------')
         print(temps_reverse)
@@ -235,29 +90,33 @@ class LoraTemps(Resource):
         return temps_dict
 
     def delete(self, todo_id):
-		pass
+        pass
 
     def put(self, todo_id):
-		pass
+        pass
 
 
 class LoraTempRecord(Resource):
     '''
         get the temp records by the input datetime. %H:%M:S%
     '''
+
     def get(self, gatewayAddr, nodeAddr, startTime, endTime):
         startTime = datetime.datetime.strptime(startTime, "%Y-%m-%d %H:%M:%S")
         endTime = datetime.datetime.strptime(endTime, "%Y-%m-%d %H:%M:%S")
 
         print(startTime)
         print(endTime)
-        temp_records = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.datetime).filter(and_(LoraGateway.gateway_addr == gatewayAddr, LoraNode.node_addr == nodeAddr, GrainTemp.datetime.between(startTime, endTime))).order_by(GrainTemp.datetime.desc()).all()
-
+        temp_records = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.datetime).filter(
+            and_(LoraGateway.gateway_addr == gatewayAddr, LoraNode.node_addr == nodeAddr,
+                 GrainTemp.datetime.between(startTime, endTime))).order_by(GrainTemp.datetime.desc()).all()
 
         temp_log = []
-        for i in xrange(len(temp_records)):
-            temp_log.append({"key": i, "time": temp_records[i][3].strftime("%Y-%m-%d %H:%M:%S"), "Temp1": temp_records[i][0], "Temp2": temp_records[i][1], "Temp3": temp_records[i][2]})
-        
+        for i in range(len(temp_records)):
+            temp_log.append(
+                {"key": i, "time": temp_records[i][3].strftime("%Y-%m-%d %H:%M:%S"), "Temp1": temp_records[i][0],
+                 "Temp2": temp_records[i][1], "Temp3": temp_records[i][2]})
+
         temps_reverse = temp_log[::-1]
         print('------------temps_records--------------')
         print(temps_reverse)
@@ -276,18 +135,20 @@ class LoRaBattery(Resource):
     '''
         get the latest baterry voltage.
     '''
+
     def get(self, gatewayAddr, nodeAddr):
-    	battery_vol = db.session.query(GrainTemp.battery_vol).filter(and_(LoraGateway.gateway_addr == gatewayAddr, LoraNode.node_addr == nodeAddr)).order_by(GrainTemp.datetime.desc()).first()
-    	battery_dict = {}
-    	battery_dict["vol"] = battery_vol[0]
+        battery_vol = db.session.query(GrainTemp.battery_vol).filter(
+            and_(LoraGateway.gateway_addr == gatewayAddr, LoraNode.node_addr == nodeAddr)).order_by(
+            GrainTemp.datetime.desc()).first()
+        battery_dict = {}
+        battery_dict["vol"] = battery_vol[0]
         return battery_dict
 
     def post(self):
-    	pass
+        pass
 
 
 class Barns(Resource):
-
     def get(self):
 
         def return_color(max_abc):
@@ -299,20 +160,26 @@ class Barns(Resource):
             else:
                 return "#f69899"
 
-        barns = db.session.query(GrainBarn.barn_no, GrainBarn.barn_name).join(GrainStorehouse, GrainStorehouse.id == GrainBarn.grain_storehouse_id).filter(GrainStorehouse.storehouse_no=='1').all()
+        barns = db.session.query(GrainBarn.barn_no, GrainBarn.barn_name).join(GrainStorehouse,
+                                                                              GrainStorehouse.id == GrainBarn.grain_storehouse_id).filter(
+            GrainStorehouse.storehouse_no == '1').all()
         print("-------barns are---------:", barns)
         barn_temps = []
         for barn in barns:
             print('---------------barn--------------', barn)
-            nodes = db.session.query(LoraNode.node_addr).join(GrainBarn, GrainBarn.id == LoraNode.grain_barn_id).filter(GrainBarn.barn_no == barn[0]).all()
+            nodes = db.session.query(LoraNode.node_addr).join(GrainBarn, GrainBarn.id == LoraNode.grain_barn_id).filter(
+                GrainBarn.barn_no == barn[0]).all()
             print('nodes:', nodes)
             max_temps = []
             for node in nodes:
                 # todo: repalce geteway_addr
                 print('******node******', node)
                 temps = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, LoraGateway.gateway_addr,
-                    LoraNode.node_addr).join(LoraGateway, LoraGateway.id == GrainTemp.lora_gateway_id).join(LoraNode, 
-                    LoraNode.id == GrainTemp.lora_node_id).filter(and_(LoraGateway.gateway_addr == '1', LoraNode.node_addr == node[0])).order_by(
+                                         LoraNode.node_addr).join(LoraGateway,
+                                                                  LoraGateway.id == GrainTemp.lora_gateway_id).join(
+                    LoraNode,
+                    LoraNode.id == GrainTemp.lora_node_id).filter(
+                    and_(LoraGateway.gateway_addr == '1', LoraNode.node_addr == node[0])).order_by(
                     GrainTemp.datetime.desc()).all()
 
                 print('temps', temps)
@@ -331,7 +198,8 @@ class Barns(Resource):
             else:
                 max_temp_value = 0
 
-            barn_temps_dic = {"icon": "home", "color": return_color(max_temp_value), "title": barn[1], "number": max_temp_value, "barnNo": barn[0]}
+            barn_temps_dic = {"icon": "home", "color": return_color(max_temp_value), "title": barn[1],
+                              "number": max_temp_value, "barnNo": barn[0]}
             barn_temps.append(barn_temps_dic)
         barn_dic = {"barns": barn_temps}
         # conc_dash_dic = {"concDash":[{"name":"1","status":1,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/f279aa/757575.png&text=1","date":"2017-08-19 23:38:45"},{"name":"White","status":2,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/79cdf2/757575.png&text=W","date":"2017-04-22 14:17:06"},{"name":"Martin","status":3,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/f1f279/757575.png&text=M","date":"2017-05-07 04:29:13"},{"name":"Johnson","status":1,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/d079f2/757575.png&text=J","date":"2017-01-14 02:38:37"},{"name":"Jones","status":2,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/79f2ac/757575.png&text=J","date":"2017-07-08 20:05:50"}]}
@@ -348,11 +216,8 @@ class Barns(Resource):
         pass
 
 
-
 class AirConRealtimeTemp(Resource):
-
     def get(self):
-
         parser = reqparse.RequestParser()
         parser.add_argument('gateway_addr', type=str)
         parser.add_argument('node_addr', type=str)
@@ -364,15 +229,18 @@ class AirConRealtimeTemp(Resource):
         gatewayAddr = args['gateway_addr']
         nodeAddr = args['node_addr']
 
-
         temps = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.battery_vol).join(
             LoraNode, LoraNode.id == GrainTemp.lora_node_id).join(
             LoraGateway, LoraGateway.id == GrainTemp.lora_gateway_id).filter(
-            and_(LoraNode.node_addr == unicode(nodeAddr), LoraGateway.gateway_addr == unicode(gatewayAddr))).order_by(
+            and_(LoraNode.node_addr == nodeAddr, LoraGateway.gateway_addr == gatewayAddr)).order_by(
             GrainTemp.datetime.desc()).first()
 
-        print("temps:",temps)
-        air_con_realtime_temp_dic = {"airConRealtimeTemp": [{"icon": "bulb", "color": "#64ea91", "title": "空调", "number": temps[0]}, {"icon": "bulb", "color": "#8fc9fb", "title": "插座", "number": temps[1]}, {"icon": "bulb", "color": "#d897eb", "title": "仓温", "number": temps[2]}, {"icon": "message", "color": "#f69899", "title": "电池", "number": temps[3]}]}
+        print("temps:", temps)
+        air_con_realtime_temp_dic = {
+            "airConRealtimeTemp": [{"icon": "bulb", "color": "#64ea91", "title": "空调", "number": temps[0]},
+                                   {"icon": "bulb", "color": "#8fc9fb", "title": "插座", "number": temps[1]},
+                                   {"icon": "bulb", "color": "#d897eb", "title": "仓温", "number": temps[2]},
+                                   {"icon": "message", "color": "#f69899", "title": "电池", "number": temps[3]}]}
         return air_con_realtime_temp_dic
 
     def delete(self, todo_id):
@@ -386,8 +254,8 @@ class AirConTemps(Resource):
     '''
         get the lates 10 temps.
     '''
-    def get(self):
 
+    def get(self):
         parser = reqparse.RequestParser()
         parser.add_argument('gateway_addr', type=str)
         parser.add_argument('node_addr', type=str)
@@ -402,13 +270,14 @@ class AirConTemps(Resource):
         temp_records = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.datetime).join(
             LoraNode, LoraNode.id == GrainTemp.lora_node_id).join(
             LoraGateway, LoraGateway.id == GrainTemp.lora_gateway_id).filter(
-            and_(LoraNode.node_addr == unicode(nodeAddr), LoraGateway.gateway_addr == unicode(gatewayAddr))).order_by(
+            and_(LoraNode.node_addr == nodeAddr, LoraGateway.gateway_addr == gatewayAddr)).order_by(
             GrainTemp.datetime.desc()).limit(10).all()
 
         temp_log = []
-        for i in xrange(len(temp_records)):
-            temp_log.append({"时间": temp_records[i][3].strftime("%Y-%m-%d %H:%M:%S"), "温度1": temp_records[i][0], "温度2": temp_records[i][1], "温度3": temp_records[i][2]})
-        
+        for i in range(len(temp_records)):
+            temp_log.append({"时间": temp_records[i][3].strftime("%Y-%m-%d %H:%M:%S"), "温度1": temp_records[i][0],
+                             "温度2": temp_records[i][1], "温度3": temp_records[i][2]})
+
         temps_reverse = temp_log[::-1]
         print('------------temps_reverse--------------')
         print(temps_reverse)
@@ -427,6 +296,7 @@ class AirConTempRecord(Resource):
     '''
         get the temp records by the input datetime. %H:%M:S%
     '''
+
     def get(self):
         parser = reqparse.RequestParser()
         parser.add_argument('gateway_addr', type=str)
@@ -445,19 +315,21 @@ class AirConTempRecord(Resource):
 
         print(startTime)
         print(endTime)
-        
+
         temp_records = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.datetime).join(
             LoraNode, LoraNode.id == GrainTemp.lora_node_id).join(
             LoraGateway, LoraGateway.id == GrainTemp.lora_gateway_id).filter(
-            and_(LoraNode.node_addr == unicode(nodeAddr), LoraGateway.gateway_addr == unicode(gatewayAddr), 
-                GrainTemp.datetime.between(startTime, endTime))).order_by(
+            and_(LoraNode.node_addr == nodeAddr, LoraGateway.gateway_addr == gatewayAddr,
+                 GrainTemp.datetime.between(startTime, endTime))).order_by(
             GrainTemp.datetime.desc()).all()
         print('*********temp_records*************', temp_records)
 
         temp_log = []
-        for i in xrange(len(temp_records)):
-            temp_log.append({"key": i, "time": temp_records[i][3].strftime("%Y-%m-%d %H:%M:%S"), "Temp1": temp_records[i][0], "Temp2": temp_records[i][1], "Temp3": temp_records[i][2]})
-        
+        for i in range(len(temp_records)):
+            temp_log.append(
+                {"key": i, "time": temp_records[i][3].strftime("%Y-%m-%d %H:%M:%S"), "Temp1": temp_records[i][0],
+                 "Temp2": temp_records[i][1], "Temp3": temp_records[i][2]})
+
         temps_reverse = temp_log[::-1]
         print('------------temps_records--------------')
         print(temps_reverse)
@@ -473,8 +345,8 @@ class AirConTempRecord(Resource):
 
 
 class AirConDashboard(Resource):
-    def return_status(self,a,b,c):
-        max_abc = max(a,b,c)
+    def return_status(self, a, b, c):
+        max_abc = max(a, b, c)
         print('max_abc:', max_abc)
         if max_abc < 40:
             return 1
@@ -485,37 +357,41 @@ class AirConDashboard(Resource):
 
     def get(self, gatewayAddr, barnNo):
         nodes = db.session.query(LoraNode.node_addr).join(GrainBarn, GrainBarn.id == LoraNode.grain_barn_id).filter(
-            GrainBarn.barn_no == unicode(barnNo)).order_by(LoraNode.node_addr.asc()).all()
+            GrainBarn.barn_no == barnNo).order_by(LoraNode.node_addr.asc()).all()
         print("nodes are:", nodes)
         statuses = []
         for i in range(len(nodes)):
             node = nodes[i]
             # todo: repalce geteway_addr
             temps = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.datetime).join(
-                LoraGateway, LoraGateway.id == GrainTemp.lora_gateway_id).join(LoraNode, LoraNode.id == GrainTemp.lora_node_id).filter(
-                and_(LoraGateway.gateway_addr == unicode(gatewayAddr), LoraNode.node_addr == node[0])).order_by(
+                LoraGateway, LoraGateway.id == GrainTemp.lora_gateway_id).join(LoraNode,
+                                                                               LoraNode.id == GrainTemp.lora_node_id).filter(
+                and_(LoraGateway.gateway_addr == gatewayAddr, LoraNode.node_addr == node[0])).order_by(
                 GrainTemp.datetime.desc()).first()
             if temps:
-                status = {"name":node[0]+u"号空调","status":self.return_status(temps[0], temps[1], temps[2]),"content":"空调：{0}℃, 插座：{1}℃, 仓温：{2}℃".format(
-                    str(temps[0]),str(temps[1]),str(temps[2])),"avatar":"http://dummyimage.com/48x48/{0}/757575.png&text={1}".format(index_color(int(node[0]))[1:], node[0]),
-                "date":datetime.datetime.strftime(temps[3], "%Y-%m-%d %H:%M:%S"), "nodeAddr":node[0]}
+                status = {"name": node[0] + u"号空调", "status": self.return_status(temps[0], temps[1], temps[2]),
+                          "content": "空调：{0}℃, 插座：{1}℃, 仓温：{2}℃".format(
+                              str(temps[0]), str(temps[1]), str(temps[2])),
+                          "avatar": "http://dummyimage.com/48x48/{0}/757575.png&text={1}".format(
+                              index_color(int(node[0]))[1:], node[0]),
+                          "date": datetime.datetime.strftime(temps[3], "%Y-%m-%d %H:%M:%S"), "nodeAddr": node[0]}
                 statuses.append(status)
             else:
                 statuses = []
         # conc_dash_dic = {"concDash":[{"name":"1","status":1,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/f279aa/757575.png&text=1","date":"2017-08-19 23:38:45"},{"name":"White","status":2,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/79cdf2/757575.png&text=W","date":"2017-04-22 14:17:06"},{"name":"Martin","status":3,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/f1f279/757575.png&text=M","date":"2017-05-07 04:29:13"},{"name":"Johnson","status":1,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/d079f2/757575.png&text=J","date":"2017-01-14 02:38:37"},{"name":"Jones","status":2,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/79f2ac/757575.png&text=J","date":"2017-07-08 20:05:50"}]}
-        air_con_dash_dic = {"airConDash":statuses}
+        air_con_dash_dic = {"airConDash": statuses}
         print("air_con_dash_dic", air_con_dash_dic)
         return air_con_dash_dic
 
 
 class GrainSmarttempCtrl(Resource):
-    def get(self,name,content):
+    def get(self, name, content):
         name = ''
         title = u'智能控温'
         content = ''
         avatar = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1504847335593&di=d7fd8e71543f9b99f12f614718757a0e&imgtype=0&src=http%3A%2F%2Fc1.neweggimages.com.cn%2FNeweggPic2%2Fneg%2FP800%2FA16-184-4PU.jpg'
-        smarttempctrl = {'name':name, 'title':title, 'content':content, 'avatar':avatar}
-        smarttempctrl_dic = {'smarttempctrl':smarttempctrl}
+        smarttempctrl = {'name': name, 'title': title, 'content': content, 'avatar': avatar}
+        smarttempctrl_dic = {'smarttempctrl': smarttempctrl}
 
         return smarttempctrl_dic
 
@@ -527,13 +403,13 @@ class GrainSmarttempCtrl(Resource):
 
 
 class GrainRealtimeTemp(Resource):
-    def get(self,name,content):
+    def get(self, name, content):
         name = ''
         title = u'实时监测'
         content = ''
         avatar = 'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1819841961,264465916&fm=27&gp=0.jpg'
-        realtimetemp = {'name':name, 'title':title, 'content':content, 'avatar':avatar}
-        realtimetemp_dic = {'realtimetemp':realtimetemp}
+        realtimetemp = {'name': name, 'title': title, 'content': content, 'avatar': avatar}
+        realtimetemp_dic = {'realtimetemp': realtimetemp}
 
         return realtimetemp_dic
 
@@ -545,13 +421,13 @@ class GrainRealtimeTemp(Resource):
 
 
 class GrainFireAlarm(Resource):
-    def get(self,name,content):
+    def get(self, name, content):
         name = ''
         title = u'火灾预警'
         content = ''
         avatar = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1504847444729&di=8d63e49c779b5c58f828bdcb45efd73a&imgtype=0&src=http%3A%2F%2Fimgsrc.baidu.com%2Fimgad%2Fpic%2Fitem%2F0b55b319ebc4b745d353e132c5fc1e178b8215ca.jpg'
-        firealarm = {'name':name, 'title':title, 'content':content, 'avatar':avatar}
-        firealarm_dic = {'firealarm':firealarm}
+        firealarm = {'name': name, 'title': title, 'content': content, 'avatar': avatar}
+        firealarm_dic = {'firealarm': firealarm}
 
         return firealarm_dic
 
@@ -563,13 +439,13 @@ class GrainFireAlarm(Resource):
 
 
 class GrainUnmanned(Resource):
-    def get(self,name,content):
+    def get(self, name, content):
         name = ''
         title = u'无人值守'
         content = ''
         avatar = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1506452820706&di=2f39620de906300a10d3bc2e5920d45c&imgtype=0&src=http%3A%2F%2Fimg.taopic.com%2Fuploads%2Fallimg%2F120712%2F201699-120G2224T175.jpg'
-        unmanned = {'name':name, 'title':title, 'content':content, 'avatar':avatar}
-        unmanned_dic = {'unmanned':unmanned}
+        unmanned = {'name': name, 'title': title, 'content': content, 'avatar': avatar}
+        unmanned_dic = {'unmanned': unmanned}
 
         return unmanned_dic
 
@@ -581,13 +457,13 @@ class GrainUnmanned(Resource):
 
 
 class GrainDynamicLinkage(Resource):
-    def get(self,name,content):
+    def get(self, name, content):
         name = ''
         title = u'动态联动'
         content = ''
         avatar = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1504847729495&di=f65bcca6a50ad1e5565c344eb05d0414&imgtype=jpg&src=http%3A%2F%2Fimg4.imgtn.bdimg.com%2Fit%2Fu%3D3709439994%2C3925194796%26fm%3D214%26gp%3D0.jpg'
-        dynamiclinkage = {'name':name, 'title':title, 'content':content, 'avatar':avatar}
-        dynamiclinkage_dic = {'dynamiclinkage':dynamiclinkage}
+        dynamiclinkage = {'name': name, 'title': title, 'content': content, 'avatar': avatar}
+        dynamiclinkage_dic = {'dynamiclinkage': dynamiclinkage}
 
         return dynamiclinkage_dic
 
@@ -599,13 +475,13 @@ class GrainDynamicLinkage(Resource):
 
 
 class GrainSecurity(Resource):
-    def get(self,name,content):
+    def get(self, name, content):
         name = ''
         title = u'作业安全'
         content = ''
         avatar = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1504847487313&di=250cf0c99e194c4a5c3413f866aa2a42&imgtype=0&src=http%3A%2F%2Fdown.safehoo.com%2Flt%2Fforum%2F201311%2F18%2F144905a4jnod435ndzn7sj.jpg'
-        security = {'name':name, 'title':title, 'content':content, 'avatar':avatar}
-        security_dic = {'security':security}
+        security = {'name': name, 'title': title, 'content': content, 'avatar': avatar}
+        security_dic = {'security': security}
 
         return security_dic
 
@@ -617,211 +493,210 @@ class GrainSecurity(Resource):
 
 
 class Menus(Resource):
-    
     def get(self):
         menus = [
-          {
-            'id': '1',
-            'icon': 'laptop',
-            'name': '粮仓列表',
-            'route': '/grain',
-          },
-          {
-            'id': '2',
-            'bpid': '1',
-            'name': '粮仓仪表板',
-            'icon': 'bulb',
-            'route': '/grain_dashboard/1',
-          },
-          {
-            'id': '3',
-            'bpid': '1',
-            'name': '在线监测',
-            'icon': 'bulb',
-            'route': '/aircondetail/1',
-          },
-          {
-            'id': '4',
-            'bpid': '1',
-            'name': '智能控温',
-            'icon': 'code-o',
-          },
-          {
-            'id': '41',
-            'bpid': '4',
-            'mpid': '4',
-            'name': '壁挂空调控温',
-            'icon': 'shopping-cart',
-            'route': '/aircon_control',
-          }, 
-          {
-            'id': '42',
-            'bpid': '4',
-            'mpid': '4',
+            {
+                'id': '1',
+                'icon': 'laptop',
+                'name': '粮仓列表',
+                'route': '/grain',
+            },
+            {
+                'id': '2',
+                'bpid': '1',
+                'name': '粮仓仪表板',
+                'icon': 'bulb',
+                'route': '/grain_dashboard/1',
+            },
+            {
+                'id': '3',
+                'bpid': '1',
+                'name': '在线监测',
+                'icon': 'bulb',
+                'route': '/aircondetail/1',
+            },
+            {
+                'id': '4',
+                'bpid': '1',
+                'name': '智能控温',
+                'icon': 'code-o',
+            },
+            {
+                'id': '41',
+                'bpid': '4',
+                'mpid': '4',
+                'name': '壁挂空调控温',
+                'icon': 'shopping-cart',
+                'route': '/aircon_control',
+            },
+            {
+                'id': '42',
+                'bpid': '4',
+                'mpid': '4',
 
-            'name': '天硕空调开关控制',
-            'icon': 'shopping-cart',
-            'route': '/tianshuo_on_off',
-          }, 
-          {
-            'id': '5',
-            'bpid': '1',
-            'name': '智能控电',
-            'icon': 'shopping-cart',
-            'route': '/fire_alarm/1',
-          },
-          {
-            'id': '7',
-            'bpid': '1',
-            'name': '数据追溯',
-            'icon': 'shopping-cart',
-            'route': '/grain_history',
-          },  
-          {
-            'id': 'b',
-            'bpid': '1',
-            'name': '图表报告',
-            'icon': 'code-o',
-          },
-          {
-            'id': 'b1',
-            'bpid': 'b',
-            'mpid': 'b',
-            'name': '线状图',
-            'icon': 'line-chart',
-            'route': '/chart/lineChart',
-          },
-          {
-            'id': 'b2',
-            'bpid': 'b',
-            'mpid': 'b',
-            'name': '柱状图',
-            'icon': 'bar-chart',
-            'route': '/chart/barChart',
-          },
-          {
-            'id': 'b3',
-            'bpid': 'b',
-            'mpid': 'b',
-            'name': '面积图',
-            'icon': 'area-chart',
-            'route': '/chart/areaChart',
-          },          {
-            'id': '8',
-            'bpid': '1',
-            'name': '用户管理',
-            'icon': 'user',
-            'route': '/user',
-          },
-          {
-            'id': '81',
-            'mpid': '-1',
-            'bpid': '8',
-            'name': 'User Detail',
-            'route': '/user/:id',
-          },
-          {
-            'id': 'c',
-            'bpid': '1',
-            'name': '系统设置',
-            'icon': 'setting',
-          },
-          {
-            'id': 'c1',
-            'bpid': 'c',
-            'mpid': 'c',
-            'name': '仓房设置',
-            'route': '/setting/storehouse_setting',
-          },
-          {
-            'id': 'c11',
-            'bpid': 'c1',
-            'mpid': 'c1',
-            'name': '仓号设置',
-            'route': '/setting/storehouse_setting/navigation1',
-          },
-          {
-            'id': 'c2',
-            'bpid': 'c',
-            'mpid': 'c',
-            'name': '空调设置',
-            'route': '/setting/airconditoner_setting',
-          },
-          {
-            'id': 'c21',
-            'bpid': 'c2',
-            'mpid': 'c2',
-            'name': '时间/上下限设置',
-            'route': '/setting/airconditoner_setting/start_end_time/1',
-          },
-          {
-            'id': 'c22',
-            'bpid': 'c2',
-            'mpid': 'c2',
-            'name': '天硕空调设置',
-            'route': '/setting/airconditoner_setting/tianshuo_setting/1',
-          },
-          {
-            'id': '9',
-            'bpid': '1',
-            'name': 'Request',
-            'icon': 'api',
-            'route': '/request',
-          },
-          {
-            'id': 'a',
-            'bpid': '1',
-            'name': 'UI Element',
-            'icon': 'camera-o',
-          },
-          {
-            'id': 'a1',
-            'bpid': 'a',
-            'mpid': 'a',
-            'name': 'IconFont',
-            'icon': 'heart-o',
-            'route': '/UIElement/iconfont',
-          },
-          {
-            'id': 'a2',
-            'bpid': 'a',
-            'mpid': 'a',
-            'name': 'DataTable',
-            'icon': 'database',
-            'route': '/UIElement/dataTable',
-          },
-          {
-            'id': 'a3',
-            'bpid': 'a',
-            'mpid': 'a',
-            'name': 'DropOption',
-            'icon': 'bars',
-            'route': '/UIElement/dropOption',
-          },
-          {
-            'id': 'a4',
-            'bpid': 'a',
-            'mpid': 'a',
-            'name': 'Search',
-            'icon': 'search',
-            'route': '/UIElement/search',
-          },
-          {
-            'id': 'a5',
-            'bpid': 'a',
-            'mpid': 'a',
-            'name': 'Editor',
-            'icon': 'edit',
-            'route': '/UIElement/editor',
-          },
-          {
-            'id': 'a6',
-            'bpid': 'a',
-            'mpid': 'a',
-            'name': 'layer (Function)',
-            'icon': 'credit-card',
-            'route': '/UIElement/layer',
-          },
+                'name': '天硕空调开关控制',
+                'icon': 'shopping-cart',
+                'route': '/tianshuo_on_off',
+            },
+            {
+                'id': '5',
+                'bpid': '1',
+                'name': '智能控电',
+                'icon': 'shopping-cart',
+                'route': '/fire_alarm/1',
+            },
+            {
+                'id': '7',
+                'bpid': '1',
+                'name': '数据追溯',
+                'icon': 'shopping-cart',
+                'route': '/grain_history',
+            },
+            {
+                'id': 'b',
+                'bpid': '1',
+                'name': '图表报告',
+                'icon': 'code-o',
+            },
+            {
+                'id': 'b1',
+                'bpid': 'b',
+                'mpid': 'b',
+                'name': '线状图',
+                'icon': 'line-chart',
+                'route': '/chart/lineChart',
+            },
+            {
+                'id': 'b2',
+                'bpid': 'b',
+                'mpid': 'b',
+                'name': '柱状图',
+                'icon': 'bar-chart',
+                'route': '/chart/barChart',
+            },
+            {
+                'id': 'b3',
+                'bpid': 'b',
+                'mpid': 'b',
+                'name': '面积图',
+                'icon': 'area-chart',
+                'route': '/chart/areaChart',
+            }, {
+                'id': '8',
+                'bpid': '1',
+                'name': '用户管理',
+                'icon': 'user',
+                'route': '/user',
+            },
+            {
+                'id': '81',
+                'mpid': '-1',
+                'bpid': '8',
+                'name': 'User Detail',
+                'route': '/user/:id',
+            },
+            {
+                'id': 'c',
+                'bpid': '1',
+                'name': '系统设置',
+                'icon': 'setting',
+            },
+            {
+                'id': 'c1',
+                'bpid': 'c',
+                'mpid': 'c',
+                'name': '仓房设置',
+                'route': '/setting/storehouse_setting',
+            },
+            {
+                'id': 'c11',
+                'bpid': 'c1',
+                'mpid': 'c1',
+                'name': '仓号设置',
+                'route': '/setting/storehouse_setting/navigation1',
+            },
+            {
+                'id': 'c2',
+                'bpid': 'c',
+                'mpid': 'c',
+                'name': '空调设置',
+                'route': '/setting/airconditoner_setting',
+            },
+            {
+                'id': 'c21',
+                'bpid': 'c2',
+                'mpid': 'c2',
+                'name': '时间/上下限设置',
+                'route': '/setting/airconditoner_setting/start_end_time/1',
+            },
+            {
+                'id': 'c22',
+                'bpid': 'c2',
+                'mpid': 'c2',
+                'name': '天硕空调设置',
+                'route': '/setting/airconditoner_setting/tianshuo_setting/1',
+            },
+            {
+                'id': '9',
+                'bpid': '1',
+                'name': 'Request',
+                'icon': 'api',
+                'route': '/request',
+            },
+            {
+                'id': 'a',
+                'bpid': '1',
+                'name': 'UI Element',
+                'icon': 'camera-o',
+            },
+            {
+                'id': 'a1',
+                'bpid': 'a',
+                'mpid': 'a',
+                'name': 'IconFont',
+                'icon': 'heart-o',
+                'route': '/UIElement/iconfont',
+            },
+            {
+                'id': 'a2',
+                'bpid': 'a',
+                'mpid': 'a',
+                'name': 'DataTable',
+                'icon': 'database',
+                'route': '/UIElement/dataTable',
+            },
+            {
+                'id': 'a3',
+                'bpid': 'a',
+                'mpid': 'a',
+                'name': 'DropOption',
+                'icon': 'bars',
+                'route': '/UIElement/dropOption',
+            },
+            {
+                'id': 'a4',
+                'bpid': 'a',
+                'mpid': 'a',
+                'name': 'Search',
+                'icon': 'search',
+                'route': '/UIElement/search',
+            },
+            {
+                'id': 'a5',
+                'bpid': 'a',
+                'mpid': 'a',
+                'name': 'Editor',
+                'icon': 'edit',
+                'route': '/UIElement/editor',
+            },
+            {
+                'id': 'a6',
+                'bpid': 'a',
+                'mpid': 'a',
+                'name': 'layer (Function)',
+                'icon': 'credit-card',
+                'route': '/UIElement/layer',
+            },
         ]
         return menus
 
@@ -833,30 +708,33 @@ class Menus(Resource):
 
 
 class GrainHistory(Resource):
-
     def get(self):
         get_parser = reqparse.RequestParser()
         get_parser.add_argument('status', type=int, location='args', required=True)
         args = get_parser.parse_args()
         status = args.get('status')
 
-        history_records = db.session.query(GrainTemp.grain_barn_id, GrainTemp.lora_gateway_id, GrainTemp.lora_node_id, 
-            GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.battery_vol, GrainTemp.datetime).order_by(
+        history_records = db.session.query(GrainTemp.grain_barn_id, GrainTemp.lora_gateway_id, GrainTemp.lora_node_id,
+                                           GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.battery_vol,
+                                           GrainTemp.datetime).order_by(
             GrainTemp.datetime.desc()).all()
         print('*********history_records*************', history_records)
 
         historys = []
-        for i in xrange(len(history_records)):
+        for i in range(len(history_records)):
+            historys.append({"status": 1, "grain_barn_id": "http://dummyimage.com/100x100/{0}/{1}.png&text={2}".format(
+                index_color(history_records[i][0])[1:], '000000', str(history_records[i][0])),
+                             "lora_gateway_id": history_records[i][1], "lora_node_id": history_records[i][2],
+                             "temp1": history_records[i][3], "temp2": history_records[i][4],
+                             "temp3": history_records[i][5], "battery_vol": history_records[i][6],
+                             "datetime": history_records[i][7].strftime("%Y-%m-%d %H:%M:%S")})
 
-            historys.append({"status":1, "grain_barn_id":"http://dummyimage.com/100x100/{0}/{1}.png&text={2}".format(index_color(history_records[i][0])[1:], '000000', str(history_records[i][0])), "lora_gateway_id":history_records[i][1], "lora_node_id":history_records[i][2],  
-                "temp1": history_records[i][3], "temp2": history_records[i][4], "temp3": history_records[i][5], "battery_vol":history_records[i][6], "datetime": history_records[i][7].strftime("%Y-%m-%d %H:%M:%S")})
-        
         # historys_reverse = historys[::-1]
         historys_reverse = historys
         print('-------------historys_reverse-------------', historys_reverse)
 
         # history = [{"title":"Ikkovumf Zhrp Zhxe","author":"Thomas","categories":"ukev","tags":"ubhim","views":64,"comments":182,"date":"1974-03-21 02:24:20","id":10001,"visibility":"Public","image":"http://dummyimage.com/100x100/79f2d2/757575.png&text=T"},]
-        grain_history_dic = {'data':historys_reverse, "total":100}
+        grain_history_dic = {'data': historys_reverse, "total": 100}
 
         return grain_history_dic
 
@@ -868,16 +746,14 @@ class GrainHistory(Resource):
 
 
 class AirConControl(Resource):
-
     def get(self):
-        airconcontrol_dic = {'data':'airconcontrol'}
+        airconcontrol_dic = {'data': 'airconcontrol'}
         return airconcontrol_dic
 
     def delete(self, todo_id):
         pass
 
     def put(self, todo_id):
-
         pass
 
     def post(self):
@@ -899,9 +775,8 @@ class AirConControl(Resource):
 
 
 class AirConControlOnOff(Resource):
-
     def get(self):
-        airconcontrol_dic = {'data':'airconcontrol'}
+        airconcontrol_dic = {'data': 'airconcontrol'}
         return airconcontrol_dic
 
     def delete(self, todo_id):
@@ -923,9 +798,12 @@ class AirConControlOnOff(Resource):
         node_addr = args['nodeAddr']
         mqtt_node_addr = bitstring.pack('uint:13', node_addr).bin
 
-        node_mqtt_trans_func = db.session.query(NodeMqttTransFunc.gateway_addr, NodeMqttTransFunc.node_addr, NodeMqttTransFunc.trans_direct, NodeMqttTransFunc.func_code,
-            NodeMqttTransFunc.wind_direct, NodeMqttTransFunc.wind_speed, NodeMqttTransFunc.model, NodeMqttTransFunc.on_off,
-            NodeMqttTransFunc.work_mode, NodeMqttTransFunc.temp).filter(NodeMqttTransFunc.node_addr == mqtt_node_addr).all()
+        node_mqtt_trans_func = db.session.query(NodeMqttTransFunc.gateway_addr, NodeMqttTransFunc.node_addr,
+                                                NodeMqttTransFunc.trans_direct, NodeMqttTransFunc.func_code,
+                                                NodeMqttTransFunc.wind_direct, NodeMqttTransFunc.wind_speed,
+                                                NodeMqttTransFunc.model, NodeMqttTransFunc.on_off,
+                                                NodeMqttTransFunc.work_mode, NodeMqttTransFunc.temp).filter(
+            NodeMqttTransFunc.node_addr == mqtt_node_addr).all()
 
         print('******node_mqtt_trans_func******', node_mqtt_trans_func)
 
@@ -945,7 +823,7 @@ class AirConControlOnOff(Resource):
 
 class AirConControls(Resource):
     def get(self):
-        airconcontrols_dic = {'data':'airconcontrols'}
+        airconcontrols_dic = {'data': 'airconcontrols'}
         return airconcontrols_dic
 
     def delete(self, todo_id):
@@ -964,11 +842,11 @@ class AirConControls(Resource):
 
 
 class ElectricPowerControl(Resource):
-    # todo: use calc to auto generate hex_string 
+    # todo: use calc to auto generate hex_string
 
     def get(self):
 
-        power_controls_dic = {'data':'power_controls'}
+        power_controls_dic = {'data': 'power_controls'}
 
         return power_controls_dic
 
@@ -1008,16 +886,15 @@ class ElectricPowerControl(Resource):
                 rs485_socket_send(str2hexstr(power_2_open))
                 print("2 switch off!")
 
-
         return args
 
 
 class TianshuoOnOffControl(Resource):
-    # todo: use calc to auto generate hex_string 
+    # todo: use calc to auto generate hex_string
 
     def get(self):
 
-        power_controls_dic = {'data':'power_controls'}
+        power_controls_dic = {'data': 'power_controls'}
 
         return power_controls_dic
 
@@ -1037,7 +914,7 @@ class TianshuoOnOffControl(Resource):
 
         tianshuoNo = args['tianshuoNo']
         tianshuoSwitch = args['tianshuoSwitch']
-        
+
         if tianshuoSwitch == '1':
             output_hex = calc_modus_hex_str_to_send(tianshuoNo, 6, 0, 0, 0, 9)
             rs485_socket_send(output_hex)
@@ -1050,11 +927,11 @@ class TianshuoOnOffControl(Resource):
 
 
 class LoraNodeUpdate(Resource):
-    # todo: use calc to auto generate hex_string 
+    # todo: use calc to auto generate hex_string
 
     def get(self):
 
-        power_controls_dic = {'data':'power_controls'}
+        power_controls_dic = {'data': 'power_controls'}
 
         return power_controls_dic
 
@@ -1079,29 +956,29 @@ class LoraNodeUpdate(Resource):
 
         time_now = datetime.datetime.now()
         manual_start_time = time_now
-        manual_end_time = time_now + datetime.timedelta(hours=float(timeDelta)) 
+        manual_end_time = time_now + datetime.timedelta(hours=float(timeDelta))
 
-        lora_node = db.session.query(LoraNode).filter_by(node_addr=nodeAddr).first()  
+        lora_node = db.session.query(LoraNode).filter_by(node_addr=nodeAddr).first()
         lora_node.manual_start_time = manual_start_time
         lora_node.manual_end_time = manual_end_time
 
         try:
             db.session.commit()
             print("lora node updated!")
-        except Exception, e:
-            log.error("Updating LoraNode: %s", e)
+        except Exception as e:
+            # log.error("Updating LoraNode: %s", e)
+            print("Updating LoraNode: %s", e)
             db.session.rollback()
-
 
         return 'lora node start/end time updated!'
 
 
 class BarnLoraNodeUpdate(Resource):
-    # todo: use calc to auto generate hex_string 
+    # todo: use calc to auto generate hex_string
 
     def get(self):
 
-        power_controls_dic = {'data':'power_controls'}
+        power_controls_dic = {'data': 'power_controls'}
 
         return power_controls_dic
 
@@ -1130,34 +1007,33 @@ class BarnLoraNodeUpdate(Resource):
 
         time_now = datetime.datetime.now()
         manual_start_time = time_now
-        manual_end_time = time_now + datetime.timedelta(hours=float(timeDelta)) 
-        
+        manual_end_time = time_now + datetime.timedelta(hours=float(timeDelta))
+
         for node in nodes:
             nodeAddr = node[0]
-            lora_node = db.session.query(LoraNode).filter_by(node_addr=nodeAddr).first()  
+            lora_node = db.session.query(LoraNode).filter_by(node_addr=nodeAddr).first()
             lora_node.manual_start_time = manual_start_time
             lora_node.manual_end_time = manual_end_time
 
         try:
             db.session.commit()
             print("lora node updated!")
-        except Exception, e:
-            log.error("Updating LoraNode: %s", e)
+        except Exception as e:
+            # log.error("Updating LoraNode: %s", e)
+            print("Updating LoraNode: %s", e)
             db.session.rollback()
-
 
         return 'lora node start/end time updated!'
 
 
 class NodeAddressByBarnNo(Resource):
-    # todo: use calc to auto generate hex_string 
+    # todo: use calc to auto generate hex_string
 
     def get(self):
         parser = reqparse.RequestParser()
 
         parser.add_argument('airconSwitch', type=str)
         parser.add_argument('barnNo', type=str)
-
 
         args = parser.parse_args()
         print(args)
@@ -1168,7 +1044,7 @@ class NodeAddressByBarnNo(Resource):
         nodes = db.session.query(LoraNode.node_addr).join(GrainBarn, GrainBarn.id == LoraNode.grain_barn_id).filter(
             GrainBarn.barn_no == barnNo).order_by(LoraNode.node_addr.asc()).all()
         print("nodes are:", nodes)
-        power_controls_dic = {'data':'power_controls'}
+        power_controls_dic = {'data': 'power_controls'}
 
         return nodes
 
@@ -1183,14 +1059,13 @@ class NodeAddressByBarnNo(Resource):
 
 
 class AirConOnOffAllOneKey(Resource):
-    # todo: use calc to auto generate hex_string 
+    # todo: use calc to auto generate hex_string
 
     def get(self):
         parser = reqparse.RequestParser()
 
         parser.add_argument('airconSwitch', type=str)
         parser.add_argument('barnNo', type=str)
-
 
         args = parser.parse_args()
         print(args)
@@ -1221,7 +1096,6 @@ class AirConOnOffAllOneKey(Resource):
         parser.add_argument('airconSwitch', type=str)
         parser.add_argument('barnNo', type=str)
 
-
         args = parser.parse_args()
         print(args)
 
@@ -1232,16 +1106,18 @@ class AirConOnOffAllOneKey(Resource):
             GrainBarn.barn_no == barnNo).order_by(LoraNode.node_addr.asc()).all()
         print("nodes are:", nodes)
 
-
         if airconSwitch == '1':
             for node in nodes:
                 node_addr = node[0]
-                print('node_addr is:',node_addr)
+                print('node_addr is:', node_addr)
                 mqtt_node_addr = bitstring.pack('uint:13', node_addr).bin
 
-                node_mqtt_trans_func = db.session.query(NodeMqttTransFunc.gateway_addr, NodeMqttTransFunc.node_addr, NodeMqttTransFunc.trans_direct, NodeMqttTransFunc.func_code,
-                    NodeMqttTransFunc.wind_direct, NodeMqttTransFunc.wind_speed, NodeMqttTransFunc.model, NodeMqttTransFunc.on_off,
-                    NodeMqttTransFunc.work_mode, NodeMqttTransFunc.temp).filter(NodeMqttTransFunc.node_addr == mqtt_node_addr).all()
+                node_mqtt_trans_func = db.session.query(NodeMqttTransFunc.gateway_addr, NodeMqttTransFunc.node_addr,
+                                                        NodeMqttTransFunc.trans_direct, NodeMqttTransFunc.func_code,
+                                                        NodeMqttTransFunc.wind_direct, NodeMqttTransFunc.wind_speed,
+                                                        NodeMqttTransFunc.model, NodeMqttTransFunc.on_off,
+                                                        NodeMqttTransFunc.work_mode, NodeMqttTransFunc.temp).filter(
+                    NodeMqttTransFunc.node_addr == mqtt_node_addr).all()
 
                 print('******node_mqtt_trans_func******', node_mqtt_trans_func)
 
@@ -1253,12 +1129,15 @@ class AirConOnOffAllOneKey(Resource):
         elif airconSwitch == '0':
             for node in nodes:
                 node_addr = node[0]
-                print('node_addr is:',node_addr)
+                print('node_addr is:', node_addr)
                 mqtt_node_addr = bitstring.pack('uint:13', node_addr).bin
 
-                node_mqtt_trans_func = db.session.query(NodeMqttTransFunc.gateway_addr, NodeMqttTransFunc.node_addr, NodeMqttTransFunc.trans_direct, NodeMqttTransFunc.func_code,
-                    NodeMqttTransFunc.wind_direct, NodeMqttTransFunc.wind_speed, NodeMqttTransFunc.model, NodeMqttTransFunc.on_off,
-                    NodeMqttTransFunc.work_mode, NodeMqttTransFunc.temp).filter(NodeMqttTransFunc.node_addr == mqtt_node_addr).all()
+                node_mqtt_trans_func = db.session.query(NodeMqttTransFunc.gateway_addr, NodeMqttTransFunc.node_addr,
+                                                        NodeMqttTransFunc.trans_direct, NodeMqttTransFunc.func_code,
+                                                        NodeMqttTransFunc.wind_direct, NodeMqttTransFunc.wind_speed,
+                                                        NodeMqttTransFunc.model, NodeMqttTransFunc.on_off,
+                                                        NodeMqttTransFunc.work_mode, NodeMqttTransFunc.temp).filter(
+                    NodeMqttTransFunc.node_addr == mqtt_node_addr).all()
 
                 print('******node_mqtt_trans_func******', node_mqtt_trans_func)
                 if node_mqtt_trans_func:
@@ -1267,11 +1146,10 @@ class AirConOnOffAllOneKey(Resource):
                     mqtt_auto_control_air(node_mqtt_trans_func, on_off)
         else:
             print('airconSwitch is :', airconSwitch)
-        return nodes,args
+        return nodes, args
 
 
 class OneAirConStartEndTimeUpdate(Resource):
-
     def get(self):
         pass
 
@@ -1294,62 +1172,21 @@ class OneAirConStartEndTimeUpdate(Resource):
         startTime = args['startTime']
         endTime = args['endTime']
         nodeAddr = args['nodeAddr']
-        auto_start_time = datetime.datetime.strptime('1901-01-01 '+startTime+':00', "%Y-%m-%d %H:%M:%S")
-        auto_end_time = datetime.datetime.strptime('1901-01-01 '+endTime+':00', "%Y-%m-%d %H:%M:%S")
+        auto_start_time = datetime.datetime.strptime('1901-01-01 ' + startTime + ':00', "%Y-%m-%d %H:%M:%S")
+        auto_end_time = datetime.datetime.strptime('1901-01-01 ' + endTime + ':00', "%Y-%m-%d %H:%M:%S")
 
-        lora_node = db.session.query(LoraNode).filter_by(node_addr=nodeAddr).first()  
+        lora_node = db.session.query(LoraNode).filter_by(node_addr=nodeAddr).first()
         lora_node.auto_start_time = auto_start_time
         lora_node.auto_end_time = auto_end_time
 
         try:
             db.session.commit()
             print("lora node updated!")
-        except Exception, e:
-            log.error("Updating LoraNode: %s", e)
+        except Exception as e:
+            # log.error("Updating LoraNode: %s", e)
+            print("Updating LoraNode: %s", e)
             db.session.rollback()
 
         return 'lora node start/end time updated!'
 
-        
-        return nodes,args
-
-##
-## Actually setup the Api resource routing here
-##
-api.add_resource(Menus, '/api/v1/menus')
-api.add_resource(Login, '/api/v1/user/login')
-api.add_resource(Logout, '/api/v1/user/logout')
-api.add_resource(User, '/api/v1/user')
-
-api.add_resource(LoRaBattery, '/api/v1/loranode_battery/<gatewayAddr>/<nodeAddr>')
-api.add_resource(LoraTemp, '/api/v1/loranode_temperature/<gatewayAddr>/<nodeAddr>')
-api.add_resource(LoraTemps, '/api/v1/loranode_temperatures/<gatewayAddr>/<nodeAddr>')
-api.add_resource(LoraTempRecord, '/api/v1/loranode_temperature_record/<gatewayAddr>/<nodeAddr>/<startTime>/<endTime>')
-api.add_resource(BarnTemp, '/api/v1/barn_temperatures/<barn_no>')
-api.add_resource(Barns, '/api/v1/barns')
-api.add_resource(AirConRealtimeTemp, '/api/v1/air-conditioner_temperature')
-
-api.add_resource(AirConTemps, '/api/v1/air-conditioner_temperatures')
-api.add_resource(AirConTempRecord, '/api/v1/air-conditioner_temperature_record')
-api.add_resource(AirConDashboard, '/api/v1/air-conditioner_dashboard/<gatewayAddr>/<barnNo>')
-api.add_resource(GrainSmarttempCtrl, '/api/v1/grain_smart_temperature_control/<name>/<content>')
-api.add_resource(GrainRealtimeTemp, '/api/v1/grain_realtime_temperature/<name>/<content>')
-api.add_resource(GrainFireAlarm, '/api/v1/grain_fire_alarm/<name>/<content>')
-api.add_resource(GrainUnmanned, '/api/v1/grain_unmanned/<name>/<content>')
-api.add_resource(GrainDynamicLinkage, '/api/v1/grain_dynamic_linkage/<name>/<content>')
-api.add_resource(GrainSecurity, '/api/v1/grain_security/<name>/<content>')
-api.add_resource(GrainHistory, '/api/v1/grain_history')
-api.add_resource(AirConControl, '/api/v1/air-conditioner_control')
-api.add_resource(AirConControls, '/api/v1/air-conditioner_controls')
-api.add_resource(AirConControlOnOff, '/api/v1/air-conditioner_control_on_off')
-api.add_resource(ElectricPowerControl, '/api/v1/electric_power_control')
-api.add_resource(TianshuoOnOffControl, '/api/v1/tianshuo_on_off_control')
-api.add_resource(LoraNodeUpdate, '/api/v1/lora_node_datetime_update')
-api.add_resource(BarnLoraNodeUpdate, '/api/v1/barn_lora_node_datetime_update')
-api.add_resource(NodeAddressByBarnNo, '/api/v1/node_address_by_barn_no')
-api.add_resource(AirConOnOffAllOneKey, '/api/v1/air-conditioner_on_off_all_one_key')
-api.add_resource(OneAirConStartEndTimeUpdate, '/api/v1/one_air-conditioner_start_end_time_update')
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8888, debug=True)
-
+        return nodes, args
