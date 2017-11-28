@@ -118,18 +118,19 @@ class User(Resource):
                 token_dict = json.loads(token)
                 print(token_dict)
 
-                # time_now = time.time()
+                time_now = time.time()
                 print('-----time_now-------')
-                # print(time_now)
+                print(time_now)
 
                 expires = token_dict['deadline']
                 print('------expires------')
                 print(expires)
 
-                if expires > 1:
+                if expires > time_now:
                     print('in deadline')
-                    # print(expires-time_now)
-                    userItem = filter(lambda x: x['id'] == 0, adminUsers)[0]
+                    print(expires-time_now)
+                    # filter return iterator in python3,need list to trans
+                    userItem = list(filter(lambda x: x['id'] == 0, adminUsers))[0]
                     print(userItem)
 
                     user = {}
