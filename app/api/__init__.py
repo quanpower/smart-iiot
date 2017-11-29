@@ -20,7 +20,7 @@ api_resource.add_resource(Logout, '/user/logout')
 api_resource.add_resource(User, '/user')
 
 
-api_resource.add_resource(Menus, 'menus')
+api_resource.add_resource(Menus, '/menus')
 
 
 api_resource.add_resource(LoRaBattery, '/loranode_battery/<gatewayAddr>/<nodeAddr>')
