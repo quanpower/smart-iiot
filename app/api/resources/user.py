@@ -3,6 +3,7 @@ from flask_restful import Resource, reqparse, abort
 import time
 import datetime
 import json
+from app.models import User
 
 
 class Login(Resource):
@@ -19,17 +20,28 @@ class Login(Resource):
 
         username = args['username']
         password = args['password']
-        if password == 'admin':
-            id = 0
+
+        user = User.query.filter_by(username=username).first()
+        if user is not None and user.verify_password(password):
+            print('-----verify success!-----')
+            user_id = user.id
+            print(user_id)
+
             resp = make_response("Set cookie")
             outdate=datetime.datetime.today() + datetime.timedelta(days=30)
             time_now = time.time()
             deadline = time_now + 3600 * 24
 
+            auth_token = user.generate_auth_token(3600)
+
+            print('------auth_token-----')
+            print(auth_token)
+
+
             print('------set deadline-----')
             print(time_now)
             print(deadline)
-            token = json.dumps({'id': id, 'deadline': deadline})
+            token = json.dumps({'auth_token': auth_token, 'deadline': deadline})
 
             resp.set_cookie("token", token, expires=outdate)
             resp.status = 'success'
@@ -64,7 +76,7 @@ class Logout(Resource):
         pass
 
 
-class User(Resource):
+class GetUser(Resource):
     def get(self):
 
         EnumRoleType = {
@@ -87,25 +99,6 @@ class User(Resource):
             }
 
 
-        adminUsers = [
-          {
-            'id': 0,
-            'username': 'admin',
-            'password': 'admin',
-            'permissions': userPermission['ADMIN'],
-          }, {
-            'id': 1,
-            'username': 'guest',
-            'password': 'guest',
-            'permissions': userPermission['DEFAULT'],
-          }, {
-            'id': 2,
-            'username': '吴彦祖',
-            'password': '123456',
-            'permissions': userPermission['DEVELOPER'],
-          },
-        ]
-
 
         cookie = request.cookies
         print(cookie)
@@ -126,17 +119,29 @@ class User(Resource):
                 print('------expires------')
                 print(expires)
 
+                auth_token = token_dict['auth_token']
+                print('------auth_token------')
+                print(auth_token)
+
                 if expires > time_now:
                     print('in deadline')
                     print(expires-time_now)
                     # filter return iterator in python3,need list to trans
-                    userItem = list(filter(lambda x: x['id'] == 0, adminUsers))[0]
-                    print(userItem)
+                    # userItem = list(filter(lambda x: x['id'] == 0, adminUsers))[0]
+
+                    # print(userItem)
+                    user = User
+                    auth_user = user.verify_auth_token(auth_token)
+
+                    print('------auth-user-----')
+                    print(auth_user)
 
                     user = {}
-                    user['permissions'] = userItem['permissions']
-                    user['username'] = userItem['username']
-                    user['id'] = userItem['id']
+                    # user['permissions'] = auth_user.role_id
+                    user['permissions'] = userPermission['ADMIN']
+                    user['username'] = auth_user.username
+                    user['id'] = auth_user.id
+                    print('-------user--------')
                     print(user)
 
                     return jsonify({"success": True, "user": user})

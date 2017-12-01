@@ -4,7 +4,7 @@ api = Blueprint('api', __name__)
 from . import authentication, posts, users, comments, errors
 
 from flask_restful import Api
-from app.api.resources import Login, Logout, User,LoraTemp, BarnTemp, LoraTemps, LoraTempRecord, LoRaBattery, Barns, AirConRealtimeTemp, AirConTemps, \
+from app.api.resources import Login, Logout, GetUser,LoraTemp, BarnTemp, LoraTemps, LoraTempRecord, LoRaBattery, Barns, AirConRealtimeTemp, AirConTemps, \
     AirConTempRecord, AirConDashboard, GrainSmarttempCtrl, GrainRealtimeTemp, GrainFireAlarm, GrainUnmanned, GrainDynamicLinkage, \
     GrainSecurity, Menus, GrainHistory, AirConControl, AirConControlOnOff, AirConControls, ElectricPowerControl, \
     TianshuoOnOffControl, LoraNodeUpdate, BarnLoraNodeUpdate, NodeAddressByBarnNo, AirConOnOffAllOneKey, OneAirConStartEndTimeUpdate, \
@@ -17,7 +17,7 @@ api_resource = Api(api)
 
 api_resource.add_resource(Login, '/user/login')
 api_resource.add_resource(Logout, '/user/logout')
-api_resource.add_resource(User, '/user')
+api_resource.add_resource(GetUser, '/user')
 
 
 api_resource.add_resource(Menus, '/menus')
