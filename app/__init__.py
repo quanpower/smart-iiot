@@ -13,9 +13,6 @@ from flask_babelex import Babel
 import os.path as op
 
 
-
-
-
 bootstrap = Bootstrap()
 mail = Mail()
 moment = Moment()

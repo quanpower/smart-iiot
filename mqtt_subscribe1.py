@@ -201,7 +201,7 @@ def save_realtime_data(data):
     try:
         db.session.commit()
         logger.debug('inserted!') 
-    except Exception, e:
+    except Exception as e:
         logger.error("Inserting Grian_temp: %s", e)
         db.session.rollback()
 
