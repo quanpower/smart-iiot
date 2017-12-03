@@ -5,7 +5,6 @@ from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_pagedown import PageDown
-from flask_admin import Admin
 from config import config
 from flask_admin import Admin, BaseView, expose
 from flask_admin.contrib.fileadmin import FileAdmin
@@ -52,6 +51,7 @@ def create_app(config_name):
 
     register_blueprints(app)
 
+
     return app
 
 
@@ -66,8 +66,6 @@ def configure_extensions(app):
     login_manager.init_app(app)
     pagedown.init_app(app)
     babel.init_app(app)
-
-
     flas_admin.init_app(app)
 
 
@@ -81,7 +79,5 @@ def register_blueprints(app):
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
     from .api import api as api_blueprint
     app.register_blueprint(api_blueprint, url_prefix='/api/v2')
-
-
 
 

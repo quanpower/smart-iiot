@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+from flask import current_app
 import os
 import sys
 import datetime
@@ -6,43 +6,52 @@ import socket, sys
 import struct
 from bitstring import BitArray, BitStream
 import binascii
-from app.models import GrainTemp
 import logging
-from app import db
 from utils import crc_func, sign
+# from app import create_app, db
+# from app import db
+from app.models import GrainTemp
 
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
-# 第一步，创建一个logger  
-logger = logging.getLogger()  
-logger.setLevel(logging.INFO)    # Log等级总开关  
-  
-# 第二步，创建一个handler，用于写入日志文件  
+# 初始化数据库连接:
+engine = create_engine('sqlite:///data.sqlite')
+# 创建DBSession类型:
+Session = sessionmaker(bind=engine)
+db_session=Session()
+
+# 第一步，创建一个logger
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)  # Log等级总开关
+
+# 第二步，创建一个handler，用于写入日志文件
 parent_dir = os.path.dirname(__file__)
-logfile = os.path.join(parent_dir, 'log/logger.txt')  
-fh = logging.FileHandler(logfile, mode='w')  
-fh.setLevel(logging.DEBUG)   # 输出到file的log等级的开关  
-  
-# 第三步，再创建一个handler，用于输出到控制台  
-ch = logging.StreamHandler()  
-ch.setLevel(logging.WARNING)   # 输出到console的log等级的开关  
-  
-# 第四步，定义handler的输出格式  
-formatter = logging.Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")  
-fh.setFormatter(formatter)  
-ch.setFormatter(formatter)  
-  
-# 第五步，将logger添加到handler里面  
-logger.addHandler(fh)  
-logger.addHandler(ch)  
-  
-# 日志  
-logger.debug('this is a logger debug message')  
-logger.info('this is a logger info message')  
-logger.warning('this is a logger warning message')  
-logger.error('this is a logger error message')  
-logger.critical('this is a logger critical message') 
+logfile = os.path.join(parent_dir, 'log/logger.txt')
+fh = logging.FileHandler(logfile, mode='w')
+fh.setLevel(logging.DEBUG)  # 输出到file的log等级的开关
 
-#======================================================    
+# 第三步，再创建一个handler，用于输出到控制台
+ch = logging.StreamHandler()
+ch.setLevel(logging.WARNING)  # 输出到console的log等级的开关
+
+# 第四步，定义handler的输出格式
+formatter = logging.Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
+fh.setFormatter(formatter)
+ch.setFormatter(formatter)
+
+# 第五步，将logger添加到handler里面
+logger.addHandler(fh)
+logger.addHandler(ch)
+
+# 日志
+logger.debug('this is a logger debug message')
+logger.info('this is a logger info message')
+logger.warning('this is a logger warning message')
+logger.error('this is a logger error message')
+logger.critical('this is a logger critical message')
+
+# ======================================================
 
 
 # try:
@@ -51,7 +60,7 @@ logger.critical('this is a logger critical message')
 # except:
 #     db.session.rollback()
 
-#MQTT Initialize.--------------------------------------
+# MQTT Initialize.--------------------------------------
 try:
     import paho.mqtt.client as mqtt
 except ImportError:
@@ -60,34 +69,39 @@ except ImportError:
     print("cd org.eclipse.paho.mqtt.python")
     print("sudo python setup.py install")
 
-#======================================================
+
+# ======================================================
 # def on_connect(mqttc, obj, rc):
 def on_connect(client, userdata, flags, rc):
-    logger.info("OnConnetc, rc: "+str(rc))
+    logger.info("OnConnetc, rc: " + str(rc))
+
 
 def on_publish(mqttc, obj, mid):
-    logger.info("OnPublish, mid: "+str(mid))
+    logger.info("OnPublish, mid: " + str(mid))
+
 
 def on_subscribe(mqttc, obj, mid, granted_qos):
-    logger.info("Subscribed: "+str(mid)+" "+str(granted_qos))
+    logger.info("Subscribed: " + str(mid) + " " + str(granted_qos))
+
 
 def on_log(mqttc, obj, level, string):
-    logger.info("Log:"+string)
+    logger.info("Log:" + string)
+
 
 def on_message(mqttc, obj, msg):
     curtime = datetime.datetime.now()
     strcurtime = curtime.strftime("%Y-%m-%d %H:%M:%S")
-    logger.info(strcurtime + ": " + msg.topic+" "+str(msg.qos)+" "+str(msg.payload))  
-    
+    logger.info(strcurtime + ": " + msg.topic + " " + str(msg.qos) + " " + str(msg.payload))
+
     payload_length = len(msg.payload)
     un_int = struct.unpack(str(payload_length) + 'B', msg.payload)
-    
+
     logger.debug('-------units-----')
     logger.debug(un_int)
 
     uints = list(un_int)
 
-    if uints[payload_length-1] == crc_func(uints[:payload_length-1]):
+    if uints[payload_length - 1] == crc_func(uints[:payload_length - 1]):
         logger.debug('CRC checked!')
 
         if payload_length == 5:
@@ -116,8 +130,9 @@ def on_message(mqttc, obj, msg):
 
 
 def on_exec(strcmd):
-    logger.debug( "Exec:", strcmd)
+    logger.debug("Exec:", strcmd)
     strExec = strcmd
+
 
 def lora_unpacking(packet_data):
     packet_data.pos = 56
@@ -127,6 +142,7 @@ def lora_unpacking(packet_data):
         packet_data.pos = 0
     else:
         pass
+
 
 def lora_unpacking_realtime_data(packet_data):
     logger.info('--------real data process beginning-----------')
@@ -144,11 +160,11 @@ def lora_unpacking_realtime_data(packet_data):
     temp1 = packet_data.read(10).uint
     temp2 = packet_data.read(10).uint
     temp3 = packet_data.read(10).uint
-    battery_vol =  packet_data.read(2).uint
+    battery_vol = packet_data.read(2).uint
 
-    temprature1 = (sign(temp1_sign) * temp1)/10.0
-    temprature2 = (sign(temp2_sign) * temp2)/10.0
-    temprature3 = (sign(temp3_sign) * temp3)/10.0
+    temprature1 = (sign(temp1_sign) * temp1) / 10.0
+    temprature2 = (sign(temp2_sign) * temp2) / 10.0
+    temprature3 = (sign(temp3_sign) * temp3) / 10.0
 
     logger.debug('gateway_addr: %s', gateway_addr)
     logger.info('-------------------')
@@ -181,10 +197,11 @@ def lora_unpacking_realtime_data(packet_data):
     logger.info('-------------------')
 
     logger.info('battery_vol: %s', battery_vol)
-    
+
     logger.info('values : %s, %s, %s, %s', temprature1, temprature2, temprature3, battery_vol)
 
     return (gateway_addr, node_addr, switch, temprature1, temprature2, temprature3, battery_vol)
+
 
 def save_realtime_data(data):
     c = GrainTemp()
@@ -199,23 +216,24 @@ def save_realtime_data(data):
     c.battery_vol = data[6]
     c.datetime = datetime.datetime.now()
 
-    print(c)
-
-    db.session.add(c)
+    db_session.add(c)
     try:
-        db.session.commit()
-        logger.debug('inserted!') 
+        db_session.commit()
+        logger.debug('inserted!')
     except Exception as e:
         logger.error("Inserting Grian_temp: %s", e)
-        db.session.rollback()
+        db_session.rollback()
+    # DBSession.close()
 
 
 def lora_unpacking_ack(packet_data):
     # todo
     logger.info('-------- ack data process beginning -----------')
 
-#=====================================================
-if __name__ == '__main__': 
+
+# =====================================================
+# if __name__ == '__main__':
+def mqtt_sub_p2p():
     mqttc = mqtt.Client("mynodeserver_001")
     mqttc.username_pw_set("iiot", "smartlinkcloud")
     mqttc.on_message = on_message
@@ -224,9 +242,14 @@ if __name__ == '__main__':
     mqttc.on_subscribe = on_subscribe
     mqttc.on_log = on_log
 
-    #strBroker = "localhost"
+    # strBroker = "localhost"
     strBroker = "101.200.158.2"
 
     mqttc.connect(strBroker, 1883, 60)
     mqttc.subscribe("001.upstream", 0)
     mqttc.loop_forever()
+
+
+if __name__ == '__main__':
+    # app = create_app(os.getenv('FLASK_CONFIG') or 'default')
+    mqtt_sub_p2p()

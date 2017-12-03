@@ -1,0 +1,179 @@
+2017-12-03 14:49:17,217 - mqtt_subscriber_p2p.py[line:49] - INFO: this is a logger info message
+2017-12-03 14:49:17,217 - mqtt_subscriber_p2p.py[line:50] - WARNING: this is a logger warning message
+2017-12-03 14:49:17,217 - mqtt_subscriber_p2p.py[line:51] - ERROR: this is a logger error message
+2017-12-03 14:49:17,217 - mqtt_subscriber_p2p.py[line:52] - CRITICAL: this is a logger critical message
+2017-12-03 14:49:17,223 - mqtt_subscriber_p2p.py[line:88] - INFO: Log:Sending CONNECT (u1, p1, wr0, wq0, wf0, c1, k60) client_id=b'mynodeserver_001'
+2017-12-03 14:49:17,306 - mqtt_subscriber_p2p.py[line:88] - INFO: Log:Received CONNACK (0, 0)
+2017-12-03 14:49:17,306 - mqtt_subscriber_p2p.py[line:76] - INFO: OnConnetc, rc: 0
+2017-12-03 14:49:17,344 - mqtt_subscriber_p2p.py[line:88] - INFO: Log:Received SUBACK
+2017-12-03 14:49:17,344 - mqtt_subscriber_p2p.py[line:84] - INFO: Subscribed: 1 (0,)
+2017-12-03 14:49:18,303 - mqtt_subscriber_p2p.py[line:88] - INFO: Log:Received PUBLISH (d0, q0, r0, m0), '001/upstream', ...  (8 bytes)
+2017-12-03 14:49:18,304 - mqtt_subscriber_p2p.py[line:94] - INFO: 2017-12-03 14:49:18: 001/upstream 0 b' \x12\x00<N\xf3\xbf\x92'
+2017-12-03 14:49:18,304 - mqtt_subscriber_p2p.py[line:148] - INFO: --------real data process beginning-----------
+2017-12-03 14:49:18,305 - mqtt_subscriber_p2p.py[line:170] - INFO: -------------------
+2017-12-03 14:49:18,305 - mqtt_subscriber_p2p.py[line:171] - INFO: node_addr: -3536
+2017-12-03 14:49:18,305 - mqtt_subscriber_p2p.py[line:172] - INFO: -------------------
+2017-12-03 14:49:18,305 - mqtt_subscriber_p2p.py[line:192] - INFO: temp1: 200
+2017-12-03 14:49:18,306 - mqtt_subscriber_p2p.py[line:194] - INFO: temp2: 771
+2017-12-03 14:49:18,306 - mqtt_subscriber_p2p.py[line:196] - INFO: temp3: 12
+2017-12-03 14:49:18,306 - mqtt_subscriber_p2p.py[line:197] - INFO: -------------------
+2017-12-03 14:49:18,306 - mqtt_subscriber_p2p.py[line:199] - INFO: battery_vol: 3
+2017-12-03 14:49:18,306 - mqtt_subscriber_p2p.py[line:201] - INFO: values : 20.0, 77.1, -1.2, 3
+2017-12-03 14:49:23,689 - mqtt_subscriber_p2p.py[line:88] - INFO: Log:Received PUBLISH (d0, q0, r0, m0), '001/upstream', ...  (8 bytes)
+2017-12-03 14:49:23,689 - mqtt_subscriber_p2p.py[line:94] - INFO: 2017-12-03 14:49:23: 001/upstream 0 b' \x18\x00E\x90\xf4S\xac'
+2017-12-03 14:49:23,689 - mqtt_subscriber_p2p.py[line:148] - INFO: --------real data process beginning-----------
+2017-12-03 14:49:23,690 - mqtt_subscriber_p2p.py[line:170] - INFO: -------------------
+2017-12-03 14:49:23,690 - mqtt_subscriber_p2p.py[line:171] - INFO: node_addr: -3536
+2017-12-03 14:49:23,690 - mqtt_subscriber_p2p.py[line:172] - INFO: -------------------
+2017-12-03 14:49:23,690 - mqtt_subscriber_p2p.py[line:192] - INFO: temp1: 224
+2017-12-03 14:49:23,690 - mqtt_subscriber_p2p.py[line:194] - INFO: temp2: 771
+2017-12-03 14:49:23,690 - mqtt_subscriber_p2p.py[line:196] - INFO: temp3: 13
+2017-12-03 14:49:23,690 - mqtt_subscriber_p2p.py[line:197] - INFO: -------------------
+2017-12-03 14:49:23,690 - mqtt_subscriber_p2p.py[line:199] - INFO: battery_vol: 0
+2017-12-03 14:49:23,691 - mqtt_subscriber_p2p.py[line:201] - INFO: values : 22.4, 77.1, -1.3, 0
+2017-12-03 14:49:30,014 - mqtt_subscriber_p2p.py[line:88] - INFO: Log:Received PUBLISH (d0, q0, r0, m0), '001/upstream', ...  (8 bytes)
+2017-12-03 14:49:30,015 - mqtt_subscriber_p2p.py[line:94] - INFO: 2017-12-03 14:49:30: 001/upstream 0 b' \x12\x00<N\xf3\xbf\x92'
+2017-12-03 14:49:30,016 - mqtt_subscriber_p2p.py[line:148] - INFO: --------real data process beginning-----------
+2017-12-03 14:49:30,017 - mqtt_subscriber_p2p.py[line:170] - INFO: -------------------
+2017-12-03 14:49:30,018 - mqtt_subscriber_p2p.py[line:171] - INFO: node_addr: -3536
+2017-12-03 14:49:30,018 - mqtt_subscriber_p2p.py[line:172] - INFO: -------------------
+2017-12-03 14:49:30,018 - mqtt_subscriber_p2p.py[line:192] - INFO: temp1: 200
+2017-12-03 14:49:30,018 - mqtt_subscriber_p2p.py[line:194] - INFO: temp2: 771
+2017-12-03 14:49:30,019 - mqtt_subscriber_p2p.py[line:196] - INFO: temp3: 12
+2017-12-03 14:49:30,019 - mqtt_subscriber_p2p.py[line:197] - INFO: -------------------
+2017-12-03 14:49:30,019 - mqtt_subscriber_p2p.py[line:199] - INFO: battery_vol: 3
+2017-12-03 14:49:30,019 - mqtt_subscriber_p2p.py[line:201] - INFO: values : 20.0, 77.1, -1.2, 3
+2017-12-03 14:49:36,146 - mqtt_subscriber_p2p.py[line:88] - INFO: Log:Received PUBLISH (d0, q0, r0, m0), '001/upstream', ...  (8 bytes)
+2017-12-03 14:49:36,147 - mqtt_subscriber_p2p.py[line:94] - INFO: 2017-12-03 14:49:36: 001/upstream 0 b' \x1a\x00;\xcfS\xb7\xb2'
+2017-12-03 14:49:36,148 - mqtt_subscriber_p2p.py[line:148] - INFO: --------real data process beginning-----------
+2017-12-03 14:49:36,149 - mqtt_subscriber_p2p.py[line:170] - INFO: -------------------
+2017-12-03 14:49:36,150 - mqtt_subscriber_p2p.py[line:171] - INFO: node_addr: -3536
+2017-12-03 14:49:36,150 - mqtt_subscriber_p2p.py[line:172] - INFO: -------------------
+2017-12-03 14:49:36,150 - mqtt_subscriber_p2p.py[line:192] - INFO: temp1: 388
+2017-12-03 14:49:36,150 - mqtt_subscriber_p2p.py[line:194] - INFO: temp2: 771
+2017-12-03 14:49:36,151 - mqtt_subscriber_p2p.py[line:196] - INFO: temp3: 12
+2017-12-03 14:49:36,151 - mqtt_subscriber_p2p.py[line:197] - INFO: -------------------
+2017-12-03 14:49:36,151 - mqtt_subscriber_p2p.py[line:199] - INFO: battery_vol: 3
+2017-12-03 14:49:36,151 - mqtt_subscriber_p2p.py[line:201] - INFO: values : 38.8, 77.1, -1.2, 3
+2017-12-03 14:49:40,880 - mqtt_subscriber_p2p.py[line:88] - INFO: Log:Received PUBLISH (d0, q0, r0, m0), '001/upstream', ...  (8 bytes)
+2017-12-03 14:49:40,880 - mqtt_subscriber_p2p.py[line:94] - INFO: 2017-12-03 14:49:40: 001/upstream 0 b' \x12\x00<O\x03\xbf\x81'
+2017-12-03 14:49:40,881 - mqtt_subscriber_p2p.py[line:148] - INFO: --------real data process beginning-----------
+2017-12-03 14:49:40,882 - mqtt_subscriber_p2p.py[line:170] - INFO: -------------------
+2017-12-03 14:49:40,882 - mqtt_subscriber_p2p.py[line:171] - INFO: node_addr: -3536
+2017-12-03 14:49:40,882 - mqtt_subscriber_p2p.py[line:172] - INFO: -------------------
+2017-12-03 14:49:40,882 - mqtt_subscriber_p2p.py[line:192] - INFO: temp1: 200
+2017-12-03 14:49:40,882 - mqtt_subscriber_p2p.py[line:194] - INFO: temp2: 771
+2017-12-03 14:49:40,882 - mqtt_subscriber_p2p.py[line:196] - INFO: temp3: 12
+2017-12-03 14:49:40,882 - mqtt_subscriber_p2p.py[line:197] - INFO: -------------------
+2017-12-03 14:49:40,882 - mqtt_subscriber_p2p.py[line:199] - INFO: battery_vol: 3
+2017-12-03 14:49:40,882 - mqtt_subscriber_p2p.py[line:201] - INFO: values : 20.0, 77.1, -1.2, 3
+2017-12-03 14:49:47,172 - mqtt_subscriber_p2p.py[line:88] - INFO: Log:Received PUBLISH (d0, q0, r0, m0), '001/upstream', ...  (8 bytes)
+2017-12-03 14:49:47,172 - mqtt_subscriber_p2p.py[line:94] - INFO: 2017-12-03 14:49:47: 001/upstream 0 b' \x1a\x00;\xcfS\xb7\xb2'
+2017-12-03 14:49:47,173 - mqtt_subscriber_p2p.py[line:148] - INFO: --------real data process beginning-----------
+2017-12-03 14:49:47,175 - mqtt_subscriber_p2p.py[line:170] - INFO: -------------------
+2017-12-03 14:49:47,175 - mqtt_subscriber_p2p.py[line:171] - INFO: node_addr: -3536
+2017-12-03 14:49:47,175 - mqtt_subscriber_p2p.py[line:172] - INFO: -------------------
+2017-12-03 14:49:47,176 - mqtt_subscriber_p2p.py[line:192] - INFO: temp1: 388
+2017-12-03 14:49:47,176 - mqtt_subscriber_p2p.py[line:194] - INFO: temp2: 771
+2017-12-03 14:49:47,176 - mqtt_subscriber_p2p.py[line:196] - INFO: temp3: 12
+2017-12-03 14:49:47,176 - mqtt_subscriber_p2p.py[line:197] - INFO: -------------------
+2017-12-03 14:49:47,176 - mqtt_subscriber_p2p.py[line:199] - INFO: battery_vol: 3
+2017-12-03 14:49:47,177 - mqtt_subscriber_p2p.py[line:201] - INFO: values : 38.8, 77.1, -1.2, 3
+2017-12-03 14:49:51,750 - mqtt_subscriber_p2p.py[line:88] - INFO: Log:Received PUBLISH (d0, q0, r0, m0), '001/upstream', ...  (8 bytes)
+2017-12-03 14:49:51,751 - mqtt_subscriber_p2p.py[line:94] - INFO: 2017-12-03 14:49:51: 001/upstream 0 b' \x12\x00<O\x03\xbf\x81'
+2017-12-03 14:49:51,752 - mqtt_subscriber_p2p.py[line:148] - INFO: --------real data process beginning-----------
+2017-12-03 14:49:51,753 - mqtt_subscriber_p2p.py[line:170] - INFO: -------------------
+2017-12-03 14:49:51,753 - mqtt_subscriber_p2p.py[line:171] - INFO: node_addr: -3536
+2017-12-03 14:49:51,753 - mqtt_subscriber_p2p.py[line:172] - INFO: -------------------
+2017-12-03 14:49:51,754 - mqtt_subscriber_p2p.py[line:192] - INFO: temp1: 200
+2017-12-03 14:49:51,754 - mqtt_subscriber_p2p.py[line:194] - INFO: temp2: 771
+2017-12-03 14:49:51,754 - mqtt_subscriber_p2p.py[line:196] - INFO: temp3: 12
+2017-12-03 14:49:51,754 - mqtt_subscriber_p2p.py[line:197] - INFO: -------------------
+2017-12-03 14:49:51,754 - mqtt_subscriber_p2p.py[line:199] - INFO: battery_vol: 3
+2017-12-03 14:49:51,754 - mqtt_subscriber_p2p.py[line:201] - INFO: values : 20.0, 77.1, -1.2, 3
+2017-12-03 14:49:55,680 - mqtt_subscriber_p2p.py[line:88] - INFO: Log:Received PUBLISH (d0, q0, r0, m0), '001/upstream', ...  (8 bytes)
+2017-12-03 14:49:55,681 - mqtt_subscriber_p2p.py[line:94] - INFO: 2017-12-03 14:49:55: 001/upstream 0 b' \x18\x00EP\xe4W\xf8'
+2017-12-03 14:49:55,682 - mqtt_subscriber_p2p.py[line:148] - INFO: --------real data process beginning-----------
+2017-12-03 14:49:55,684 - mqtt_subscriber_p2p.py[line:170] - INFO: -------------------
+2017-12-03 14:49:55,684 - mqtt_subscriber_p2p.py[line:171] - INFO: node_addr: -3536
+2017-12-03 14:49:55,684 - mqtt_subscriber_p2p.py[line:172] - INFO: -------------------
+2017-12-03 14:49:55,684 - mqtt_subscriber_p2p.py[line:192] - INFO: temp1: 224
+2017-12-03 14:49:55,684 - mqtt_subscriber_p2p.py[line:194] - INFO: temp2: 771
+2017-12-03 14:49:55,685 - mqtt_subscriber_p2p.py[line:196] - INFO: temp3: 13
+2017-12-03 14:49:55,685 - mqtt_subscriber_p2p.py[line:197] - INFO: -------------------
+2017-12-03 14:49:55,685 - mqtt_subscriber_p2p.py[line:199] - INFO: battery_vol: 0
+2017-12-03 14:49:55,685 - mqtt_subscriber_p2p.py[line:201] - INFO: values : 22.4, 77.1, -1.3, 0
+2017-12-03 14:49:57,466 - mqtt_subscriber_p2p.py[line:88] - INFO: Log:Received PUBLISH (d0, q0, r0, m0), '001/upstream', ...  (8 bytes)
+2017-12-03 14:49:57,466 - mqtt_subscriber_p2p.py[line:94] - INFO: 2017-12-03 14:49:57: 001/upstream 0 b' \x1a\x00;\xcfS\xb7\xb2'
+2017-12-03 14:49:57,467 - mqtt_subscriber_p2p.py[line:148] - INFO: --------real data process beginning-----------
+2017-12-03 14:49:57,468 - mqtt_subscriber_p2p.py[line:170] - INFO: -------------------
+2017-12-03 14:49:57,469 - mqtt_subscriber_p2p.py[line:171] - INFO: node_addr: -3536
+2017-12-03 14:49:57,469 - mqtt_subscriber_p2p.py[line:172] - INFO: -------------------
+2017-12-03 14:49:57,469 - mqtt_subscriber_p2p.py[line:192] - INFO: temp1: 388
+2017-12-03 14:49:57,469 - mqtt_subscriber_p2p.py[line:194] - INFO: temp2: 771
+2017-12-03 14:49:57,469 - mqtt_subscriber_p2p.py[line:196] - INFO: temp3: 12
+2017-12-03 14:49:57,470 - mqtt_subscriber_p2p.py[line:197] - INFO: -------------------
+2017-12-03 14:49:57,470 - mqtt_subscriber_p2p.py[line:199] - INFO: battery_vol: 3
+2017-12-03 14:49:57,470 - mqtt_subscriber_p2p.py[line:201] - INFO: values : 38.8, 77.1, -1.2, 3
+2017-12-03 14:50:02,611 - mqtt_subscriber_p2p.py[line:88] - INFO: Log:Received PUBLISH (d0, q0, r0, m0), '001/upstream', ...  (8 bytes)
+2017-12-03 14:50:02,611 - mqtt_subscriber_p2p.py[line:94] - INFO: 2017-12-03 14:50:02: 001/upstream 0 b' \x12\x00<O\x03\xbf\x81'
+2017-12-03 14:50:02,612 - mqtt_subscriber_p2p.py[line:148] - INFO: --------real data process beginning-----------
+2017-12-03 14:50:02,613 - mqtt_subscriber_p2p.py[line:170] - INFO: -------------------
+2017-12-03 14:50:02,613 - mqtt_subscriber_p2p.py[line:171] - INFO: node_addr: -3536
+2017-12-03 14:50:02,613 - mqtt_subscriber_p2p.py[line:172] - INFO: -------------------
+2017-12-03 14:50:02,613 - mqtt_subscriber_p2p.py[line:192] - INFO: temp1: 200
+2017-12-03 14:50:02,613 - mqtt_subscriber_p2p.py[line:194] - INFO: temp2: 771
+2017-12-03 14:50:02,613 - mqtt_subscriber_p2p.py[line:196] - INFO: temp3: 12
+2017-12-03 14:50:02,613 - mqtt_subscriber_p2p.py[line:197] - INFO: -------------------
+2017-12-03 14:50:02,613 - mqtt_subscriber_p2p.py[line:199] - INFO: battery_vol: 3
+2017-12-03 14:50:02,614 - mqtt_subscriber_p2p.py[line:201] - INFO: values : 20.0, 77.1, -1.2, 3
+2017-12-03 14:50:06,328 - mqtt_subscriber_p2p.py[line:88] - INFO: Log:Received PUBLISH (d0, q0, r0, m0), '001/upstream', ...  (8 bytes)
+2017-12-03 14:50:06,329 - mqtt_subscriber_p2p.py[line:94] - INFO: 2017-12-03 14:50:06: 001/upstream 0 b' \x18\x00EP\xe4W\xf8'
+2017-12-03 14:50:06,330 - mqtt_subscriber_p2p.py[line:148] - INFO: --------real data process beginning-----------
+2017-12-03 14:50:06,331 - mqtt_subscriber_p2p.py[line:170] - INFO: -------------------
+2017-12-03 14:50:06,331 - mqtt_subscriber_p2p.py[line:171] - INFO: node_addr: -3536
+2017-12-03 14:50:06,331 - mqtt_subscriber_p2p.py[line:172] - INFO: -------------------
+2017-12-03 14:50:06,331 - mqtt_subscriber_p2p.py[line:192] - INFO: temp1: 224
+2017-12-03 14:50:06,331 - mqtt_subscriber_p2p.py[line:194] - INFO: temp2: 771
+2017-12-03 14:50:06,331 - mqtt_subscriber_p2p.py[line:196] - INFO: temp3: 13
+2017-12-03 14:50:06,331 - mqtt_subscriber_p2p.py[line:197] - INFO: -------------------
+2017-12-03 14:50:06,331 - mqtt_subscriber_p2p.py[line:199] - INFO: battery_vol: 0
+2017-12-03 14:50:06,331 - mqtt_subscriber_p2p.py[line:201] - INFO: values : 22.4, 77.1, -1.3, 0
+2017-12-03 14:50:08,492 - mqtt_subscriber_p2p.py[line:88] - INFO: Log:Received PUBLISH (d0, q0, r0, m0), '001/upstream', ...  (8 bytes)
+2017-12-03 14:50:08,492 - mqtt_subscriber_p2p.py[line:94] - INFO: 2017-12-03 14:50:08: 001/upstream 0 b' \x1a\x00;\xcfS\xb7\xb2'
+2017-12-03 14:50:08,492 - mqtt_subscriber_p2p.py[line:148] - INFO: --------real data process beginning-----------
+2017-12-03 14:50:08,493 - mqtt_subscriber_p2p.py[line:170] - INFO: -------------------
+2017-12-03 14:50:08,493 - mqtt_subscriber_p2p.py[line:171] - INFO: node_addr: -3536
+2017-12-03 14:50:08,493 - mqtt_subscriber_p2p.py[line:172] - INFO: -------------------
+2017-12-03 14:50:08,493 - mqtt_subscriber_p2p.py[line:192] - INFO: temp1: 388
+2017-12-03 14:50:08,493 - mqtt_subscriber_p2p.py[line:194] - INFO: temp2: 771
+2017-12-03 14:50:08,493 - mqtt_subscriber_p2p.py[line:196] - INFO: temp3: 12
+2017-12-03 14:50:08,493 - mqtt_subscriber_p2p.py[line:197] - INFO: -------------------
+2017-12-03 14:50:08,494 - mqtt_subscriber_p2p.py[line:199] - INFO: battery_vol: 3
+2017-12-03 14:50:08,494 - mqtt_subscriber_p2p.py[line:201] - INFO: values : 38.8, 77.1, -1.2, 3
+2017-12-03 14:50:17,601 - mqtt_subscriber_p2p.py[line:88] - INFO: Log:Sending PINGREQ
+2017-12-03 14:50:17,645 - mqtt_subscriber_p2p.py[line:88] - INFO: Log:Received PINGRESP
+2017-12-03 14:50:20,982 - mqtt_subscriber_p2p.py[line:88] - INFO: Log:Received PUBLISH (d0, q0, r0, m0), '001/upstream', ...  (8 bytes)
+2017-12-03 14:50:20,983 - mqtt_subscriber_p2p.py[line:94] - INFO: 2017-12-03 14:50:20: 001/upstream 0 b' \x1a\x00;\xcfS\xb7\xb2'
+2017-12-03 14:50:20,984 - mqtt_subscriber_p2p.py[line:148] - INFO: --------real data process beginning-----------
+2017-12-03 14:50:20,985 - mqtt_subscriber_p2p.py[line:170] - INFO: -------------------
+2017-12-03 14:50:20,985 - mqtt_subscriber_p2p.py[line:171] - INFO: node_addr: -3536
+2017-12-03 14:50:20,986 - mqtt_subscriber_p2p.py[line:172] - INFO: -------------------
+2017-12-03 14:50:20,986 - mqtt_subscriber_p2p.py[line:192] - INFO: temp1: 388
+2017-12-03 14:50:20,986 - mqtt_subscriber_p2p.py[line:194] - INFO: temp2: 771
+2017-12-03 14:50:20,986 - mqtt_subscriber_p2p.py[line:196] - INFO: temp3: 12
+2017-12-03 14:50:20,986 - mqtt_subscriber_p2p.py[line:197] - INFO: -------------------
+2017-12-03 14:50:20,987 - mqtt_subscriber_p2p.py[line:199] - INFO: battery_vol: 3
+2017-12-03 14:50:20,987 - mqtt_subscriber_p2p.py[line:201] - INFO: values : 38.8, 77.1, -1.2, 3
+2017-12-03 14:50:24,349 - mqtt_subscriber_p2p.py[line:88] - INFO: Log:Received PUBLISH (d0, q0, r0, m0), '001/upstream', ...  (8 bytes)
+2017-12-03 14:50:24,350 - mqtt_subscriber_p2p.py[line:94] - INFO: 2017-12-03 14:50:24: 001/upstream 0 b' \x12\x00<O\x03\xbf\x81'
+2017-12-03 14:50:24,351 - mqtt_subscriber_p2p.py[line:148] - INFO: --------real data process beginning-----------
+2017-12-03 14:50:24,352 - mqtt_subscriber_p2p.py[line:170] - INFO: -------------------
+2017-12-03 14:50:24,353 - mqtt_subscriber_p2p.py[line:171] - INFO: node_addr: -3536
+2017-12-03 14:50:24,353 - mqtt_subscriber_p2p.py[line:172] - INFO: -------------------
+2017-12-03 14:50:24,353 - mqtt_subscriber_p2p.py[line:192] - INFO: temp1: 200
+2017-12-03 14:50:24,353 - mqtt_subscriber_p2p.py[line:194] - INFO: temp2: 771
+2017-12-03 14:50:24,353 - mqtt_subscriber_p2p.py[line:196] - INFO: temp3: 12
+2017-12-03 14:50:24,354 - mqtt_subscriber_p2p.py[line:197] - INFO: -------------------
+2017-12-03 14:50:24,354 - mqtt_subscriber_p2p.py[line:199] - INFO: battery_vol: 3
+2017-12-03 14:50:24,354 - mqtt_subscriber_p2p.py[line:201] - INFO: values : 20.0, 77.1, -1.2, 3
