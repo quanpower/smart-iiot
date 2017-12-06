@@ -17,10 +17,10 @@ import paho.mqtt.publish as publish
 import time 
 from utils import crc_func
 
-
-from app import db
-from app.models import LoraGateway, LoraNode, GrainBarn, AlarmLevelSetting, PowerIoRs485Func, PowerIo, NodeMqttTransFunc, GrainTemp, GrainStorehouse
-from sqlalchemy import and_
+#
+# from app import db
+# from app.models import LoraGateway, LoraNode, GrainBarn, AlarmLevelSetting, PowerIoRs485Func, PowerIo, NodeMqttTransFunc, GrainTemp, GrainStorehouse
+# from sqlalchemy import and_
 from utils import calc_modus_hex_str_to_send, crc_func, str2hexstr, calc
 
 import struct
@@ -117,7 +117,7 @@ def transmitMQTT(strMsg):
     curtime = datetime.datetime.now()
     strcurtime = curtime.strftime("%Y-%m-%d %H:%M:%S")
     # strMsg += strcurtime
-    publish.single(strMqttChannel, strMsg, hostname = strMqttBroker, auth = {'username':'iiot', 'password':'smartlinkcloud'})
+    publish.single(strMqttChannel, strMsg, hostname=strMqttBroker, auth={'username': 'iiot', 'password': 'smartlinkcloud'})
 
 
 def return_str_bin(node_addr, wind_direct, wind_speed, on_off, work_mode, temp, gateway_addr='0b001', trans_direct='0b1', func_code='0b0010001', model='0b1000111001'):
@@ -193,14 +193,16 @@ def mqtt_auto_control_air(node_mqtt_trans_func, on_off):
 
 def mqtt_pub_node_setting():
     gateway_addr = '0b001' # 1
-    node_addr = '0b0000000000100' # 1
+    node_addr = '0b0000000010100' # 1
     trans_direct = '0b1'  # 1
     func_code = '0b0010010' # 18
     new_gateway_addr = '0b001'
-    new_node_addr = '0b0000000000100'
+    # new_node_addr = '0b0000000001111'
+    new_node_addr = node_addr
     reserve = '0b0000'
-    # sleep_time = '0b0100101100' #5 minute
-    sleep_time = '0b0000110111' #55 second
+    sleep_time = '0b0100101100' #5 minute
+    # sleep_time = '0b0000110111' #55 second
+    # sleep_time = '0b0001111000' #120 second
 
     send_power = '0b11'
 
@@ -208,8 +210,8 @@ def mqtt_pub_node_setting():
     print('str_repalced:', str_replaced)
     str_bin = BitStream('0b' + str_replaced)
     print('str_bin:', str_bin)
-    units,crc = return_crc(str_bin)
-    str_bytes=struct.pack('8B', units[0], units[1], units[2], units[3], units[4], units[5], units[6], crc)
+    units, crc = return_crc(str_bin)
+    str_bytes = struct.pack('8B', units[0], units[1], units[2], units[3], units[4], units[5], units[6], crc)
     print(str_bytes)
     print(len(str_bytes))
     print(repr(str_bytes))
@@ -225,14 +227,21 @@ if __name__ == '__main__':
     # while True:
 
     # time.sleep(10)
-    for i in range(1000):
+
+    for i in range(20):
+        model_int = 40+i
+        model_bin=bin(model_int)[2:]
+        model='0b0000'+model_bin
+        print(model)
+
         gateway_addr = '0b001' # 1
         node_addr = '0b0000000001100' # 1
         trans_direct = '0b1'  # 1
         func_code = '0b0010001' # 17
         wind_direct = '0b01' #
         wind_speed = '0b11' #1
-        model = '0b0000010110' # sanling 569
+        # model = '0b0001100011' # sanling 569
+        # model = '0b0000010110' # sanling 569
         # model = '0b0000101101' # media 45
 
         on_off = '0b01' # on
@@ -240,14 +249,18 @@ if __name__ == '__main__':
         temp = '0b10000' #16
 
         def replace_0b(input):
-            return input.replace('0b','')
+            return input.replace('0b', '')
 
         # str_bin = return_str_bin(gateway_addr, node_addr, trans_direct, func_code, wind_direct, wind_speed, model, on_off, work_mode, temp)
         # str_bin = bitstring.pack(gateway_addr, node_addr, trans_direct, func_code, wind_direct, wind_speed, model, on_off, work_mode, temp)
-        
+
         str_replaced = replace_0b(gateway_addr) + replace_0b(node_addr) + replace_0b(trans_direct) + replace_0b(func_code) + replace_0b(wind_direct) + replace_0b(wind_speed) + replace_0b(model) + replace_0b(on_off) + replace_0b(work_mode) + replace_0b(temp)
 
-        print('str',str_replaced)
+
+
+
+
+        print('str', str_replaced)
         print(len(str_replaced))
         str_bin = BitStream('0b' + str_replaced)
         str_bytes = return_air_con_mqtt_str_bytes_to_send(str_bin)
@@ -255,5 +268,7 @@ if __name__ == '__main__':
         transmitMQTT(str_bytes)
 
         time.sleep(30)
+
+    # mqtt_pub_node_setting()
 
         

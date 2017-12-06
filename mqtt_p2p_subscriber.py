@@ -8,8 +8,9 @@ from bitstring import BitArray, BitStream
 import binascii
 import logging
 from utils import crc_func, sign
-# from app import create_app, db
-# from app import db
+
+
+
 from app.models import GrainTemp
 
 from sqlalchemy import create_engine
@@ -27,7 +28,7 @@ logger.setLevel(logging.INFO)  # Log等级总开关
 
 # 第二步，创建一个handler，用于写入日志文件
 parent_dir = os.path.dirname(__file__)
-logfile = os.path.join(parent_dir, 'log/logger.txt')
+logfile = os.path.join(parent_dir, 'log/mqtt_p2p_sub_logger.txt')
 fh = logging.FileHandler(logfile, mode='w')
 fh.setLevel(logging.DEBUG)  # 输出到file的log等级的开关
 
@@ -96,28 +97,39 @@ def on_message(mqttc, obj, msg):
     payload_length = len(msg.payload)
     un_int = struct.unpack(str(payload_length) + 'B', msg.payload)
 
-    logger.debug('-------units-----')
-    logger.debug(un_int)
-
+    logger.info('-------units-----')
+    logger.info(payload_length)
+    print('-------payload_length------')
+    print(payload_length)
+    logger.info(un_int)
+    print(un_int)
     uints = list(un_int)
+    print(uints)
 
     if uints[payload_length - 1] == crc_func(uints[:payload_length - 1]):
-        logger.debug('CRC checked!')
+        logger.info('CRC checked!')
 
         if payload_length == 5:
             lora_unpacking_ack(uints)
         elif payload_length == 8:
-            b = binascii.b2a_hex(msg.payload)
+            print('----msg.payload------')
+            print(msg.payload)
+            print(type(msg.payload))
+            print('--------receive-time-------')
+            print(datetime.datetime.now())
+
             # packet_data = BitStream('0x4001004751E47533')
             # '{:0>2x}'.format(1) #dic to hex,append 0
-            packet_data = BitStream(b)
-            print('-------packet_data------')
+            packet_data = BitStream(msg.payload)
+            logger.info('--------packet_data--------')
+            logger.info(packet_data)
+            logger.info(len(packet_data))
+            print('-----packet-data------')
             print(packet_data)
-
-            logger.debug('--------packet_data--------')
-            logger.debug(packet_data)
-            logger.debug('--------packet_data.bin--------')
-            logger.debug(packet_data.bin)
+            logger.info('--------packet_data.bin--------')
+            logger.info(packet_data.bin)
+            print(packet_data.bin)
+            logger.info(len(packet_data.bin))
 
             realtime_data = lora_unpacking_realtime_data(packet_data)
 
@@ -166,9 +178,12 @@ def lora_unpacking_realtime_data(packet_data):
     temprature2 = (sign(temp2_sign) * temp2) / 10.0
     temprature3 = (sign(temp3_sign) * temp3) / 10.0
 
-    logger.debug('gateway_addr: %s', gateway_addr)
+    logger.info('gateway_addr: %s', gateway_addr)
     logger.info('-------------------')
     logger.info('node_addr: %s', node_addr)
+    print('--------node_addr----------')
+    print(node_addr)
+    print('----------------------------')
     logger.info('-------------------')
 
     logger.debug('tran_direct: %s', tran_direct)
@@ -233,7 +248,7 @@ def lora_unpacking_ack(packet_data):
 
 # =====================================================
 # if __name__ == '__main__':
-def mqtt_sub_p2p():
+def mqtt_p2p_sub():
     mqttc = mqtt.Client("mynodeserver_001")
     mqttc.username_pw_set("iiot", "smartlinkcloud")
     mqttc.on_message = on_message
@@ -252,4 +267,4 @@ def mqtt_sub_p2p():
 
 if __name__ == '__main__':
     # app = create_app(os.getenv('FLASK_CONFIG') or 'default')
-    mqtt_sub_p2p()
+    mqtt_p2p_sub()

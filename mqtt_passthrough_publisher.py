@@ -5,9 +5,7 @@
 import sys
 import datetime
 import socket, sys
-import struct
-import bitstring
-from bitstring import BitArray, BitStream
+
 import binascii
 # from app.models import GrainTemp
 import logging
@@ -17,10 +15,10 @@ import paho.mqtt.publish as publish
 import time 
 from utils import crc_func
 
-
-from app import db
-from app.models import LoraGateway, LoraNode, GrainBarn, AlarmLevelSetting, PowerIoRs485Func, PowerIo, NodeMqttTransFunc, GrainTemp, GrainStorehouse
-from sqlalchemy import and_
+#
+# from app import db
+# from app.models import LoraGateway, LoraNode, GrainBarn, AlarmLevelSetting, PowerIoRs485Func, PowerIo, NodeMqttTransFunc, GrainTemp, GrainStorehouse
+# from sqlalchemy import and_
 from utils import calc_modus_hex_str_to_send, crc_func, str2hexstr, calc
 
 import struct
@@ -79,14 +77,14 @@ def on_message(mqttc, obj, msg):
         b = binascii.b2a_hex(msg.payload)
         # packet_data = BitStream('0x4001004751E47533')
         # '{:0>2x}'.format(1) #dic to hex,append 0
-        packet_data = BitStream('0x'+ b)
+        # packet_data = BitStream(b)
 
-        print('--------packet_data--------')
-        print(packet_data)
-        print('--------packet_data.bin--------')
-        print(packet_data.bin)
-
-        on_exec(str(msg.payload))
+        # print('--------packet_data--------')
+        # print(packet_data)
+        # print('--------packet_data.bin--------')
+        # print(packet_data.bin)
+        #
+        # on_exec(str(msg.payload))
     else:
         print('nothings!')
 
@@ -95,33 +93,19 @@ def on_exec(strcmd):
     print ("Exec:",strcmd)
     strExec = strcmd
 
-def lora_unpacking(packet_data):
-    packet_data.pos = 56
-    crc = packet_data.read(8)
-    packet_data.pos = 0
-    if crc == crc_func(packet_data.read(56)):
-        packet_data.pos = 0
-    else:
-        pass
 
-
-def packing(gateway_addr, node_addr , trans_direct, func_code, wind_direct, wind_speed, model, on_off, work_mode, temp):
-    return bitstring.pack('bin, bin, bin, bin, bin, bin, bin, bin, bin, bin', gateway_addr, node_addr , trans_direct, func_code, wind_direct, wind_speed, model, on_off, work_mode, temp)
-    
 
 def transmitMQTT(strMsg):
     #strMqttBroker = "localhost"
     strMqttBroker = "101.200.158.2"
     strMqttChannel = "001.passthrough_downstream"
+    print('strMsg is:')
     print(strMsg)
     curtime = datetime.datetime.now()
     strcurtime = curtime.strftime("%Y-%m-%d %H:%M:%S")
     # strMsg += strcurtime
-    publish.single(strMqttChannel, strMsg, hostname = strMqttBroker, auth = {'username':'iiot', 'password':'smartlinkcloud'})
+    publish.single(strMqttChannel, strMsg, hostname=strMqttBroker, auth={'username': 'iiot', 'password': 'smartlinkcloud'})
 
-
-def return_str_bin(node_addr, wind_direct, wind_speed, on_off, work_mode, temp, gateway_addr='0b001', trans_direct='0b1', func_code='0b0010001', model='0b1000111001'):
-    return packing(gateway_addr, node_addr, trans_direct, func_code, wind_direct, wind_speed, model, on_off, work_mode, temp)
 
 
 def return_crc(str_bin):
@@ -138,84 +122,115 @@ def return_crc(str_bin):
     crc = crc_func(units)
     print('-------send-hex------')
     print(str_bin + hex(crc))
-    return units,crc
+    return units, crc
+
+def test_pymodbus_crc():
+
+    import pymodbus.utilities
+    from pymodbus.compat import int2byte
+    meins=[]
+    meins.append(0x10)
+    meins.append(0x33)
+    meins.append(0x01)
+    meins.append(0x01)
+
+    meins1=b''
+    for i in meins:
+        meins1 = meins1 + int2byte(i)
+
+    meins2=b'\x10\x33\x01\x01'
+
+    meins3=bytearray.fromhex("10330101")
+
+    crc=hex(pymodbus.utilities.computeCRC(b'\x10\x33\x01\x01'))
+    print(crc)
+    crc=hex(pymodbus.utilities.computeCRC(meins))
+    print(crc)
+    crc=hex(pymodbus.utilities.computeCRC(meins1))
+    print(crc)
+    crc=hex(pymodbus.utilities.computeCRC(meins2))
+    print(crc)
+    crc=hex(pymodbus.utilities.computeCRC(meins3))
+    print(crc)
+
+    # xihe = "081000000001020100CD90"
+    xihe = "081000000001020100"
+    xihe_bytes = bytes.fromhex(xihe)
+    xihe_bytearray=bytearray.fromhex(xihe)
+    crc = hex(pymodbus.utilities.computeCRC(xihe_bytearray))
+
+    print(xihe_bytearray)
+    print(crc)
+    print(type(crc))
 
 
-def return_air_con_mqtt_str_bytes_to_send(str_bin):
-    units,crc = return_crc(str_bin)
 
-    str_bytes=struct.pack('7B', units[0], units[1], units[2], units[3], units[4], units[5], crc)
-    print(len(str_bytes))
-    print(repr(str_bytes))
-    return str_bytes
+def gen_modbus_bytes():
 
+    import pymodbus.utilities
+    from pymodbus.compat import int2byte
 
-def replace_0b(input):
-    return input.replace('0b', '')
+    daq_adrresses = ['01', '02', '03', '04', '05', '06', '07', '08']
+    release_func_code = '1000000001020000'
+    suck_func_code = '1000000001020100'
+    suck_func_bytes=[]
+    release_func_bytes=[]
+    releay_func_bytes=[]
+    for daq_adrress in daq_adrresses:
+        suck_hex_func = daq_adrress + suck_func_code
+        release_hex_func = daq_adrress + release_func_code
 
+        suck_func_bytearray = bytearray.fromhex(suck_hex_func)
+        release_func_bytearray = bytearray.fromhex(release_hex_func)
 
-def mqtt_pub_air_con(data):
-    # {'node_select': 2, 'wind_speed': 2, 'temp_setting': 28, 'wind_directtion': 1, 'switch': 1, 'working_model': 1}
+        suck_crc = pymodbus.utilities.computeCRC(suck_func_bytearray)
+        release_crc = pymodbus.utilities.computeCRC(release_func_bytearray)
 
-    node_addr = bitstring.pack('uint:13',data['node_select']).bin
-    wind_direct = bitstring.pack('uint:2',data['wind_directtion']).bin
-    wind_speed = bitstring.pack('uint:2',data['wind_speed']).bin
-    on_off = bitstring.pack('uint:2',data['switch']).bin
-    work_mode = bitstring.pack('uint:3',data['working_model']).bin 
-    temp = bitstring.pack('uint:5',data['temp_setting']).bin
+        suck_hex_str = daq_adrress + suck_func_code + hex(suck_crc)[2:]
+        release_hex_str = daq_adrress + release_func_code + hex(release_crc)[2:]
 
-    str_bin = return_str_bin(node_addr, wind_direct, wind_speed, on_off, work_mode, temp)
-    str_bytes = return_air_con_mqtt_str_bytes_to_send(str_bin)
+        suck_func_byte = bytes.fromhex(suck_hex_str)
+        release_func_byte = bytes.fromhex(release_hex_str)
 
-    transmitMQTT(str_bytes)
+        suck_func_bytes.append(suck_func_byte)
+        release_func_bytes.append(release_func_byte)
+        releay_func_bytes.append([suck_func_byte, release_func_byte])
 
+        print('---------{}----------'.format(daq_adrress))
 
-def mqtt_auto_control_air(node_mqtt_trans_func, on_off):
+        print('-----suck_func_bytes------')
+        print(suck_func_byte)
+        print('-----release_func_bytes-----')
+        print(release_func_byte)
+        print('----------------------')
 
-    gateway_addr = node_mqtt_trans_func[0][0]
-    node_addr = node_mqtt_trans_func[0][1]
-    trans_direct = node_mqtt_trans_func[0][2]
-    func_code = node_mqtt_trans_func[0][3]
-    wind_direct = node_mqtt_trans_func[0][4]
-    wind_speed = node_mqtt_trans_func[0][5]
-    model = node_mqtt_trans_func[0][6]
-    work_mode = node_mqtt_trans_func[0][8]
-    temp = node_mqtt_trans_func[0][9]
-    
-    str_origin = gateway_addr + node_addr + trans_direct + func_code +\
-                 wind_direct + wind_speed + model + on_off + work_mode + temp
-    
-    str_bin = BitStream('0b' + str_origin)
-    str_bytes = return_air_con_mqtt_str_bytes_to_send(str_bin)
+    return releay_func_bytes
 
-    transmitMQTT(str_bytes)
-
-
-def mqtt_pub_node_setting():
-    gateway_addr = '0b001' # 1
-    node_addr = '0b0000000000100' # 1
-    trans_direct = '0b1'  # 1
-    func_code = '0b0010010' # 18
-    new_gateway_addr = '0b001'
-    new_node_addr = '0b0000000000100'
-    reserve = '0b0000'
-    # sleep_time = '0b0100101100' #5 minute
-    sleep_time = '0b0000110111' #55 second
-
-    send_power = '0b11'
-
-    str_replaced = replace_0b(gateway_addr) + replace_0b(node_addr) + replace_0b(trans_direct) + replace_0b(func_code) + replace_0b(new_gateway_addr) + replace_0b(new_node_addr) + replace_0b(reserve) + replace_0b(sleep_time) + replace_0b(send_power)
-    print('str_repalced:', str_replaced)
-    str_bin = BitStream('0b' + str_replaced)
-    print('str_bin:', str_bin)
-    units,crc = return_crc(str_bin)
-    str_bytes=struct.pack('8B', units[0], units[1], units[2], units[3], units[4], units[5], units[6], crc)
-    print(str_bytes)
-    print(len(str_bytes))
-    print(repr(str_bytes))
-
-    transmitMQTT(str_bytes)
-
+    #
+    #
+    #
+    #
+    #
+    # crc=hex(pymodbus.utilities.computeCRC(b'\x10\x33\x01\x01'))
+    # print(crc)
+    # crc=hex(pymodbus.utilities.computeCRC(meins))
+    # print(crc)
+    # crc=hex(pymodbus.utilities.computeCRC(meins1))
+    # print(crc)
+    # crc=hex(pymodbus.utilities.computeCRC(meins2))
+    # print(crc)
+    # crc=hex(pymodbus.utilities.computeCRC(meins3))
+    # print(crc)
+    #
+    # # xihe = "081000000001020100CD90"
+    # xihe = "081000000001020100"
+    # xihe_bytes = bytes.fromhex(xihe)
+    # xihe_bytearray=bytearray.fromhex(xihe)
+    # crc = hex(pymodbus.utilities.computeCRC(xihe_bytearray))
+    #
+    # print(xihe_bytearray)
+    # print(crc)
+    # print(type(crc))
 
 
 if __name__ == '__main__':
@@ -225,18 +240,38 @@ if __name__ == '__main__':
     # while True:
 
     # time.sleep(10)
-    for i in xrange(1000):
+    for i in range(1000):
+        # for python2
+        # xihe = "\x08\x10\x00\x00\x00\x01\x02\x01\x00\xCD\x90"
+        # # xihe="0110000000010201016600"
+        # shifang = "\x08\x10\x00\x00\x00\x01\x02\x00\x00\xCC\x00"
+        # dianliu = "\x01\x03\x00\x04\x00\x04\x05\xC8"
+        # ma = "\x40\xe0\x6e\x8b"
+        releay_func_bytes = gen_modbus_bytes()
+        #
+        # xihe = "081000000001020100CD90"
+        # xihe_bytes = bytes.fromhex(xihe)
+        # print(xihe_bytes)
+        # # xihe="0110000000010201016600"
+        # shifang = "081000000001020000CC00"
+        # shifang_bytes=bytes.fromhex(shifang)
+        # print(shifang_bytes)
+        # dianliu = "\x01\x03\x00\x04\x00\x04\x05\xC8"
+        # ma = "\x40\xe0\x6e\x8b"
 
-        xihe = "\x01\x10\x00\x00\x00\x01\x02\x01\x01\x66\x00"
-        # xihe="0110000000010201016600"
-        shifang = "\x01\x10\x00\x00\x00\x01\x02\x00\x01\x67\x90"
-        dianliu = "\x01\x03\x00\x04\x00\x04\x05\xC8"
-        ma = "\x40\xe0\x6e\x8b"
+        for releay_func_byte in releay_func_bytes:
 
-        str_bytes = dianliu
+            print('-----------send-time------------')
+            print(datetime.datetime.now())
+            print('----xihe begin----')
 
-        transmitMQTT(str_bytes)
+            transmitMQTT(releay_func_byte[0])
 
-        time.sleep(30)
+            time.sleep(10)
+            print('----shifang begin----')
 
-        
+            transmitMQTT(releay_func_byte[1])
+
+            time.sleep(10)
+
+

@@ -18,7 +18,7 @@ logger.setLevel(logging.INFO)    # Log等级总开关
   
 # 第二步，创建一个handler，用于写入日志文件  
 parent_dir = os.path.dirname(__file__)
-logfile = os.path.join(parent_dir, 'log/logger.txt')  
+logfile = os.path.join(parent_dir, 'log/mqtt_passthrough_sub_logger.txt')
 fh = logging.FileHandler(logfile, mode='w')  
 fh.setLevel(logging.DEBUG)   # 输出到file的log等级的开关  
   
@@ -78,39 +78,39 @@ def on_message(mqttc, obj, msg):
     curtime = datetime.datetime.now()
     strcurtime = curtime.strftime("%Y-%m-%d %H:%M:%S")
     logger.info(strcurtime + ": " + msg.topic+" "+str(msg.qos)+" "+str(msg.payload))  
-    
+
+    print('-----------------receive time----------------------')
+    print(datetime.datetime.now())
+
     payload_length = len(msg.payload)
     print('-------payload_length---------')
     print(msg.payload)
     print(payload_length)
+    un_int = struct.unpack(str(payload_length) + 'B', msg.payload)
+    print(un_int)
+    uints = list(un_int)
+    print(uints)
 
     line = msg.payload
 
-    s= line.encode('hex')
-    print(s)
 
-    p = ' '.join('{:02X}'.format(ord(i)) for i in line)
-    q = [binascii.hexlify(c).upper() for c in line] 
-    t = struct.unpack('13c', line)
-    print(s)
-    print(p)
-    print(' '.join(q))
-    print(t)
-    current_bytes_1 = line[3:7]
-    current_bytes_2 = line[7:11]
+    current_bytes_1 = line[2:4]
+    current_bytes_2 = line[4:6]
     
     print('-----current_bytes------')
-    print(current_bytes_1.encode('hex'))
+    print(current_bytes_1.decode())
+    print(current_bytes_1)
+    print(current_bytes_2)
 
-    current_value_mA_1 = struct.unpack('!f', current_bytes_1)[0]
-    current_value_A_1 = 10 * ((current_value_mA_1-3.92)/16)
-    current_value_mA_2 = struct.unpack('!f', current_bytes_2)[0]
-    current_value_A_2 = 10 * ((current_value_mA_2-3.92)/16)
-
-    print('-----current_value_mA------')
-    print(current_value_mA_1)
-    print('-----current_value_A------')
-    print(current_value_A_1)
+    # current_value_mA_1 = struct.unpack('!f', current_bytes_1)[0]
+    # current_value_A_1 = 10 * ((current_value_mA_1-3.92)/16)
+    # current_value_mA_2 = struct.unpack('!f', current_bytes_2)[0]
+    # current_value_A_2 = 10 * ((current_value_mA_2-3.92)/16)
+    #
+    # print('-----current_value_mA------')
+    # print(current_value_mA_1)
+    # print('-----current_value_A------')
+    # print(current_value_A_1)
 
 
     # un_int = struct.unpack(str(payload_length) + 'B', msg.payload)
@@ -149,7 +149,7 @@ def on_message(mqttc, obj, msg):
 
 
 def on_exec(strcmd):
-    logger.debug( "Exec:",strcmd)
+    logger.debug("Exec:", strcmd)
     strExec = strcmd
 
 def lora_unpacking(packet_data):
@@ -183,37 +183,37 @@ def lora_unpacking_realtime_data(packet_data):
     temprature2 = (sign(temp2_sign) * temp2)/10.0
     temprature3 = (sign(temp3_sign) * temp3)/10.0
 
-    logger.debug('gateway_addr: %s',gateway_addr)
+    logger.debug('gateway_addr: %s', gateway_addr)
     logger.info('-------------------')
-    logger.info('node_addr: %s',node_addr)
-    logger.info('-------------------')
-
-    logger.debug('tran_direct: %s',tran_direct)
-    logger.debug('-------------------')
-
-    logger.debug('func_code: %s',func_code)
-    logger.debug('-------------------')
-
-    logger.debug('switch: %s',switch)
-    logger.debug('-------------------')
-
-    logger.debug('temp1_sign',temp1_sign)
-    logger.debug('-------------------')
-
-    logger.debug('temp2_sign',temp2_sign)
-    logger.debug('-------------------')
-
-    logger.debug('temp3_sign',temp3_sign)
-    logger.debug('-------------------')
-
-    logger.info('temp1: %s',temp1)
-
-    logger.info('temp2: %s',temp2)
-
-    logger.info('temp3: %s',temp3)
+    logger.info('node_addr: %s', node_addr)
     logger.info('-------------------')
 
-    logger.info('battery_vol: %s',battery_vol)
+    logger.debug('tran_direct: %s', tran_direct)
+    logger.debug('-------------------')
+
+    logger.debug('func_code: %s', func_code)
+    logger.debug('-------------------')
+
+    logger.debug('switch: %s', switch)
+    logger.debug('-------------------')
+
+    logger.debug('temp1_sign', temp1_sign)
+    logger.debug('-------------------')
+
+    logger.debug('temp2_sign', temp2_sign)
+    logger.debug('-------------------')
+
+    logger.debug('temp3_sign', temp3_sign)
+    logger.debug('-------------------')
+
+    logger.info('temp1: %s', temp1)
+
+    logger.info('temp2: %s', temp2)
+
+    logger.info('temp3: %s', temp3)
+    logger.info('-------------------')
+
+    logger.info('battery_vol: %s', battery_vol)
     
     logger.info('values : %s, %s, %s, %s', temprature1, temprature2, temprature3, battery_vol)
 
@@ -236,7 +236,7 @@ def save_realtime_data(data):
     try:
         db.session.commit()
         logger.debug('inserted!') 
-    except Exception, e:
+    except Exception as e:
         logger.error("Inserting Grian_temp: %s", e)
         db.session.rollback()
 
@@ -244,9 +244,12 @@ def save_realtime_data(data):
 def lora_unpacking_ack(packet_data):
     # todo
     logger.info('-------- ack data process beginning -----------')
+    print('------receive time------')
+    print(datetime.datetime.now())
 
 #=====================================================
-if __name__ == '__main__': 
+def mqtt_passthrough_sub():
+
     mqttc = mqtt.Client("001.passthrough_subscriber")
     mqttc.username_pw_set("iiot", "smartlinkcloud")
     mqttc.on_message = on_message
@@ -261,3 +264,6 @@ if __name__ == '__main__':
     mqttc.connect(strBroker, 1883, 60)
     mqttc.subscribe("001.passthrough_upstream", 0)
     mqttc.loop_forever()
+
+if __name__ == '__main__':
+    mqtt_passthrough_sub()
