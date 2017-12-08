@@ -131,6 +131,7 @@ class GetUser(Resource):
 
                     # print(userItem)
                     user = User
+                    print('-----need verify-----')
                     auth_user = user.verify_auth_token(auth_token)
 
                     print('------auth-user-----')

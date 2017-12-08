@@ -1,7 +1,7 @@
 from flask import Blueprint
 api = Blueprint('api', __name__)
 
-from . import authentication, posts, users, comments, errors
+# from . import authentication, posts, users, comments, errors
 
 from flask_restful import Api
 from app.api.resources import Login, Logout, GetUser,LoraTemp, BarnTemp, LoraTemps, LoraTempRecord, LoRaBattery, Barns, AllBarns, AllNodes, AirConRealtimeTemp, AirConTemps, \
@@ -9,8 +9,6 @@ from app.api.resources import Login, Logout, GetUser,LoraTemp, BarnTemp, LoraTem
     GrainSecurity, Menus, GrainHistory, AirConControl, AirConControlOnOff, AirConControls, ElectricPowerControl, \
     TianshuoOnOffControl, LoraNodeUpdate, BarnLoraNodeUpdate, NodeAddressByBarnNo, AirConOnOffAllOneKey, OneAirConStartEndTimeUpdate, \
     AutoInit
-
-
 
 
 api_resource = Api(api)
