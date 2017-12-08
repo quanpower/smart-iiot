@@ -216,6 +216,86 @@ class Barns(Resource):
         pass
 
 
+
+class AllBarns(Resource):
+    def get(self):
+
+
+        storehouse_value_lable = {'value':'1', 'label':'福州库'}
+
+        barns = db.session.query(GrainBarn.barn_no, GrainBarn.barn_name).join(GrainStorehouse,
+        GrainStorehouse.id == GrainBarn.grain_storehouse_id).filter(GrainStorehouse.storehouse_no == '1').all()
+        print("-------barns are---------:", barns)
+
+        barn_children = []
+        for i in range(len(barns)):
+            barn=barns[i]
+            print('---------------barn--------------', barn)
+            barn_value_label = {'value':barn[0], 'label':barn[1]}
+            barn_children.append(barn_value_label)
+
+        storehouse_value_lable['children'] = barn_children
+
+        all_nodes_list = [storehouse_value_lable]
+
+        print('------all_nodes_list-------')
+        print(all_nodes_list)
+
+        return all_nodes_list
+
+    def delete(self):
+        pass
+
+    def put(self):
+        pass
+
+
+
+class AllNodes(Resource):
+    def get(self):
+
+        storehouse_value_lable = {'value':'1', 'label':'福州库'}
+
+        barns = db.session.query(GrainBarn.barn_no, GrainBarn.barn_name).join(GrainStorehouse,
+        GrainStorehouse.id == GrainBarn.grain_storehouse_id).filter(GrainStorehouse.storehouse_no == '1').all()
+        print("-------barns are---------:", barns)
+
+        barn_children = []
+        for i in range(len(barns)):
+            barn = barns[i]
+            print('---------------barn--------------', barn)
+            barn_value_label = {'value':barn[0], 'label':barn[1]}
+            nodes = db.session.query(LoraNode.node_addr, LoraNode.node_name).join(GrainBarn, GrainBarn.id == LoraNode.grain_barn_id).filter(
+                GrainBarn.barn_no == barn[0]).all()
+            print('nodes:', nodes)
+
+            node_children = []
+            for j in range(len(nodes)):
+                node = nodes[j]
+                print('******node******', node)
+
+                node_children.append({'value':node[0], 'label':node[1]+'({0}号节点)'.format(node[0])})
+
+            barn_children.append(barn_value_label)
+
+            barn_value_label['children'] = node_children
+        storehouse_value_lable['children'] = barn_children
+
+        all_nodes_list = [storehouse_value_lable]
+
+        print('------all_nodes_list-------')
+        print(all_nodes_list)
+
+        return all_nodes_list
+
+    def delete(self):
+        pass
+
+    def put(self):
+        pass
+
+
+
 class AirConRealtimeTemp(Resource):
     def get(self):
         parser = reqparse.RequestParser()
@@ -235,10 +315,10 @@ class AirConRealtimeTemp(Resource):
             and_(LoraNode.node_addr == nodeAddr, LoraGateway.gateway_addr == gatewayAddr)).order_by(
             GrainTemp.datetime.desc()).first()
 
-        print("temps:", temps)
+        # print("temps:", temps)
         air_con_realtime_temp_dic = {
-            "airConRealtimeTemp": [{"icon": "bulb", "color": "#64ea91", "title": "空调", "number": temps[0]},
-                                   {"icon": "bulb", "color": "#8fc9fb", "title": "插座", "number": temps[1]},
+            "airConRealtimeTemp": [{"icon": "bulb", "color": "#64ea91", "title": "插座", "number": temps[0]},
+                                   {"icon": "bulb", "color": "#8fc9fb", "title": "空调", "number": temps[1]},
                                    {"icon": "bulb", "color": "#d897eb", "title": "仓温", "number": temps[2]},
                                    {"icon": "message", "color": "#f69899", "title": "电池", "number": temps[3]}]}
         return air_con_realtime_temp_dic
@@ -280,7 +360,7 @@ class AirConTemps(Resource):
 
         temps_reverse = temp_log[::-1]
         print('------------temps_reverse--------------')
-        print(temps_reverse)
+        # print(temps_reverse)
 
         temps_dict = {"airConTemps": temps_reverse}
         return temps_dict
@@ -322,7 +402,7 @@ class AirConTempRecord(Resource):
             and_(LoraNode.node_addr == nodeAddr, LoraGateway.gateway_addr == gatewayAddr,
                  GrainTemp.datetime.between(startTime, endTime))).order_by(
             GrainTemp.datetime.desc()).all()
-        print('*********temp_records*************', temp_records)
+        # print('*********temp_records*************', temp_records)
 
         temp_log = []
         for i in range(len(temp_records)):
@@ -332,7 +412,7 @@ class AirConTempRecord(Resource):
 
         temps_reverse = temp_log[::-1]
         print('------------temps_records--------------')
-        print(temps_reverse)
+        # print(temps_reverse)
 
         temps_record_dict = {"airConTempRecord": temps_reverse}
         return temps_record_dict
@@ -355,7 +435,20 @@ class AirConDashboard(Resource):
         else:
             return 3
 
-    def get(self, gatewayAddr, barnNo):
+    def get(self):
+
+        parser = reqparse.RequestParser()
+        parser.add_argument('gatewayAddr', type=str)
+        parser.add_argument('barnNo', type=str)
+
+        args = parser.parse_args()
+
+        print('-------AirConDashboard args---------', args)
+
+        gatewayAddr = args['gatewayAddr']
+        barnNo = args['barnNo']
+
+
         nodes = db.session.query(LoraNode.node_addr).join(GrainBarn, GrainBarn.id == LoraNode.grain_barn_id).filter(
             GrainBarn.barn_no == barnNo).order_by(LoraNode.node_addr.asc()).all()
         print("nodes are:", nodes)
@@ -370,7 +463,7 @@ class AirConDashboard(Resource):
                 GrainTemp.datetime.desc()).first()
             if temps:
                 status = {"name": node[0] + u"号空调", "status": self.return_status(temps[0], temps[1], temps[2]),
-                          "content": "空调：{0}℃, 插座：{1}℃, 仓温：{2}℃".format(
+                          "content": "插座：{0}℃, 空调：{1}℃, 仓温：{2}℃".format(
                               str(temps[0]), str(temps[1]), str(temps[2])),
                           "avatar": "http://dummyimage.com/48x48/{0}/757575.png&text={1}".format(
                               index_color(int(node[0]))[1:], node[0]),
@@ -378,9 +471,8 @@ class AirConDashboard(Resource):
                 statuses.append(status)
             else:
                 statuses = []
-        # conc_dash_dic = {"concDash":[{"name":"1","status":1,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/f279aa/757575.png&text=1","date":"2017-08-19 23:38:45"},{"name":"White","status":2,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/79cdf2/757575.png&text=W","date":"2017-04-22 14:17:06"},{"name":"Martin","status":3,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/f1f279/757575.png&text=M","date":"2017-05-07 04:29:13"},{"name":"Johnson","status":1,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/d079f2/757575.png&text=J","date":"2017-01-14 02:38:37"},{"name":"Jones","status":2,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/79f2ac/757575.png&text=J","date":"2017-07-08 20:05:50"}]}
         air_con_dash_dic = {"airConDash": statuses}
-        print("air_con_dash_dic", air_con_dash_dic)
+        # print("air_con_dash_dic", air_con_dash_dic)
         return air_con_dash_dic
 
 
@@ -506,14 +598,14 @@ class Menus(Resource):
                 'bpid': '1',
                 'name': '粮仓仪表板',
                 'icon': 'bulb',
-                'route': '/grain_dashboard/1',
+                'route': '/grain_dashboard',
             },
             {
                 'id': '3',
                 'bpid': '1',
                 'name': '在线监测',
                 'icon': 'bulb',
-                'route': '/aircondetail/1',
+                'route': '/aircondetail',
             },
             {
                 'id': '4',
@@ -543,7 +635,7 @@ class Menus(Resource):
                 'bpid': '1',
                 'name': '智能控电',
                 'icon': 'shopping-cart',
-                'route': '/fire_alarm/1',
+                'route': '/fire_alarm',
             },
             {
                 'id': '7',

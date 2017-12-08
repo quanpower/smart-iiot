@@ -312,7 +312,7 @@ def index_color(index):
         'yellowgreen':          '#9ACD32'
     }
     colors_list = list(colors)
-    print(colors_list)
+    # print(colors_list)
     index_color = colors[colors_list[index]]
     return index_color
 

@@ -92,8 +92,9 @@ def on_message(mqttc, obj, msg):
 
 
 def on_exec(strcmd):
-    print ("Exec:",strcmd)
+    print ("Exec:", strcmd)
     strExec = strcmd
+
 
 def lora_unpacking(packet_data):
     packet_data.pos = 56
@@ -255,10 +256,6 @@ if __name__ == '__main__':
         # str_bin = bitstring.pack(gateway_addr, node_addr, trans_direct, func_code, wind_direct, wind_speed, model, on_off, work_mode, temp)
 
         str_replaced = replace_0b(gateway_addr) + replace_0b(node_addr) + replace_0b(trans_direct) + replace_0b(func_code) + replace_0b(wind_direct) + replace_0b(wind_speed) + replace_0b(model) + replace_0b(on_off) + replace_0b(work_mode) + replace_0b(temp)
-
-
-
-
 
         print('str', str_replaced)
         print(len(str_replaced))

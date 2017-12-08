@@ -63,6 +63,7 @@ class LoraNode(db.Model):
     __tablename__ = 'lora_node'
     id = db.Column(db.Integer, primary_key=True)
     node_addr = db.Column(db.String(8), unique=True)
+    node_name = db.Column(db.String(8))
     grain_storehouse_id = db.Column(db.Integer, db.ForeignKey('grain_storehouse.id'), nullable=False)
     grain_storehouse = db.relationship("GrainStorehouse")
     lora_gateway_id = db.Column(db.Integer, db.ForeignKey('lora_gateway.id'), nullable=False)

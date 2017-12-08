@@ -1,8 +1,7 @@
 # -*- coding:utf-8 -*-
 
-from app import db
 from app.models import LoraGateway, LoraNode, GrainBarn, AlarmLevelSetting, PowerIoRs485Func, PowerIo, NodeMqttTransFunc, GrainTemp, GrainStorehouse
-from sqlalchemy import and_
+from sqlalchemy import create_engine, and_
 from utils import calc_modus_hex_str_to_send, crc_func, str2hexstr, calc
 from mqtt_publisher import mqtt_pub_air_con, transmitMQTT, mqtt_auto_control_air
 import bitstring
@@ -12,34 +11,42 @@ import time
 from rs485_socket import rs485_socket_send
 import datetime
 
+from sqlalchemy.orm import sessionmaker
+
+# 初始化数据库连接:
+engine = create_engine('sqlite:///data.sqlite')
+# 创建DBSession类型:
+Session = sessionmaker(bind=engine)
+db_session=Session()
+
 
 def dynamic_link():
     """
     control air-conditioner and electric power autoly
     """
 
-    alarmLevel = db.session.query(AlarmLevelSetting.warning, AlarmLevelSetting.error).all()
+    alarmLevel = db_session.query(AlarmLevelSetting.warning, AlarmLevelSetting.error).all()
     alarmLevelWarning = alarmLevel[0][0]
     alarmLevelError = alarmLevel[0][1]
     print('alarmLevelWarning', alarmLevelWarning)
     print('alarmLevelError', alarmLevelError)
 
-    barns = db.session.query(GrainBarn.barn_no, GrainBarn.barn_name, GrainBarn.high_limit, GrainBarn.low_limit).join(GrainStorehouse, GrainStorehouse.id == GrainBarn.grain_storehouse_id).filter(GrainStorehouse.storehouse_no=='1').all()
+    barns = db_session.query(GrainBarn.barn_no, GrainBarn.barn_name, GrainBarn.high_limit, GrainBarn.low_limit).join(GrainStorehouse, GrainStorehouse.id == GrainBarn.grain_storehouse_id).filter(GrainStorehouse.storehouse_no=='1').all()
     print("-------barns are---------:", barns)
     for i in range(len(barns)):
         barn = barns[i]
         print('---------------**********barn*********--------------', barn)
-        nodes = db.session.query(LoraNode.node_addr).join(GrainBarn, GrainBarn.id == LoraNode.grain_barn_id).filter(GrainBarn.barn_no == barn[0]).all()
+        nodes = db_session.query(LoraNode.node_addr).join(GrainBarn, GrainBarn.id == LoraNode.grain_barn_id).filter(GrainBarn.barn_no == barn[0]).all()
         print('nodes:', nodes)
 
-        auto_nodes = db.session.query(LoraNode.node_addr).join(GrainBarn, GrainBarn.id == LoraNode.grain_barn_id).filter(and_(LoraNode.auto_manual == 'auto', GrainBarn.barn_no == barn[0])).all()
+        auto_nodes = db_session.query(LoraNode.node_addr).join(GrainBarn, GrainBarn.id == LoraNode.grain_barn_id).filter(and_(LoraNode.auto_manual == 'auto', GrainBarn.barn_no == barn[0])).all()
         print('auto_nodes', auto_nodes)
         
         for j in range(len(auto_nodes)):
             auto_node = auto_nodes[j]
             print('---------------******auto_node******--------------', auto_node)
 
-            temps = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.datetime, LoraGateway.gateway_addr,
+            temps = db_session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.datetime, LoraGateway.gateway_addr,
                 LoraNode.node_addr).join(LoraGateway, LoraGateway.id == GrainTemp.lora_gateway_id).join(LoraNode, 
                 LoraNode.id == GrainTemp.lora_node_id).filter(and_(LoraGateway.gateway_addr == '1', LoraNode.node_addr == auto_node[0])).order_by(
                 GrainTemp.datetime.desc()).first()
@@ -57,7 +64,7 @@ def dynamic_link():
                 mqtt_node_addr = bitstring.pack('uint:13', auto_node[0]).bin
                 print('-------auto_node_mqtt_node_addr--------', mqtt_node_addr)
 
-                node_mqtt_trans_func = db.session.query(NodeMqttTransFunc.gateway_addr, NodeMqttTransFunc.node_addr, NodeMqttTransFunc.trans_direct, NodeMqttTransFunc.func_code,
+                node_mqtt_trans_func = db_session.query(NodeMqttTransFunc.gateway_addr, NodeMqttTransFunc.node_addr, NodeMqttTransFunc.trans_direct, NodeMqttTransFunc.func_code,
                     NodeMqttTransFunc.wind_direct, NodeMqttTransFunc.wind_speed, NodeMqttTransFunc.model, NodeMqttTransFunc.on_off,
                     NodeMqttTransFunc.work_mode, NodeMqttTransFunc.temp).filter(NodeMqttTransFunc.node_addr == mqtt_node_addr).all()
 
@@ -83,21 +90,21 @@ def dynamic_link():
             # todo: repalce geteway_addr
             node = nodes[k]
             print('---------------******node******--------------', node)
-            temps = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.datetime, LoraGateway.gateway_addr,
+            temps = db_session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.datetime, LoraGateway.gateway_addr,
                 LoraNode.node_addr).join(LoraGateway, LoraGateway.id == GrainTemp.lora_gateway_id).join(LoraNode, 
                 LoraNode.id == GrainTemp.lora_node_id).filter(and_(LoraGateway.gateway_addr == '1', LoraNode.node_addr == node[0])).order_by(
                 GrainTemp.datetime.desc()).first()
 
             print('******temps******', temps)
 
-            power_io_addr_query = db.session.query(PowerIo.addr).join(LoraNode, PowerIo.id == LoraNode.power_io_id).filter(LoraNode.node_addr == node[0]).all()
+            power_io_addr_query = db_session.query(PowerIo.addr).join(LoraNode, PowerIo.id == LoraNode.power_io_id).filter(LoraNode.node_addr == node[0]).all()
             # open first channel
             print('******power_io_addr******', power_io_addr_query)
             power_io_addr = power_io_addr_query[0][0]
 
-            open_channel_1 = db.session.query(PowerIoRs485Func.function_code, PowerIoRs485Func.start_at_reg_high,
+            open_channel_1 = db_session.query(PowerIoRs485Func.function_code, PowerIoRs485Func.start_at_reg_high,
                 PowerIoRs485Func.start_at_reg_low, PowerIoRs485Func.num_of_reg_high, PowerIoRs485Func.num_of_reg_low).filter(PowerIoRs485Func.function_name == 'open_channel_1').all()
-            close_channel_1 = db.session.query(PowerIoRs485Func.function_code, PowerIoRs485Func.start_at_reg_high,
+            close_channel_1 = db_session.query(PowerIoRs485Func.function_code, PowerIoRs485Func.start_at_reg_high,
                 PowerIoRs485Func.start_at_reg_low, PowerIoRs485Func.num_of_reg_high, PowerIoRs485Func.num_of_reg_low).filter(PowerIoRs485Func.function_name == 'close_channel_1').all()
             print('******open_channel_1******', open_channel_1)
             print('******close_channel_1******', close_channel_1)
@@ -127,14 +134,14 @@ def dynamic_link():
             mqtt_node_addr = bitstring.pack('uint:13', node[0]).bin
             print('-------mqtt_node_addr--------', mqtt_node_addr)
 
-            node_mqtt_trans_func = db.session.query(NodeMqttTransFunc.gateway_addr, NodeMqttTransFunc.node_addr, NodeMqttTransFunc.trans_direct, NodeMqttTransFunc.func_code,
+            node_mqtt_trans_func = db_session.query(NodeMqttTransFunc.gateway_addr, NodeMqttTransFunc.node_addr, NodeMqttTransFunc.trans_direct, NodeMqttTransFunc.func_code,
                 NodeMqttTransFunc.wind_direct, NodeMqttTransFunc.wind_speed, NodeMqttTransFunc.model, NodeMqttTransFunc.on_off,
                 NodeMqttTransFunc.work_mode, NodeMqttTransFunc.temp).filter(NodeMqttTransFunc.node_addr == mqtt_node_addr).all()
 
             print('******node_mqtt_trans_func******', node_mqtt_trans_func)
 
 
-            start_end_time = db.session.query(LoraNode.node_addr, LoraNode.auto_start_time, LoraNode.auto_end_time).filter(LoraNode.node_addr == node[0]).all()
+            start_end_time = db_session.query(LoraNode.node_addr, LoraNode.auto_start_time, LoraNode.auto_end_time).filter(LoraNode.node_addr == node[0]).all()
 
             print('******start_end_time******', start_end_time)
 

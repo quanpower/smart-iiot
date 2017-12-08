@@ -4,7 +4,7 @@ api = Blueprint('api', __name__)
 from . import authentication, posts, users, comments, errors
 
 from flask_restful import Api
-from app.api.resources import Login, Logout, GetUser,LoraTemp, BarnTemp, LoraTemps, LoraTempRecord, LoRaBattery, Barns, AirConRealtimeTemp, AirConTemps, \
+from app.api.resources import Login, Logout, GetUser,LoraTemp, BarnTemp, LoraTemps, LoraTempRecord, LoRaBattery, Barns, AllBarns, AllNodes, AirConRealtimeTemp, AirConTemps, \
     AirConTempRecord, AirConDashboard, GrainSmarttempCtrl, GrainRealtimeTemp, GrainFireAlarm, GrainUnmanned, GrainDynamicLinkage, \
     GrainSecurity, Menus, GrainHistory, AirConControl, AirConControlOnOff, AirConControls, ElectricPowerControl, \
     TianshuoOnOffControl, LoraNodeUpdate, BarnLoraNodeUpdate, NodeAddressByBarnNo, AirConOnOffAllOneKey, OneAirConStartEndTimeUpdate, \
@@ -29,11 +29,13 @@ api_resource.add_resource(LoraTemps, '/loranode_temperatures/<gatewayAddr>/<node
 api_resource.add_resource(LoraTempRecord, '/loranode_temperature_record/<gatewayAddr>/<nodeAddr>/<startTime>/<endTime>')
 api_resource.add_resource(BarnTemp, '/barn_temperatures/<barn_no>')
 api_resource.add_resource(Barns, '/barns')
+api_resource.add_resource(AllBarns, '/all_barns')
+api_resource.add_resource(AllNodes, '/all_nodes')
 api_resource.add_resource(AirConRealtimeTemp, '/air-conditioner_temperature')
 
 api_resource.add_resource(AirConTemps, '/air-conditioner_temperatures')
 api_resource.add_resource(AirConTempRecord, '/air-conditioner_temperature_record')
-api_resource.add_resource(AirConDashboard, '/air-conditioner_dashboard/<gatewayAddr>/<barnNo>')
+api_resource.add_resource(AirConDashboard, '/air-conditioner_dashboard')
 api_resource.add_resource(GrainSmarttempCtrl, '/grain_smart_temperature_control/<name>/<content>')
 api_resource.add_resource(GrainRealtimeTemp, '/grain_realtime_temperature/<name>/<content>')
 api_resource.add_resource(GrainFireAlarm, '/grain_fire_alarm/<name>/<content>')

@@ -1,5 +1,5 @@
 from .user import Login, Logout, GetUser
-from .grain import LoraTemp, BarnTemp, LoraTemps, LoraTempRecord, LoRaBattery, Barns, AirConRealtimeTemp, AirConTemps, \
+from .grain import LoraTemp, BarnTemp, LoraTemps, LoraTempRecord, LoRaBattery, Barns, AllBarns, AllNodes, AirConRealtimeTemp, AirConTemps, \
     AirConTempRecord, AirConDashboard, GrainSmarttempCtrl, GrainRealtimeTemp, GrainFireAlarm, GrainUnmanned, GrainDynamicLinkage, \
     GrainSecurity, Menus, GrainHistory, AirConControl, AirConControlOnOff, AirConControls, ElectricPowerControl, \
     TianshuoOnOffControl, LoraNodeUpdate, BarnLoraNodeUpdate, NodeAddressByBarnNo, AirConOnOffAllOneKey, OneAirConStartEndTimeUpdate
@@ -15,6 +15,8 @@ __all__ = [
     'LoraTempRecord',
     'LoRaBattery',
     'Barns',
+    'AllBarns',
+    'AllNodes',
     'AirConRealtimeTemp',
     'AirConTemps',
     'AirConTempRecord',
