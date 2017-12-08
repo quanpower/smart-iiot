@@ -8,10 +8,10 @@ from bitstring import BitArray, BitStream
 import binascii
 import logging
 from utils import crc_func, sign
+import random
 
 
-
-from app.models import GrainTemp
+from app.models import GrainTemp, LoraNode
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -222,7 +222,7 @@ def save_realtime_data(data):
     c = GrainTemp()
     c.grain_storehouse_id = 1
     c.lora_gateway_id = data[0]
-    c.grain_barn_id = 1
+    # c.grain_barn_id = 1
     c.lora_node_id = data[1]
     c.switch = data[2]
     c.temp1 = data[3]
@@ -230,6 +230,13 @@ def save_realtime_data(data):
     c.temp3 = data[5]
     c.battery_vol = data[6]
     c.datetime = datetime.datetime.now()
+
+    grain_barn_id = db_session.query(LoraNode.grain_barn_id).filter(
+            LoraNode.node_addr == data[1]).first()[0]
+    c.grain_barn_id = grain_barn_id
+
+    print('--grain_barn_id---')
+    print(grain_barn_id)
 
     db_session.add(c)
     try:
@@ -249,7 +256,7 @@ def lora_unpacking_ack(packet_data):
 # =====================================================
 # if __name__ == '__main__':
 def mqtt_p2p_sub():
-    mqttc = mqtt.Client("mynodeserver_001")
+    mqttc = mqtt.Client("mqtt_p2p_sub" + str(random.choice(range(100))))
     mqttc.username_pw_set("iiot", "smartlinkcloud")
     mqttc.on_message = on_message
     mqttc.on_connect = on_connect
