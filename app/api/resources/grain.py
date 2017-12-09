@@ -19,7 +19,6 @@ import urllib
 # swagger = Swagger(app)
 
 
-
 class LoraTemp(Resource):
     def get(self, gatewayAddr, nodeAddr):
         temps = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.battery_vol).filter(
@@ -216,7 +215,6 @@ class Barns(Resource):
         pass
 
 
-
 class AllBarns(Resource):
     def get(self):
 
@@ -233,22 +231,19 @@ class AllBarns(Resource):
             print('---------------barn--------------', barn)
             barn_value_label = {'value':barn[0], 'label':barn[1]}
             barn_children.append(barn_value_label)
-
         storehouse_value_lable['children'] = barn_children
+        all_barns_list = [storehouse_value_lable]
 
-        all_nodes_list = [storehouse_value_lable]
+        print('------all_barns_list-------')
+        print(all_barns_list)
 
-        print('------all_nodes_list-------')
-        print(all_nodes_list)
-
-        return all_nodes_list
+        return all_barns_list
 
     def delete(self):
         pass
 
     def put(self):
         pass
-
 
 
 class AllNodes(Resource):
@@ -273,7 +268,6 @@ class AllNodes(Resource):
             for j in range(len(nodes)):
                 node = nodes[j]
                 print('******node******', node)
-
                 node_children.append({'value':node[0], 'label':node[1]+'({0}号节点)'.format(node[0])})
 
             barn_children.append(barn_value_label)
@@ -293,7 +287,6 @@ class AllNodes(Resource):
 
     def put(self):
         pass
-
 
 
 class AirConRealtimeTemp(Resource):
@@ -316,11 +309,14 @@ class AirConRealtimeTemp(Resource):
             GrainTemp.datetime.desc()).first()
 
         # print("temps:", temps)
-        air_con_realtime_temp_dic = {
+        if len(temps) > 0:
+            air_con_realtime_temp_dic = {
             "airConRealtimeTemp": [{"icon": "bulb", "color": "#64ea91", "title": "插座", "number": temps[0]},
                                    {"icon": "bulb", "color": "#8fc9fb", "title": "空调", "number": temps[1]},
                                    {"icon": "bulb", "color": "#d897eb", "title": "仓温", "number": temps[2]},
                                    {"icon": "message", "color": "#f69899", "title": "电池", "number": temps[3]}]}
+        else:
+            air_con_realtime_temp_dic = {}
         return air_con_realtime_temp_dic
 
     def delete(self, todo_id):
@@ -457,8 +453,7 @@ class AirConDashboard(Resource):
             node = nodes[i]
             # todo: repalce geteway_addr
             temps = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.datetime).join(
-                LoraGateway, LoraGateway.id == GrainTemp.lora_gateway_id).join(LoraNode,
-                                                                               LoraNode.id == GrainTemp.lora_node_id).filter(
+                LoraGateway, LoraGateway.id == GrainTemp.lora_gateway_id).join(LoraNode, LoraNode.id == GrainTemp.lora_node_id).filter(
                 and_(LoraGateway.gateway_addr == gatewayAddr, LoraNode.node_addr == node[0])).order_by(
                 GrainTemp.datetime.desc()).first()
             if temps:
@@ -842,10 +837,10 @@ class AirConControl(Resource):
         airconcontrol_dic = {'data': 'airconcontrol'}
         return airconcontrol_dic
 
-    def delete(self, todo_id):
+    def delete(self):
         pass
 
-    def put(self, todo_id):
+    def put(self):
         pass
 
     def post(self):
@@ -864,6 +859,51 @@ class AirConControl(Resource):
         mqtt_pub_air_con(args)
 
         return args
+                
+
+class AirConControlItems(Resource):
+    def get(self):
+        airconcontrols_dic = {'data': 'airconcontrols'}
+        return airconcontrols_dic
+
+    def delete(self):
+        pass
+
+    def put(self):
+        pass
+
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('barnNo', type=int)
+        args = parser.parse_args()
+
+        print(args)
+        barnNo = args['barnNo']
+
+        nodes = db.session.query(LoraNode.node_addr, LoraNode.node_name, LoraNode.current).join(GrainBarn, GrainBarn.id == LoraNode.grain_barn_id).filter(
+                GrainBarn.barn_no == barnNo).all()
+        print('nodes:', nodes)
+
+        airconcontrol_items = []
+        for j in range(len(nodes)):
+            node = nodes[j]
+            print('******node******', node)
+            airconcontrol_item = {}
+            airconcontrol_item['nodeAddr'] = node[0]
+            airconcontrol_item['content'] = node[1] + '号空调开关控制'
+            airconcontrol_item['name'] = node[1]
+            airconcontrol_item['title '] = node[1] + '号空调'
+            airconcontrol_item['avatar'] =  'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1506181543644&di=36ab98904965175769fb54fbd316cbe1&imgtype=0&src=http%3A%2F%2Fimg003.21cnimg.com%2Fphotos%2Falbum%2F20150207%2Fm600%2F562A7CBD05C2B187842FC10B831015B0.jpeg'
+            # judge if air-condiontioner is working?
+            if node[2] > 1:
+                node_status = {'color':'green', 'text':'运行中', 'current_value':node[2]}
+            else:
+                node_status = {'color':'red', 'text':'已停止', 'current_value':node[2]}
+            airconcontrol_item['onoff_status'] = node_status
+            airconcontrol_items.append(airconcontrol_item)
+        print('----airconcontrol_items-----')
+        print(airconcontrol_items)
+        return airconcontrol_items
 
 
 class AirConControlOnOff(Resource):
@@ -934,7 +974,6 @@ class AirConControls(Resource):
 
 
 class ElectricPowerControl(Resource):
-    # todo: use calc to auto generate hex_string
 
     def get(self):
 
@@ -982,7 +1021,6 @@ class ElectricPowerControl(Resource):
 
 
 class TianshuoOnOffControl(Resource):
-    # todo: use calc to auto generate hex_string
 
     def get(self):
 
@@ -1019,7 +1057,6 @@ class TianshuoOnOffControl(Resource):
 
 
 class LoraNodeUpdate(Resource):
-    # todo: use calc to auto generate hex_string
 
     def get(self):
 
@@ -1066,7 +1103,6 @@ class LoraNodeUpdate(Resource):
 
 
 class BarnLoraNodeUpdate(Resource):
-    # todo: use calc to auto generate hex_string
 
     def get(self):
 
@@ -1119,7 +1155,6 @@ class BarnLoraNodeUpdate(Resource):
 
 
 class NodeAddressByBarnNo(Resource):
-    # todo: use calc to auto generate hex_string
 
     def get(self):
         parser = reqparse.RequestParser()

@@ -6,7 +6,7 @@ api = Blueprint('api', __name__)
 from flask_restful import Api
 from app.api.resources import Login, Logout, GetUser,LoraTemp, BarnTemp, LoraTemps, LoraTempRecord, LoRaBattery, Barns, AllBarns, AllNodes, AirConRealtimeTemp, AirConTemps, \
     AirConTempRecord, AirConDashboard, GrainSmarttempCtrl, GrainRealtimeTemp, GrainFireAlarm, GrainUnmanned, GrainDynamicLinkage, \
-    GrainSecurity, Menus, GrainHistory, AirConControl, AirConControlOnOff, AirConControls, ElectricPowerControl, \
+    GrainSecurity, Menus, GrainHistory, AirConControl, AirConControlOnOff, AirConControls, AirConControlItems, ElectricPowerControl, \
     TianshuoOnOffControl, LoraNodeUpdate, BarnLoraNodeUpdate, NodeAddressByBarnNo, AirConOnOffAllOneKey, OneAirConStartEndTimeUpdate, \
     AutoInit
 
@@ -43,6 +43,7 @@ api_resource.add_resource(GrainSecurity, '/grain_security/<name>/<content>')
 api_resource.add_resource(GrainHistory, '/grain_history')
 api_resource.add_resource(AirConControl, '/air-conditioner_control')
 api_resource.add_resource(AirConControls, '/air-conditioner_controls')
+api_resource.add_resource(AirConControlItems, '/air-conditioner_control_items')
 api_resource.add_resource(AirConControlOnOff, '/air-conditioner_control_on_off')
 api_resource.add_resource(ElectricPowerControl, '/electric_power_control')
 api_resource.add_resource(TianshuoOnOffControl, '/tianshuo_on_off_control')

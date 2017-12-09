@@ -27,11 +27,7 @@ import struct
 
 log = logging.getLogger(__name__)
 
-# try:
-#     db.session.query(GrainTemp).delete()
-#     db.session.commit()
-# except:
-#     db.session.rollback()
+
 
 #MQTT Initialize.--------------------------------------
 try:
@@ -206,40 +202,10 @@ def gen_modbus_bytes():
 
     return releay_func_bytes
 
-    #
-    #
-    #
-    #
-    #
-    # crc=hex(pymodbus.utilities.computeCRC(b'\x10\x33\x01\x01'))
-    # print(crc)
-    # crc=hex(pymodbus.utilities.computeCRC(meins))
-    # print(crc)
-    # crc=hex(pymodbus.utilities.computeCRC(meins1))
-    # print(crc)
-    # crc=hex(pymodbus.utilities.computeCRC(meins2))
-    # print(crc)
-    # crc=hex(pymodbus.utilities.computeCRC(meins3))
-    # print(crc)
-    #
-    # # xihe = "081000000001020100CD90"
-    # xihe = "081000000001020100"
-    # xihe_bytes = bytes.fromhex(xihe)
-    # xihe_bytearray=bytearray.fromhex(xihe)
-    # crc = hex(pymodbus.utilities.computeCRC(xihe_bytearray))
-    #
-    # print(xihe_bytearray)
-    # print(crc)
-    # print(type(crc))
 
 
 if __name__ == '__main__':
-    # while 1:
-    #     mqtt_pub_node_setting()
-    #     time.sleep(10)
-    # while True:
 
-    # time.sleep(10)
     for i in range(1000):
         # for python2
         # xihe = "\x08\x10\x00\x00\x00\x01\x02\x01\x00\xCD\x90"
