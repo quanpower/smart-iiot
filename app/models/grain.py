@@ -44,6 +44,8 @@ class PowerIo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     addr = db.Column(db.String(8), unique=True)
     name = db.Column(db.String(50))
+    grain_barn_id = db.Column(db.Integer, db.ForeignKey('grain_barn.id'), nullable=False)
+    grain_barn = db.relationship("GrainBarn")
 
     def __repr__(self):
         return self.addr
@@ -54,6 +56,8 @@ class TianshuoRs485(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     addr = db.Column(db.String(8), unique=True)
     name = db.Column(db.String(50))
+    grain_barn_id = db.Column(db.Integer, db.ForeignKey('grain_barn.id'), nullable=False)
+    grain_barn = db.relationship("GrainBarn")
 
     def __repr__(self):
         return self.addr
@@ -103,6 +107,16 @@ class GrainTemp(db.Model):
 
     def __repr__(self):
         return str(self.temp1)
+
+
+class RelayCurrentRs485Func(db.Model):
+    __tablename__ = 'relay_current_rs485_func'
+    id = db.Column(db.Integer, primary_key=True)
+    function_name = db.Column(db.String(50), unique=True)
+    function_code = db.Column(db.String(50), unique=True)
+
+    def __repr__(self):
+        return str(self.function_name)
 
 
 class PowerIoRs485Func(db.Model):

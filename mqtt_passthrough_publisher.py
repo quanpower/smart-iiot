@@ -169,6 +169,13 @@ def gen_modbus_bytes():
     daq_adrresses = ['01', '02', '03', '04', '05', '06', '07', '08']
     release_func_code = '1000000001020000'
     suck_func_code = '1000000001020100'
+
+    # xihe="\x01\x10\x00\x00\x00\x01\x02\x01\x01\x66\x00"
+    # # xihe="0110000000010201016600"
+    # shifang="\x01\x10\x00\x00\x00\x01\x02\x00\x01\x67\x90"
+    # dianliu="\x01\x03\x00\x04\x00\x04\x05\xC8"
+    # ma="\x40\xe0\x6e\x8b"
+
     suck_func_bytes=[]
     release_func_bytes=[]
     releay_func_bytes=[]
@@ -203,27 +210,37 @@ def gen_modbus_bytes():
     return releay_func_bytes
 
 
+def gen_modbus_byte(powerNo, func_code):
+
+    import pymodbus.utilities
+    from pymodbus.compat import int2byte
+
+
+    hex_func = powerNo + func_code
+    func_bytearray = bytearray.fromhex(hex_func)
+    crc = pymodbus.utilities.computeCRC(func_bytearray)
+    hex_str = daq_adrress + release_func_code + hex(crc)[2:]
+    func_byte = bytes.fromhex(hex_str)
+
+    print('---------{}----------'.format(powerNo))
+    print('-----func_byte-----')
+    print(func_byte)
+    print('----------------------')
+
+    return func_byte
+
+
+def transmitMQTT_byte(powerNo, func_code):
+
+    func_byte = gen_modbus_byte(powerNo, func_code)
+    transmitMQTT(func_byte)
+
 
 if __name__ == '__main__':
 
     for i in range(1000):
-        # for python2
-        # xihe = "\x08\x10\x00\x00\x00\x01\x02\x01\x00\xCD\x90"
-        # # xihe="0110000000010201016600"
-        # shifang = "\x08\x10\x00\x00\x00\x01\x02\x00\x00\xCC\x00"
-        # dianliu = "\x01\x03\x00\x04\x00\x04\x05\xC8"
-        # ma = "\x40\xe0\x6e\x8b"
+
         releay_func_bytes = gen_modbus_bytes()
-        #
-        # xihe = "081000000001020100CD90"
-        # xihe_bytes = bytes.fromhex(xihe)
-        # print(xihe_bytes)
-        # # xihe="0110000000010201016600"
-        # shifang = "081000000001020000CC00"
-        # shifang_bytes=bytes.fromhex(shifang)
-        # print(shifang_bytes)
-        # dianliu = "\x01\x03\x00\x04\x00\x04\x05\xC8"
-        # ma = "\x40\xe0\x6e\x8b"
 
         for releay_func_byte in releay_func_bytes:
 

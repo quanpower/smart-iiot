@@ -9,7 +9,7 @@ import datetime, time
 import bitstring
 
 from app.models import GrainStorehouse, GrainBarn, LoraGateway, LoraNode, GrainTemp, PowerIo,\
-    AlarmLevelSetting, TianshuoRs485, PowerIoRs485Func, TianshuoRs485Func, NodeMqttTransFunc  #ConcLocation, ConcGateway, ConcRegion, ConcNode, ConcTemp
+    AlarmLevelSetting, TianshuoRs485, PowerIoRs485Func, RelayCurrentRs485Func, TianshuoRs485Func, NodeMqttTransFunc  #ConcLocation, ConcGateway, ConcRegion, ConcNode, ConcTemp
 
 
 
@@ -59,14 +59,14 @@ class AutoInit(Resource):
 
         try:
             power_ios = list()
-            power_ios.append(PowerIo(addr='1', name=u'1号仓配电箱1#'))
-            power_ios.append(PowerIo(addr='2', name=u'1号仓配电箱2#'))
-            power_ios.append(PowerIo(addr='3', name=u'2号仓配电箱1#'))
-            power_ios.append(PowerIo(addr='4', name=u'2号仓配电箱2#'))
-            power_ios.append(PowerIo(addr='5', name=u'3号仓配电箱1#'))
-            power_ios.append(PowerIo(addr='6', name=u'3号仓配电箱2#'))
-            power_ios.append(PowerIo(addr='7', name=u'4号仓配电箱1#'))
-            power_ios.append(PowerIo(addr='8', name=u'4号仓配电箱2#'))
+            power_ios.append(PowerIo(addr='1', name=u'1号仓配电箱1#', grain_barn=grain_barns[0]))
+            power_ios.append(PowerIo(addr='2', name=u'1号仓配电箱2#', grain_barn=grain_barns[0]))
+            power_ios.append(PowerIo(addr='3', name=u'2号仓配电箱1#', grain_barn=grain_barns[1]))
+            power_ios.append(PowerIo(addr='4', name=u'2号仓配电箱2#', grain_barn=grain_barns[1]))
+            power_ios.append(PowerIo(addr='5', name=u'3号仓配电箱1#', grain_barn=grain_barns[2]))
+            power_ios.append(PowerIo(addr='6', name=u'3号仓配电箱2#', grain_barn=grain_barns[2]))
+            power_ios.append(PowerIo(addr='7', name=u'4号仓配电箱1#', grain_barn=grain_barns[3]))
+            power_ios.append(PowerIo(addr='8', name=u'4号仓配电箱2#', grain_barn=grain_barns[3]))
 
             db.session.add(power_ios[0])
             db.session.add(power_ios[1])
@@ -241,6 +241,28 @@ class AutoInit(Resource):
             except Exception as e:
                 log.error("Creating GrainTemp: %s", e)
                 db.session.rollback()
+
+                RelayCurrentRs485Func
+
+        try:
+            relay_current_rs485_funcs = list()
+
+            relay_current_rs485_funcs.append(
+                RelayCurrentRs485Func(function_name='suck_func_code', function_code='1000000001020100'))
+            relay_current_rs485_funcs.append(
+                RelayCurrentRs485Func(function_name='release_func_code', function_code='1000000001020000'))
+            relay_current_rs485_funcs.append(
+                RelayCurrentRs485Func(function_name='current_A1_A2_func_code', function_code='0300040004'))
+           
+            db.session.add(power_io_rs485_funcs[0])
+            db.session.add(power_io_rs485_funcs[1])
+            db.session.add(power_io_rs485_funcs[2])
+
+            db.session.commit()
+        except Exception as e:
+            log.error("Creating relay_current_rs485_funcs: %s", e)
+            db.session.rollback()
+
 
         try:
             power_io_rs485_funcs = list()

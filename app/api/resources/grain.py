@@ -2,7 +2,7 @@ from flasgger import Swagger, swag_from
 from flask import Flask, redirect, url_for, request, jsonify, make_response
 from flask_restful import reqparse, abort, Api, Resource
 from app import db
-from app.models import GrainTemp, LoraGateway, LoraNode, GrainBarn, GrainStorehouse, NodeMqttTransFunc
+from app.models import GrainTemp, LoraGateway, LoraNode, GrainBarn, PowerIo, GrainStorehouse, NodeMqttTransFunc, RelayCurrentRs485Func
 from sqlalchemy import and_
 import json
 import random
@@ -470,6 +470,12 @@ class AirConDashboard(Resource):
         # print("air_con_dash_dic", air_con_dash_dic)
         return air_con_dash_dic
 
+    def delete(self):
+        pass
+
+    def put(self):
+        pass
+
 
 class GrainSmarttempCtrl(Resource):
     def get(self, name, content):
@@ -482,10 +488,10 @@ class GrainSmarttempCtrl(Resource):
 
         return smarttempctrl_dic
 
-    def delete(self, todo_id):
+    def delete(self):
         pass
 
-    def put(self, todo_id):
+    def put(self):
         pass
 
 
@@ -500,10 +506,10 @@ class GrainRealtimeTemp(Resource):
 
         return realtimetemp_dic
 
-    def delete(self, todo_id):
+    def delete(self):
         pass
 
-    def put(self, todo_id):
+    def put(self):
         pass
 
 
@@ -518,15 +524,15 @@ class GrainFireAlarm(Resource):
 
         return firealarm_dic
 
-    def delete(self, todo_id):
+    def delete(self):
         pass
 
-    def put(self, todo_id):
+    def put(self):
         pass
 
 
 class GrainUnmanned(Resource):
-    def get(self, name, content):
+    def get(self):
         name = ''
         title = u'无人值守'
         content = ''
@@ -536,10 +542,10 @@ class GrainUnmanned(Resource):
 
         return unmanned_dic
 
-    def delete(self, todo_id):
+    def delete(self):
         pass
 
-    def put(self, todo_id):
+    def put(self):
         pass
 
 
@@ -554,10 +560,10 @@ class GrainDynamicLinkage(Resource):
 
         return dynamiclinkage_dic
 
-    def delete(self, todo_id):
+    def delete(self):
         pass
 
-    def put(self, todo_id):
+    def put(self):
         pass
 
 
@@ -572,10 +578,10 @@ class GrainSecurity(Resource):
 
         return security_dic
 
-    def delete(self, todo_id):
+    def delete(self):
         pass
 
-    def put(self, todo_id):
+    def put(self):
         pass
 
 
@@ -825,10 +831,10 @@ class GrainHistory(Resource):
 
         return grain_history_dic
 
-    def delete(self, todo_id):
+    def delete(self):
         pass
 
-    def put(self, todo_id):
+    def put(self):
         pass
 
 
@@ -911,11 +917,10 @@ class AirConControlOnOff(Resource):
         airconcontrol_dic = {'data': 'airconcontrol'}
         return airconcontrol_dic
 
-    def delete(self, todo_id):
+    def delete(self):
         pass
 
-    def put(self, todo_id):
-
+    def put(self):
         pass
 
     def post(self):
@@ -975,49 +980,83 @@ class AirConControls(Resource):
 
 class ElectricPowerControl(Resource):
 
+    from mqtt_passthrough_publisher import transmitMQTT_byte
+
     def get(self):
-
-        power_controls_dic = {'data': 'power_controls'}
-
-        return power_controls_dic
-
-    def delete(self, todo_id):
         pass
 
-    def put(self, todo_id):
+    def delete(self):
+        pass
+
+    def put(self):
         pass
 
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('powerSwitch', type=str)
-        parser.add_argument('powerNo', type=int)
+        parser.add_argument('powerNo', type=str)
 
         args = parser.parse_args()
         # todo: replace it with dynamic_link's function
-        power_1_close = '010500100000CC0F'
-        power_1_open = '01050010FF008DFF'
-
-        power_2_close = '020500100000CC3C'
-        power_2_open = '02050010FF008DCC'
 
         print(args)
-        if args['powerNo'] == 1:
-            if args['powerSwitch'] == '1':
-                print("1 switch on!")
-                rs485_socket_send(str2hexstr(power_1_close))
-            else:
-                rs485_socket_send(str2hexstr(power_1_open))
-                print("1 switch off!")
+        powerNo = args['powerNo']
+        powerSwitch = args['powerSwitch']
 
-        elif args['powerNo'] == 2:
-            if args['powerSwitch'] == '1':
-                print("2 switch on!")
-                rs485_socket_send(str2hexstr(power_2_close))
-            else:
-                rs485_socket_send(str2hexstr(power_2_open))
-                print("2 switch off!")
+        if powerSwitch == '1':
+            print("switch on!")
+            func_code = db.session.query(RelayCurrentRs485Func.function_code).filter(
+                RelayCurrentRs485Func.function_name == 'release_func_code').first()
+            transmitMQTT_byte(powerNo, func_code[0])
+
+        else:
+            print("switch off!")
+            func_code = db.session.query(RelayCurrentRs485Func.function_code).filter(
+                RelayCurrentRs485Func.function_name == 'suck_func_code').first()
+            transmitMQTT_byte(powerNo, func_code[0])
 
         return args
+
+
+
+class ElectricPowerControlItems(Resource):
+    def get(self):
+        pass
+
+    def delete(self):
+        pass
+
+    def put(self):
+        pass
+
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('barnNo', type=int)
+        args = parser.parse_args()
+
+        print(args)
+        barnNo = args['barnNo']
+
+        powerIos = db.session.query(PowerIo.addr, PowerIo.name).join(GrainBarn, GrainBarn.id == PowerIo.grain_barn_id).filter(
+                GrainBarn.barn_no == barnNo).all()
+        print('powerIos:', powerIos)
+
+
+        electric_power_items = []
+        for i in range(len(powerIos)):
+            powerIo = powerIos[i]
+            print('******powerIo******', powerIo)
+            electric_power_item = {}
+            electric_power_item['powerNo'] = powerIo[0]
+            electric_power_item['content'] = powerIo[1] + '号配电箱开关控制'
+            electric_power_item['name'] = powerIo[1]
+            electric_power_item['title '] = powerIo[1] + '号配电箱'
+            electric_power_item['avatar'] =  'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1506180316165&di=f56b4ef5671e23987359bc9b6f00dbb3&imgtype=0&src=http%3A%2F%2Fwww.dgjs123.com%2Fd%2Ffile%2F2015-05%2F124608p0eg0m07mz00ed7d.jpg'
+     
+            electric_power_items.append(electric_power_item)
+        print('----electric_power_items-----')
+        print(electric_power_items)
+        return electric_power_items
 
 
 class TianshuoOnOffControl(Resource):
