@@ -10,9 +10,12 @@ import datetime, time
 from utils import random_color, index_color, calc, str2hexstr, calc_modus_hex_str_to_send
 from rs485_socket import rs485_socket_send
 from mqtt_publisher import mqtt_pub_air_con, transmitMQTT, mqtt_auto_control_air
+from mqtt_passthrough_publisher import transmitMQTT_byte
+
 import bitstring
 import json
 import urllib
+
 
 # api = Api(app)
 #
@@ -319,10 +322,10 @@ class AirConRealtimeTemp(Resource):
             air_con_realtime_temp_dic = {}
         return air_con_realtime_temp_dic
 
-    def delete(self, todo_id):
+    def delete(self):
         pass
 
-    def put(self, todo_id):
+    def put(self):
         pass
 
 
@@ -361,10 +364,10 @@ class AirConTemps(Resource):
         temps_dict = {"airConTemps": temps_reverse}
         return temps_dict
 
-    def delete(self, todo_id):
+    def delete(self):
         pass
 
-    def put(self, todo_id):
+    def put(self):
         pass
 
 
@@ -413,10 +416,10 @@ class AirConTempRecord(Resource):
         temps_record_dict = {"airConTempRecord": temps_reverse}
         return temps_record_dict
 
-    def delete(self, todo_id):
+    def delete(self):
         pass
 
-    def put(self, todo_id):
+    def put(self):
         pass
 
 
@@ -457,7 +460,7 @@ class AirConDashboard(Resource):
                 and_(LoraGateway.gateway_addr == gatewayAddr, LoraNode.node_addr == node[0])).order_by(
                 GrainTemp.datetime.desc()).first()
             if temps:
-                status = {"name": node[0] + u"号空调", "status": self.return_status(temps[0], temps[1], temps[2]),
+                status = {"name": node[0] + "号空调", "status": self.return_status(temps[0], temps[1], temps[2]),
                           "content": "插座：{0}℃, 空调：{1}℃, 仓温：{2}℃".format(
                               str(temps[0]), str(temps[1]), str(temps[2])),
                           "avatar": "http://dummyimage.com/48x48/{0}/757575.png&text={1}".format(
@@ -480,7 +483,7 @@ class AirConDashboard(Resource):
 class GrainSmarttempCtrl(Resource):
     def get(self, name, content):
         name = ''
-        title = u'智能控温'
+        title = '智能控温'
         content = ''
         avatar = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1504847335593&di=d7fd8e71543f9b99f12f614718757a0e&imgtype=0&src=http%3A%2F%2Fc1.neweggimages.com.cn%2FNeweggPic2%2Fneg%2FP800%2FA16-184-4PU.jpg'
         smarttempctrl = {'name': name, 'title': title, 'content': content, 'avatar': avatar}
@@ -498,7 +501,7 @@ class GrainSmarttempCtrl(Resource):
 class GrainRealtimeTemp(Resource):
     def get(self, name, content):
         name = ''
-        title = u'实时监测'
+        title = '实时监测'
         content = ''
         avatar = 'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1819841961,264465916&fm=27&gp=0.jpg'
         realtimetemp = {'name': name, 'title': title, 'content': content, 'avatar': avatar}
@@ -516,7 +519,7 @@ class GrainRealtimeTemp(Resource):
 class GrainFireAlarm(Resource):
     def get(self, name, content):
         name = ''
-        title = u'火灾预警'
+        title = '火灾预警'
         content = ''
         avatar = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1504847444729&di=8d63e49c779b5c58f828bdcb45efd73a&imgtype=0&src=http%3A%2F%2Fimgsrc.baidu.com%2Fimgad%2Fpic%2Fitem%2F0b55b319ebc4b745d353e132c5fc1e178b8215ca.jpg'
         firealarm = {'name': name, 'title': title, 'content': content, 'avatar': avatar}
@@ -534,7 +537,7 @@ class GrainFireAlarm(Resource):
 class GrainUnmanned(Resource):
     def get(self):
         name = ''
-        title = u'无人值守'
+        title = '无人值守'
         content = ''
         avatar = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1506452820706&di=2f39620de906300a10d3bc2e5920d45c&imgtype=0&src=http%3A%2F%2Fimg.taopic.com%2Fuploads%2Fallimg%2F120712%2F201699-120G2224T175.jpg'
         unmanned = {'name': name, 'title': title, 'content': content, 'avatar': avatar}
@@ -729,74 +732,74 @@ class Menus(Resource):
                 'name': '天硕空调设置',
                 'route': '/setting/airconditoner_setting/tianshuo_setting/1',
             },
-            {
-                'id': '9',
-                'bpid': '1',
-                'name': 'Request',
-                'icon': 'api',
-                'route': '/request',
-            },
-            {
-                'id': 'a',
-                'bpid': '1',
-                'name': 'UI Element',
-                'icon': 'camera-o',
-            },
-            {
-                'id': 'a1',
-                'bpid': 'a',
-                'mpid': 'a',
-                'name': 'IconFont',
-                'icon': 'heart-o',
-                'route': '/UIElement/iconfont',
-            },
-            {
-                'id': 'a2',
-                'bpid': 'a',
-                'mpid': 'a',
-                'name': 'DataTable',
-                'icon': 'database',
-                'route': '/UIElement/dataTable',
-            },
-            {
-                'id': 'a3',
-                'bpid': 'a',
-                'mpid': 'a',
-                'name': 'DropOption',
-                'icon': 'bars',
-                'route': '/UIElement/dropOption',
-            },
-            {
-                'id': 'a4',
-                'bpid': 'a',
-                'mpid': 'a',
-                'name': 'Search',
-                'icon': 'search',
-                'route': '/UIElement/search',
-            },
-            {
-                'id': 'a5',
-                'bpid': 'a',
-                'mpid': 'a',
-                'name': 'Editor',
-                'icon': 'edit',
-                'route': '/UIElement/editor',
-            },
-            {
-                'id': 'a6',
-                'bpid': 'a',
-                'mpid': 'a',
-                'name': 'layer (Function)',
-                'icon': 'credit-card',
-                'route': '/UIElement/layer',
-            },
+            # {
+            #     'id': '9',
+            #     'bpid': '1',
+            #     'name': 'Request',
+            #     'icon': 'api',
+            #     'route': '/request',
+            # },
+            # {
+            #     'id': 'a',
+            #     'bpid': '1',
+            #     'name': 'UI Element',
+            #     'icon': 'camera-o',
+            # },
+            # {
+            #     'id': 'a1',
+            #     'bpid': 'a',
+            #     'mpid': 'a',
+            #     'name': 'IconFont',
+            #     'icon': 'heart-o',
+            #     'route': '/UIElement/iconfont',
+            # },
+            # {
+            #     'id': 'a2',
+            #     'bpid': 'a',
+            #     'mpid': 'a',
+            #     'name': 'DataTable',
+            #     'icon': 'database',
+            #     'route': '/UIElement/dataTable',
+            # },
+            # {
+            #     'id': 'a3',
+            #     'bpid': 'a',
+            #     'mpid': 'a',
+            #     'name': 'DropOption',
+            #     'icon': 'bars',
+            #     'route': '/UIElement/dropOption',
+            # },
+            # {
+            #     'id': 'a4',
+            #     'bpid': 'a',
+            #     'mpid': 'a',
+            #     'name': 'Search',
+            #     'icon': 'search',
+            #     'route': '/UIElement/search',
+            # },
+            # {
+            #     'id': 'a5',
+            #     'bpid': 'a',
+            #     'mpid': 'a',
+            #     'name': 'Editor',
+            #     'icon': 'edit',
+            #     'route': '/UIElement/editor',
+            # },
+            # {
+            #     'id': 'a6',
+            #     'bpid': 'a',
+            #     'mpid': 'a',
+            #     'name': 'layer (Function)',
+            #     'icon': 'credit-card',
+            #     'route': '/UIElement/layer',
+            # },
         ]
         return menus
 
-    def delete(self, todo_id):
+    def delete(self):
         pass
 
-    def put(self, todo_id):
+    def put(self):
         pass
 
 
@@ -807,27 +810,26 @@ class GrainHistory(Resource):
         args = get_parser.parse_args()
         status = args.get('status')
 
-        history_records = db.session.query(GrainTemp.grain_barn_id, GrainTemp.lora_gateway_id, GrainTemp.lora_node_id,
+        history_records = db.session.query(GrainTemp.grain_barn_id, GrainTemp.lora_gateway_id, LoraNode.node_addr,
                                            GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.battery_vol,
-                                           GrainTemp.datetime).order_by(
+                                           GrainTemp.datetime).join(LoraNode, LoraNode.id == GrainTemp.lora_node_id).order_by(
             GrainTemp.datetime.desc()).all()
         print('*********history_records*************', history_records)
 
         historys = []
         for i in range(len(history_records)):
-            historys.append({"status": 1, "grain_barn_id": "http://dummyimage.com/100x100/{0}/{1}.png&text={2}".format(
+            historys.append({"key": i, "status": 1, "grain_barn_id": "http://dummyimage.com/100x100/{0}/{1}.png&text={2}".format(
                 index_color(history_records[i][0])[1:], '000000', str(history_records[i][0])),
-                             "lora_gateway_id": history_records[i][1], "lora_node_id": history_records[i][2],
+                             "lora_gateway_id": history_records[i][1], "lora_node_addr": history_records[i][2],
                              "temp1": history_records[i][3], "temp2": history_records[i][4],
                              "temp3": history_records[i][5], "battery_vol": history_records[i][6],
                              "datetime": history_records[i][7].strftime("%Y-%m-%d %H:%M:%S")})
 
         # historys_reverse = historys[::-1]
-        historys_reverse = historys
-        print('-------------historys_reverse-------------', historys_reverse)
+        
+        print('-------------historys-------------', historys)
 
-        # history = [{"title":"Ikkovumf Zhrp Zhxe","author":"Thomas","categories":"ukev","tags":"ubhim","views":64,"comments":182,"date":"1974-03-21 02:24:20","id":10001,"visibility":"Public","image":"http://dummyimage.com/100x100/79f2d2/757575.png&text=T"},]
-        grain_history_dic = {'data': historys_reverse, "total": 100}
+        grain_history_dic = {'data': historys, "total": len(historys)}
 
         return grain_history_dic
 
@@ -980,7 +982,7 @@ class AirConControls(Resource):
 
 class ElectricPowerControl(Resource):
 
-    from mqtt_passthrough_publisher import transmitMQTT_byte
+    
 
     def get(self):
         pass
@@ -992,6 +994,8 @@ class ElectricPowerControl(Resource):
         pass
 
     def post(self):
+
+
         parser = reqparse.RequestParser()
         parser.add_argument('powerSwitch', type=str)
         parser.add_argument('powerNo', type=str)

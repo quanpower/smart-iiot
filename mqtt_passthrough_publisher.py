@@ -216,10 +216,22 @@ def gen_modbus_byte(powerNo, func_code):
     from pymodbus.compat import int2byte
 
 
-    hex_func = powerNo + func_code
+    hex_powerNo = ''.join(format(int(powerNo), '02x'))
+    hex_func = hex_powerNo + func_code
+
+    # hex_powerNo2 = "".join("{:02x}".format(int(powerNo)))
+    print('----hex_func---')
+    print('hex_powerNo')
+    print(hex_powerNo)
+    print(hex_func)
     func_bytearray = bytearray.fromhex(hex_func)
+    print('----func_bytearray---')
+    print(func_bytearray)
+
     crc = pymodbus.utilities.computeCRC(func_bytearray)
-    hex_str = daq_adrress + release_func_code + hex(crc)[2:]
+    hex_str = hex_func + hex(crc)[2:]
+    print('----hex_str---')
+    print(hex_str)
     func_byte = bytes.fromhex(hex_str)
 
     print('---------{}----------'.format(powerNo))

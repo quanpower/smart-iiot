@@ -1,6 +1,6 @@
 from .user import Permission, Role, Follow, User, AnonymousUser, Post, Comment
 from .grain import GrainStorehouse, LoraGateway, GrainBarn, PowerIo, TianshuoRs485, LoraNode, GrainTemp, PowerIoRs485Func,\
-    TianshuoRs485Func, NodeMqttTransFunc, AlarmLevelSetting
+    RelayCurrentRs485Func, TianshuoRs485Func, NodeMqttTransFunc, AlarmLevelSetting
 
 __all__ = [
     'Permission',
@@ -18,6 +18,7 @@ __all__ = [
     'LoraNode',
     'GrainTemp',
     'PowerIoRs485Func',
+    'RelayCurrentRs485Func',
     'TianshuoRs485Func',
     'NodeMqttTransFunc',
     'AlarmLevelSetting',

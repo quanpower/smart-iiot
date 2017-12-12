@@ -20,7 +20,7 @@ class AutoInit(Resource):
 
         try:
             grain_storehouses = list()
-            grain_storehouses.append(GrainStorehouse(storehouse_no='1', storehouse_name=u'福州直属库'))
+            grain_storehouses.append(GrainStorehouse(storehouse_no='1', storehouse_name='福州直属库'))
             db.session.add(grain_storehouses[0])
             db.session.commit()
         except Exception as e:
@@ -39,13 +39,13 @@ class AutoInit(Resource):
 
         try:
             grain_barns = list()
-            grain_barns.append(GrainBarn(barn_no='1', barn_name=u'1号仓', grain_storehouse=grain_storehouses[0],
+            grain_barns.append(GrainBarn(barn_no='1', barn_name='1号仓', grain_storehouse=grain_storehouses[0],
                                          lora_gateway=lora_gateways[0], high_limit=30, low_limit=20, current_limit=8.0))
-            grain_barns.append(GrainBarn(barn_no='2', barn_name=u'2号仓', grain_storehouse=grain_storehouses[0],
+            grain_barns.append(GrainBarn(barn_no='2', barn_name='2号仓', grain_storehouse=grain_storehouses[0],
                                          lora_gateway=lora_gateways[0], high_limit=30, low_limit=20, current_limit=8.0))
-            grain_barns.append(GrainBarn(barn_no='3', barn_name=u'3号仓', grain_storehouse=grain_storehouses[0],
+            grain_barns.append(GrainBarn(barn_no='3', barn_name='3号仓', grain_storehouse=grain_storehouses[0],
                                          lora_gateway=lora_gateways[0], high_limit=30, low_limit=20, current_limit=8.0))
-            grain_barns.append(GrainBarn(barn_no='4', barn_name=u'4号仓', grain_storehouse=grain_storehouses[0],
+            grain_barns.append(GrainBarn(barn_no='4', barn_name='4号仓', grain_storehouse=grain_storehouses[0],
                                          lora_gateway=lora_gateways[0], high_limit=30, low_limit=20, current_limit=8.0))
    
             for i in range(len(grain_barns)):
@@ -59,14 +59,14 @@ class AutoInit(Resource):
 
         try:
             power_ios = list()
-            power_ios.append(PowerIo(addr='1', name=u'1号仓配电箱1#', grain_barn=grain_barns[0]))
-            power_ios.append(PowerIo(addr='2', name=u'1号仓配电箱2#', grain_barn=grain_barns[0]))
-            power_ios.append(PowerIo(addr='3', name=u'2号仓配电箱1#', grain_barn=grain_barns[1]))
-            power_ios.append(PowerIo(addr='4', name=u'2号仓配电箱2#', grain_barn=grain_barns[1]))
-            power_ios.append(PowerIo(addr='5', name=u'3号仓配电箱1#', grain_barn=grain_barns[2]))
-            power_ios.append(PowerIo(addr='6', name=u'3号仓配电箱2#', grain_barn=grain_barns[2]))
-            power_ios.append(PowerIo(addr='7', name=u'4号仓配电箱1#', grain_barn=grain_barns[3]))
-            power_ios.append(PowerIo(addr='8', name=u'4号仓配电箱2#', grain_barn=grain_barns[3]))
+            power_ios.append(PowerIo(addr='1', name='1号仓配电箱1#', grain_barn=grain_barns[0]))
+            power_ios.append(PowerIo(addr='2', name='1号仓配电箱2#', grain_barn=grain_barns[0]))
+            power_ios.append(PowerIo(addr='3', name='2号仓配电箱1#', grain_barn=grain_barns[1]))
+            power_ios.append(PowerIo(addr='4', name='2号仓配电箱2#', grain_barn=grain_barns[1]))
+            power_ios.append(PowerIo(addr='5', name='3号仓配电箱1#', grain_barn=grain_barns[2]))
+            power_ios.append(PowerIo(addr='6', name='3号仓配电箱2#', grain_barn=grain_barns[2]))
+            power_ios.append(PowerIo(addr='7', name='4号仓配电箱1#', grain_barn=grain_barns[3]))
+            power_ios.append(PowerIo(addr='8', name='4号仓配电箱2#', grain_barn=grain_barns[3]))
 
             db.session.add(power_ios[0])
             db.session.add(power_ios[1])
@@ -84,8 +84,8 @@ class AutoInit(Resource):
 
         try:
             tianshuo_485s = list()
-            tianshuo_485s.append(TianshuoRs485(addr='1', name=u'11号仓1#空调'))
-            tianshuo_485s.append(TianshuoRs485(addr='2', name=u'11号仓2#空调'))
+            tianshuo_485s.append(TianshuoRs485(addr='1', name='11号仓1#空调', grain_barn=grain_barns[3]))
+            tianshuo_485s.append(TianshuoRs485(addr='2', name='11号仓2#空调', grain_barn=grain_barns[3]))
 
             db.session.add(tianshuo_485s[0])
             db.session.add(tianshuo_485s[1])
@@ -242,7 +242,6 @@ class AutoInit(Resource):
                 log.error("Creating GrainTemp: %s", e)
                 db.session.rollback()
 
-                RelayCurrentRs485Func
 
         try:
             relay_current_rs485_funcs = list()
@@ -254,9 +253,9 @@ class AutoInit(Resource):
             relay_current_rs485_funcs.append(
                 RelayCurrentRs485Func(function_name='current_A1_A2_func_code', function_code='0300040004'))
            
-            db.session.add(power_io_rs485_funcs[0])
-            db.session.add(power_io_rs485_funcs[1])
-            db.session.add(power_io_rs485_funcs[2])
+            db.session.add(relay_current_rs485_funcs[0])
+            db.session.add(relay_current_rs485_funcs[1])
+            db.session.add(relay_current_rs485_funcs[2])
 
             db.session.commit()
         except Exception as e:
