@@ -2,7 +2,7 @@ from flasgger import Swagger, swag_from
 from flask import Flask, redirect, url_for, request, jsonify, make_response
 from flask_restful import reqparse, abort, Api, Resource
 from app import db
-from app.models import GrainTemp, LoraGateway, LoraNode, GrainBarn, PowerIo, GrainStorehouse, NodeMqttTransFunc, RelayCurrentRs485Func
+from app.models import User, GrainTemp, LoraGateway, LoraNode, GrainBarn, PowerIo, GrainStorehouse, NodeMqttTransFunc, RelayCurrentRs485Func
 from sqlalchemy import and_
 import json
 import random
@@ -220,7 +220,25 @@ class Barns(Resource):
 
 class AllBarns(Resource):
     def get(self):
+        pass
 
+    def delete(self):
+        pass
+
+    def put(self):
+        pass
+
+    def post(self):
+
+        parser = reqparse.RequestParser()
+        parser.add_argument('userID', type=int)
+        parser.add_argument('username', type=str)
+
+        args = parser.parse_args()
+
+        print(args)
+        userID = args['userID']
+        username = args['username']
 
         storehouse_value_lable = {'value':'1', 'label':'福州库'}
 
@@ -232,7 +250,18 @@ class AllBarns(Resource):
         for i in range(len(barns)):
             barn=barns[i]
             print('---------------barn--------------', barn)
-            barn_value_label = {'value':barn[0], 'label':barn[1]}
+            user_owned_barns = db.session.query(User.owned_barns).filter(User.id == userID).all()
+            user_owned_barns_text = user_owned_barns[0][0]
+            print(user_owned_barns_text)
+            user_owned_barns_list = user_owned_barns_text.split(',')
+            print(user_owned_barns_list)
+            
+            if barn[0] in user_owned_barns_list:
+                disabled = False
+            else:
+                disabled = True
+
+            barn_value_label = {'value':barn[0], 'label':barn[1] ,'disabled':disabled}
             barn_children.append(barn_value_label)
         storehouse_value_lable['children'] = barn_children
         all_barns_list = [storehouse_value_lable]
@@ -241,12 +270,6 @@ class AllBarns(Resource):
         print(all_barns_list)
 
         return all_barns_list
-
-    def delete(self):
-        pass
-
-    def put(self):
-        pass
 
 
 class AllNodes(Resource):

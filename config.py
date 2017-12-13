@@ -13,6 +13,7 @@ class Config:
     FLASKY_MAIL_SUBJECT_PREFIX = '[Smart-IIOT]'
     FLASKY_MAIL_SENDER = 'Smart-IIOT Admin <252527676@qq.com>'
     FLASKY_ADMIN = os.environ.get('Smart-IIOT_ADMIN')
+    # SERVER_NAME = os.environ.get('SERVER_NAME')
     SSL_REDIRECT = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_RECORD_QUERIES = True
@@ -20,7 +21,6 @@ class Config:
     FLASKY_FOLLOWERS_PER_PAGE = 50
     FLASKY_COMMENTS_PER_PAGE = 30
     FLASKY_SLOW_DB_QUERY_TIME = 0.5
-    SERVER_NAME = 'www.aiwcy.com'
 
     @staticmethod
     def init_app(app):

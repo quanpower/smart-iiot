@@ -106,6 +106,7 @@ class User(UserMixin, db.Model):
                                 lazy='dynamic',
                                 cascade='all, delete-orphan')
     comments = db.relationship('Comment', backref='author', lazy='dynamic')
+    owned_barns = db.Column(db.Text())
 
     @staticmethod
     def add_self_follows():

@@ -97,7 +97,9 @@ def on_message(mqttc, obj, msg):
     payload_length = len(msg.payload)
     un_int = struct.unpack(str(payload_length) + 'B', msg.payload)
 
-    logger.info('-------units-----')
+    logger.info('*********---NEW MESSAGE----*********')
+    print(5 * '\n')
+    print(2 * '*********---NEW MESSAGE----*********')
     logger.info(payload_length)
     print('-------payload_length------')
     print(payload_length)
@@ -253,9 +255,13 @@ def save_realtime_data(data):
 
 def lora_unpacking_ack(packet_data):
     # todo
-    logger.info('-------- ack data process beginning -----------')
+    print(3 * '\n')
 
+    print('''***************************************************\n
+        **-------- ack data process beginning -----------**\n
+        ***************************************************''')
 
+    print(3 * '\n')
 # =====================================================
 # if __name__ == '__main__':
 def mqtt_p2p_sub():

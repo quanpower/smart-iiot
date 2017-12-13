@@ -229,14 +229,17 @@ if __name__ == '__main__':
 
     # time.sleep(10)
 
-    for i in range(20):
-        model_int = 40+i
+    for i in range(10):
+        model_int = 20+i
+        print('model_int')
+        print(model_int)
         model_bin=bin(model_int)[2:]
-        model='0b0000'+model_bin
+        model='0b00000'+model_bin
         print(model)
 
         gateway_addr = '0b001' # 1
-        node_addr = '0b0000000001100' # 1
+        node_addr = '0b0000000010001' # 17
+        # node_addr = '0b0000000011101' # 29
         trans_direct = '0b1'  # 1
         func_code = '0b0010001' # 17
         wind_direct = '0b01' #
@@ -263,8 +266,10 @@ if __name__ == '__main__':
         str_bytes = return_air_con_mqtt_str_bytes_to_send(str_bin)
 
         transmitMQTT(str_bytes)
+        print(i)
+        time.sleep(60)
+        print(5 * '\n')
 
-        time.sleep(30)
 
     # mqtt_pub_node_setting()
 
