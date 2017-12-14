@@ -30,7 +30,7 @@ def dynamic_link():
     alarmLevelError = alarmLevel[0][1]
 
     print('\n' * 5)
-    print('------dynamic_link beginning-------')
+    print('------------dynamic_link beginning-------------')
     print('\n' * 5)
 
     print('alarmLevelWarning', alarmLevelWarning)
@@ -48,6 +48,8 @@ def dynamic_link():
         print('auto_nodes\n', auto_nodes)
         
         for j in range(len(auto_nodes)):
+            time.sleep(3)
+
             auto_node = auto_nodes[j]
             print('---------------******auto_node******--------------:\n', auto_node)
 
@@ -92,10 +94,9 @@ def dynamic_link():
                         on_off = '00'
                         mqtt_auto_control_air(node_mqtt_trans_func, on_off)
 
-            time.sleep(3)
 
-        print('^^^^' * 10)
-        print('\n' *3 )
+        print('^^^^^^^^^^^^^' * 10)
+        print('\n' * 3 )
         print('-----------in all normal nodes cicle---------------')
         for k in range(len(nodes)):
             # todo: repalce geteway_addr
@@ -115,14 +116,17 @@ def dynamic_link():
 
             suck_func_code = db_session.query(RelayCurrentRs485Func.function_code).filter(
                 RelayCurrentRs485Func.function_name == 'suck_func_code').first()
+            
 
+            print('\n' * 3)
+            print('+++++++++++current daq+++++++++++++')
             # current daq
             current_daq_func_code = db_session.query(RelayCurrentRs485Func.function_code).filter(
                 RelayCurrentRs485Func.function_name == 'current_A1_A2_func_code').first()
             transmitMQTT_byte(power_io_addr, current_daq_func_code[0])
             print('+++++++++++current daq+++++++++++++')
             print('\n' * 3)
-            
+
             # cut off electric if fire alarm senser higher than HIGH LIMIT
             if temps:
                 fireAlarmSenserTemp = max(temps[0], temps[1])
