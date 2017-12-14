@@ -1,6 +1,7 @@
 from flask_admin import Admin, BaseView, expose
 from flask_admin.contrib.sqla import ModelView
 from app.models import User
+import flask_login as login
 
 
 class UserAdminView(BaseView):
@@ -22,6 +23,8 @@ class UserModelView(ModelView):
     #     if current_user.is_authenticated and current_user.username == "admin":
     #         return True
     #     return False
+    def is_accessible(self):
+        return login.current_user.is_authenticated
 
     can_create = True
     can_delete = False

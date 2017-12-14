@@ -25,11 +25,26 @@ login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
 
 # flask-admin add views
-from app.admin import UserAdminView, TestAdminView, UserModelView
-flas_admin.add_view(UserAdminView(name='UserAdmin', category='UserAdmin'))
-flas_admin.add_view(TestAdminView(name='test', endpoint='test', category='UserAdmin'))
+from app.admin import UserAdminView, TestAdminView, UserModelView, LoraGatewayModelView, LoraNodeModelView, NodeMqttTransFuncModelView, PowerIoModelView, RelayCurrentRs485FuncModelView, \
+GrainStorehouseModelView, GrainBarnModelView, GrainTempModelView, AlarmLevelSettingModelView
+
+#
+# flas_admin.add_view(UserAdminView(name='UserAdmin', category='UserAdmin'))
+# flas_admin.add_view(TestAdminView(name='test', endpoint='test', category='UserAdmin'))
+
+flas_admin.add_view(GrainStorehouseModelView(db.session, name='GrainStorehouse', endpoint='grain_storehouse', category='GrainAdmin'))
+flas_admin.add_view(GrainBarnModelView(db.session, name='GrainBarn', endpoint='grain_barn', category='GrainAdmin'))
+flas_admin.add_view(GrainTempModelView(db.session, name='GrainTemp', endpoint='grain_temps', category='GrainAdmin'))
+flas_admin.add_view(AlarmLevelSettingModelView(db.session, name='AlarmLevelSetting', endpoint='alarm_level_setting', category='GrainAdmin'))
+
+flas_admin.add_view(LoraGatewayModelView(db.session, name='LoraGateway', endpoint='lora_gateway', category='LoraAdmin'))
+flas_admin.add_view(LoraNodeModelView(db.session, name='LoraNode', endpoint='lora_node', category='LoraAdmin'))
+flas_admin.add_view(NodeMqttTransFuncModelView(db.session, name='NodeMqttTransFunc', endpoint='node_mqtt_trans_func', category='LoraAdmin'))
+flas_admin.add_view(PowerIoModelView(db.session, name='PowerIo', endpoint='power_io', category='LoraAdmin'))
+flas_admin.add_view(RelayCurrentRs485FuncModelView(db.session, name='RelayCurrentRs485Func', endpoint='relay_current_rs485_func', category='LoraAdmin'))
 
 flas_admin.add_view(UserModelView(db.session))
+
 
 path = op.join(op.dirname(__file__), 'static')
 print(path)
