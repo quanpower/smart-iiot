@@ -59,14 +59,14 @@ class AutoInit(Resource):
 
         try:
             power_ios = list()
-            power_ios.append(PowerIo(addr='1', name='1号仓配电箱1#', grain_barn=grain_barns[1]))
-            power_ios.append(PowerIo(addr='2', name='1号仓配电箱2#', grain_barn=grain_barns[1]))
+            power_ios.append(PowerIo(addr='1', name='1号仓配电箱1#', grain_barn=grain_barns[3]))
+            power_ios.append(PowerIo(addr='2', name='1号仓配电箱2#', grain_barn=grain_barns[3]))
             power_ios.append(PowerIo(addr='3', name='37号仓配电箱1#', grain_barn=grain_barns[0]))
-            power_ios.append(PowerIo(addr='4', name='34号仓配电箱1#', grain_barn=grain_barns[2]))
+            power_ios.append(PowerIo(addr='4', name='34号仓配电箱1#', grain_barn=grain_barns[1]))
             power_ios.append(PowerIo(addr='5', name='41号仓配电箱1#', grain_barn=grain_barns[2]))
             power_ios.append(PowerIo(addr='6', name='37号仓配电箱2#', grain_barn=grain_barns[0]))
-            power_ios.append(PowerIo(addr='7', name='41号仓配电箱2#', grain_barn=grain_barns[3]))
-            power_ios.append(PowerIo(addr='8', name='4号仓配电箱2#', grain_barn=grain_barns[3]))
+            power_ios.append(PowerIo(addr='7', name='41号仓配电箱2#', grain_barn=grain_barns[2]))
+            power_ios.append(PowerIo(addr='8', name='34号仓配电箱2#', grain_barn=grain_barns[1]))
 
             db.session.add(power_ios[0])
             db.session.add(power_ios[1])
@@ -139,14 +139,14 @@ class AutoInit(Resource):
                          auto_start_time=datetime.datetime.strptime('1901-01-01 08:00:00', "%Y-%m-%d %H:%M:%S"),
                          auto_end_time=datetime.datetime.strptime('1901-01-01 18:00:00', "%Y-%m-%d %H:%M:%S")))
             lora_nodes.append(
-                LoraNode(node_addr='24', node_name='2-3', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0],
-                         grain_barn=grain_barns[1], power_io=power_ios[0], current=1.0, current_no=1, auto_manual='auto',
+                LoraNode(node_addr='24', node_name='34-3', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0],
+                         grain_barn=grain_barns[1], power_io=power_ios[7], current=1.0, current_no=1, auto_manual='auto',
                          manual_start_time=today(), manual_end_time=today() + datetime.timedelta(seconds=600),
                          auto_start_time=datetime.datetime.strptime('1901-01-01 08:00:00', "%Y-%m-%d %H:%M:%S"),
                          auto_end_time=datetime.datetime.strptime('1901-01-01 18:00:00', "%Y-%m-%d %H:%M:%S")))
             lora_nodes.append(
-                LoraNode(node_addr='15', node_name='2-4', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0],
-                         grain_barn=grain_barns[1], power_io=power_ios[0], current=1.0, current_no=2, auto_manual='auto',
+                LoraNode(node_addr='15', node_name='34-4', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0],
+                         grain_barn=grain_barns[1], power_io=power_ios[7], current=1.0, current_no=2, auto_manual='auto',
                          manual_start_time=today(), manual_end_time=today() + datetime.timedelta(seconds=600),
                          auto_start_time=datetime.datetime.strptime('1901-01-01 08:00:00', "%Y-%m-%d %H:%M:%S"),
                          auto_end_time=datetime.datetime.strptime('1901-01-01 18:00:00', "%Y-%m-%d %H:%M:%S")))
@@ -188,13 +188,13 @@ class AutoInit(Resource):
                          auto_end_time=datetime.datetime.strptime('1901-01-01 18:00:00', "%Y-%m-%d %H:%M:%S")))
             lora_nodes.append(
                 LoraNode(node_addr='10', node_name='11-3', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0],
-                         grain_barn=grain_barns[3], power_io=power_ios[7], current=1.0, current_no=1, auto_manual='auto',
+                         grain_barn=grain_barns[3], power_io=power_ios[0], current=1.0, current_no=1, auto_manual='auto',
                          manual_start_time=today(), manual_end_time=today() + datetime.timedelta(seconds=600),
                          auto_start_time=datetime.datetime.strptime('1901-01-01 08:00:00', "%Y-%m-%d %H:%M:%S"),
                          auto_end_time=datetime.datetime.strptime('1901-01-01 18:00:00', "%Y-%m-%d %H:%M:%S")))
             lora_nodes.append(
                 LoraNode(node_addr='30', node_name='11-4', grain_storehouse=grain_storehouses[0], lora_gateway=lora_gateways[0],
-                         grain_barn=grain_barns[3], power_io=power_ios[7], current=1.0, current_no=2, auto_manual='auto',
+                         grain_barn=grain_barns[3], power_io=power_ios[0], current=1.0, current_no=2, auto_manual='auto',
                          manual_start_time=today(), manual_end_time=today() + datetime.timedelta(seconds=600),
                          auto_start_time=datetime.datetime.strptime('1901-01-01 08:00:00', "%Y-%m-%d %H:%M:%S"),
                          auto_end_time=datetime.datetime.strptime('1901-01-01 18:00:00', "%Y-%m-%d %H:%M:%S")))
