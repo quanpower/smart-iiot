@@ -28,6 +28,11 @@ def dynamic_link():
     alarmLevel = db_session.query(AlarmLevelSetting.warning, AlarmLevelSetting.error).all()
     alarmLevelWarning = alarmLevel[0][0]
     alarmLevelError = alarmLevel[0][1]
+
+    print('\n' * 5)
+    print('------dynamic_link beginning-------')
+    print('\n' * 5)
+
     print('alarmLevelWarning', alarmLevelWarning)
     print('alarmLevelError', alarmLevelError)
 
@@ -35,28 +40,31 @@ def dynamic_link():
     print("-------barns are---------:", barns)
     for i in range(len(barns)):
         barn = barns[i]
-        print('---------------**********barn*********--------------', barn)
+        print('---------------**********barn*********--------------\n', barn)
         nodes = db_session.query(LoraNode.node_addr).join(GrainBarn, GrainBarn.id == LoraNode.grain_barn_id).filter(GrainBarn.barn_no == barn[0]).all()
-        print('nodes:', nodes)
+        print('nodes:\n', nodes)
 
         auto_nodes = db_session.query(LoraNode.node_addr).join(GrainBarn, GrainBarn.id == LoraNode.grain_barn_id).filter(and_(LoraNode.auto_manual == 'auto', GrainBarn.barn_no == barn[0])).all()
-        print('auto_nodes', auto_nodes)
+        print('auto_nodes\n', auto_nodes)
         
         for j in range(len(auto_nodes)):
             auto_node = auto_nodes[j]
-            print('---------------******auto_node******--------------', auto_node)
+            print('---------------******auto_node******--------------:\n', auto_node)
 
             temps = db_session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.datetime, LoraGateway.gateway_addr,
                 LoraNode.node_addr).join(LoraGateway, LoraGateway.id == GrainTemp.lora_gateway_id).join(LoraNode, 
                 LoraNode.id == GrainTemp.lora_node_id).filter(and_(LoraGateway.gateway_addr == '1', LoraNode.node_addr == auto_node[0])).order_by(
                 GrainTemp.datetime.desc()).first()
 
-            print('******temps******', temps)
+            print('******temps******\n', temps)
 
             # auto power on/off air-conditoner
             if temps:
                 fireAlarmSenserTemp = max(temps[0], temps[1])
                 airSenserTemp = temps[2]
+
+                print('-------airSenserTemp--------')
+                print(airSenserTemp)
 
                 print('******auto_node[0] in auto model******', auto_node[0])
 
@@ -67,13 +75,13 @@ def dynamic_link():
                     NodeMqttTransFunc.wind_direct, NodeMqttTransFunc.wind_speed, NodeMqttTransFunc.model, NodeMqttTransFunc.on_off,
                     NodeMqttTransFunc.work_mode, NodeMqttTransFunc.temp).filter(NodeMqttTransFunc.node_addr == mqtt_node_addr).all()
 
-                print('******node_mqtt_trans_func******', node_mqtt_trans_func)
+                print('******node_mqtt_trans_func******\n', node_mqtt_trans_func)
 
                 if node_mqtt_trans_func:
                     airSenserTempHighLimit = barn[2]
                     airSenserTempLowLimit = barn[3]
-                    print('airSenserTempHighLimit', airSenserTempHighLimit)
-                    print('airSenserTempLowLimit', airSenserTempLowLimit)
+                    print('----airSenserTempHighLimit-----', airSenserTempHighLimit)
+                    print('----airSenserTempLowLimit------', airSenserTempLowLimit)
 
                     if airSenserTemp > airSenserTempHighLimit:
                         print('temp higher than highlimit, transmit ')
@@ -84,7 +92,11 @@ def dynamic_link():
                         on_off = '00'
                         mqtt_auto_control_air(node_mqtt_trans_func, on_off)
 
+            time.sleep(3)
 
+        print('^^^^' * 10)
+        print('\n' *3 )
+        print('-----------in all normal nodes cicle---------------')
         for k in range(len(nodes)):
             # todo: repalce geteway_addr
             node = nodes[k]
@@ -94,14 +106,13 @@ def dynamic_link():
                 LoraNode.id == GrainTemp.lora_node_id).filter(and_(LoraGateway.gateway_addr == '1', LoraNode.node_addr == node[0])).order_by(
                 GrainTemp.datetime.desc()).first()
 
-            print('******temps******', temps)
+            print('******temps******\n', temps)
 
             power_io_addr_query = db_session.query(PowerIo.addr).join(LoraNode, PowerIo.id == LoraNode.power_io_id).filter(LoraNode.node_addr == node[0]).all()
             # open first channel
             print('******power_io_addr******', power_io_addr_query)
             power_io_addr = power_io_addr_query[0][0]
 
-            print("switch off!")
             suck_func_code = db_session.query(RelayCurrentRs485Func.function_code).filter(
                 RelayCurrentRs485Func.function_name == 'suck_func_code').first()
 
@@ -109,7 +120,6 @@ def dynamic_link():
             current_daq_func_code = db_session.query(RelayCurrentRs485Func.function_code).filter(
                 RelayCurrentRs485Func.function_name == 'current_A1_A2_func_code').first()
             transmitMQTT_byte(power_io_addr, current_daq_func_code[0])
-
 
             # cut off electric if fire alarm senser higher than HIGH LIMIT
             if temps:
@@ -119,6 +129,8 @@ def dynamic_link():
 
                 if fireAlarmSenserTemp > alarmLevelError:
                     # FireAlarm：disconnect switch
+                    print("cut off power!")
+
                     if power_io_addr and suck_func_code[0]:
                         transmitMQTT_byte(power_io_addr, suck_func_code[0])
 
@@ -134,7 +146,9 @@ def dynamic_link():
             print('******node_mqtt_trans_func******', node_mqtt_trans_func)
 
             start_end_time = db_session.query(LoraNode.node_addr, LoraNode.auto_start_time, LoraNode.auto_end_time).filter(LoraNode.node_addr == node[0]).all()
-
+            print('\n' * 3)
+            print('*************' * 3)
+            print('******auto-power-on-off ******')
             print('******start_end_time******', start_end_time)
 
             if node_mqtt_trans_func and start_end_time:

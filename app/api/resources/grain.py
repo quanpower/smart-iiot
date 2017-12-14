@@ -154,7 +154,6 @@ class Barns(Resource):
     def get(self):
 
         def return_color(max_abc):
-            print('max_abc:', max_abc)
             if max_abc < 40:
                 return "#64ea91"
             elif (40 <= max_abc) and (max_abc <= 50):
@@ -184,7 +183,7 @@ class Barns(Resource):
                     and_(LoraGateway.gateway_addr == '1', LoraNode.node_addr == node[0])).order_by(
                     GrainTemp.datetime.desc()).all()
 
-                print('temps', temps)
+                # print('temps', temps)
                 if temps:
                     max_temp = max(temps[0][0], temps[0][1], temps[0][2])
                     print('max_temp', max_temp)
@@ -1043,7 +1042,6 @@ class ElectricPowerControl(Resource):
             transmitMQTT_byte(powerNo, func_code[0])
 
         return args
-
 
 
 class ElectricPowerControlItems(Resource):

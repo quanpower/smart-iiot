@@ -303,7 +303,7 @@ class AutoInit(Resource):
             log.error("Creating tianshuo_rs485_funcs: %s", e)
             db.session.rollback()
 
-        for i in range(1, 4):
+        for i in range(1, 50):
             mq_func = NodeMqttTransFunc()
             mq_func.gateway_addr = '001'
             mq_func.node_addr = bitstring.pack('uint:13', i).bin
