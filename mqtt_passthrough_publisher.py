@@ -14,7 +14,7 @@ import logging
 import paho.mqtt.publish as publish
 import time 
 from utils import crc_func
-
+from app.models import LoraGateway, LoraNode, GrainBarn, AlarmLevelSetting, PowerIo, NodeMqttTransFunc, GrainTemp, GrainStorehouse, RelayCurrentRs485Func
 #
 # from app import db
 # from app.models import LoraGateway, LoraNode, GrainBarn, AlarmLevelSetting, PowerIoRs485Func, PowerIo, NodeMqttTransFunc, GrainTemp, GrainStorehouse
@@ -220,19 +220,32 @@ def gen_modbus_byte(powerNo, func_code):
     hex_func = hex_powerNo + func_code
 
     # hex_powerNo2 = "".join("{:02x}".format(int(powerNo)))
-    print('----hex_func---')
-    print('hex_powerNo')
-    print(hex_powerNo)
-    print(hex_func)
+    # print('----hex_powerNo,hex_func---')
+    # print(hex_powerNo)
+    # print(hex_func)
     func_bytearray = bytearray.fromhex(hex_func)
-    print('----func_bytearray---')
-    print(func_bytearray)
+    # print('----func_bytearray---')
+    # print(func_bytearray)
 
     crc = pymodbus.utilities.computeCRC(func_bytearray)
-    hex_str = hex_func + hex(crc)[2:]
-    print('----hex_str---')
-    print(hex_str)
+    crc_bytes = struct.pack('>H',crc)
+    crc_bytes2 = (crc).to_bytes(2, byteorder='big')
+    # print('------crc_bytes--------')
+    # print(crc_bytes)
+    # print(crc_bytes2)
+
+    crc_hex = binascii.b2a_hex(crc_bytes)
+    hex_str = hex_func + crc_hex.decode()
+    # print('----hex_str---')
+    # print(hex_str)
+
     func_byte = bytes.fromhex(hex_str)
+    # print('----func_byte----')
+    # print(func_byte)
+
+    func_byte1 = bytes.fromhex(hex_func) + crc_bytes2
+    # print('----func_byte1----')
+    # print(func_byte1)
 
     print('---------{}----------'.format(powerNo))
     print('-----func_byte-----')
@@ -250,23 +263,41 @@ def transmitMQTT_byte(powerNo, func_code):
 
 if __name__ == '__main__':
 
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import sessionmaker
+
+    # 初始化数据库连接:
+    engine = create_engine('sqlite:///data.sqlite')
+    # 创建DBSession类型:
+    Session = sessionmaker(bind=engine)
+    db_session=Session()
+
     for i in range(1000):
 
-        releay_func_bytes = gen_modbus_bytes()
+        # releay_func_bytes = gen_modbus_bytes()
 
-        for releay_func_byte in releay_func_bytes:
+        # for releay_func_byte in releay_func_bytes:
 
-            print('-----------send-time------------')
-            print(datetime.datetime.now())
-            print('----xihe begin----')
+        #     print('-----------send-time------------')
+        #     print(datetime.datetime.now())
+        #     print('----xihe begin----')
 
-            transmitMQTT(releay_func_byte[0])
+        #     transmitMQTT(releay_func_byte[0])
 
-            time.sleep(10)
-            print('----shifang begin----')
+        #     time.sleep(10)
+        #     print('----shifang begin----')
 
-            transmitMQTT(releay_func_byte[1])
+        #     transmitMQTT(releay_func_byte[1])
 
-            time.sleep(10)
+        time.sleep(10)
+
+
+
+        current_daq_func_code = db_session.query(RelayCurrentRs485Func.function_code).filter(
+                RelayCurrentRs485Func.function_name == 'current_A1_A2_func_code').first()
+        print('-------current_daq_func_code-----')
+        print(current_daq_func_code)
+        transmitMQTT_byte('3', current_daq_func_code[0])
+
 
 

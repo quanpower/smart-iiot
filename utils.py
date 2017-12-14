@@ -328,7 +328,6 @@ def crc_func(units):
     _crc += 1
     if _crc == 256:
         _crc = 0
-    print('crc+1', _crc)
 
     return _crc
 
@@ -413,7 +412,6 @@ def str2hexstr(str_input):
 def bitwise_reverse(int_src):
     bin_str = bitstring.pack('uint:8',int_src).bin
     ret = "".join(map(lambda x: "1" if x == "0" else "0", bin_str))
-    print(ret)
     return int(ret, 2)
 
 

@@ -77,6 +77,7 @@ class LoraNode(db.Model):
     power_io_id = db.Column(db.Integer, db.ForeignKey('power_io.id'), nullable=False)
     power_io = db.relationship("PowerIo")
     current = db.Column(db.Float, default=0)
+    current_no = db.Column(db.SmallInteger)
     auto_manual = db.Column(db.String(8), default='auto')
     manual_start_time = db.Column(db.DateTime)
     manual_end_time = db.Column(db.DateTime)

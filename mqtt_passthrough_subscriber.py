@@ -6,10 +6,19 @@ import socket, sys
 import struct
 from bitstring import BitArray, BitStream
 import binascii
-from app.models import GrainTemp
+from app.models import LoraNode, PowerIo
 import logging
 from app import db
 from utils import crc_func, sign
+
+
+from sqlalchemy import create_engine, and_
+from sqlalchemy.orm import sessionmaker
+
+engine = create_engine('sqlite:///data.sqlite')
+# 创建DBSession类型:
+Session = sessionmaker(bind=engine)
+db_session=Session()
 
 
 # 第一步，创建一个logger  
@@ -43,13 +52,6 @@ logger.error('this is a logger error message')
 logger.critical('this is a logger critical message') 
 
 #======================================================    
-
-
-# try:
-#     db.session.query(GrainTemp).delete()
-#     db.session.commit()
-# except:
-#     db.session.rollback()
 
 #MQTT Initialize.--------------------------------------
 try:
@@ -91,66 +93,17 @@ def on_message(mqttc, obj, msg):
     uints = list(un_int)
     print(uints)
 
-    line = msg.payload
-
-
-    current_bytes_1 = line[2:4]
-    current_bytes_2 = line[4:6]
+    if payload_length == 13:
     
-    print('-----current_bytes------')
-    print(current_bytes_1.decode())
-    print(current_bytes_1)
-    print(current_bytes_2)
+        currents = lora_unpacking_current_a1a2(msg.payload)
 
-    # current_value_mA_1 = struct.unpack('!f', current_bytes_1)[0]
-    # current_value_A_1 = 10 * ((current_value_mA_1-3.92)/16)
-    # current_value_mA_2 = struct.unpack('!f', current_bytes_2)[0]
-    # current_value_A_2 = 10 * ((current_value_mA_2-3.92)/16)
-    #
-    # print('-----current_value_mA------')
-    # print(current_value_mA_1)
-    # print('-----current_value_A------')
-    # print(current_value_A_1)
-
-
-    # un_int = struct.unpack(str(payload_length) + 'B', msg.payload)
-    
-    # logger.debug('-------units-----')
-    # logger.debug(un_int)
-
-    # uints = list(un_int)
-
-    # print(uints)
-
-    # if uints[payload_length-1] == crc_func(uints[:payload_length-1]):
-    #     logger.debug('CRC checked!')
-
-    #     if payload_length == 5:
-    #         lora_unpacking_ack(uints)
-    #     elif payload_length == 8:
-    #         b = binascii.b2a_hex(msg.payload)
-    #         # packet_data = BitStream('0x4001004751E47533')
-    #         # '{:0>2x}'.format(1) #dic to hex,append 0
-    #         packet_data = BitStream('0x'+ b)
-
-    #         logger.debug('--------packet_data--------')
-    #         logger.debug(packet_data)
-    #         logger.debug('--------packet_data.bin--------')
-    #         logger.debug(packet_data.bin)
-
-    #         realtime_data = lora_unpacking_realtime_data(packet_data)
-
-    #         save_realtime_data(realtime_data)
-    #     else:
-    #         logger.debug('bytes unknown!')
-
-    # else:
-    #     logger.error('CRC check fail!')
+        update_current(currents)
 
 
 def on_exec(strcmd):
     logger.debug("Exec:", strcmd)
     strExec = strcmd
+
 
 def lora_unpacking(packet_data):
     packet_data.pos = 56
@@ -161,84 +114,74 @@ def lora_unpacking(packet_data):
     else:
         pass
 
-def lora_unpacking_realtime_data(packet_data):
-    logger.info('--------real data process beginning-----------')
 
-    gateway_addr = str(packet_data.read(3).uint)
-    node_addr = str(packet_data.read(13).int)
-    tran_direct = packet_data.read(1).bool
-    func_code = packet_data.read(3)
-    switch = packet_data.read(1).bool
+def lora_unpacking_current_a1a2(packet_data):
+    logger.info('--------current_a1a2 process beginning-----------')
+    print('--------current_a1a2 process beginning-----------')
 
-    temp1_sign = packet_data.read(1).bool
-    temp2_sign = packet_data.read(1).bool
-    temp3_sign = packet_data.read(1).bool
+    int_power_io_addr = int.from_bytes(packet_data[0:1], byteorder='big')
+    power_io_addr = str(int_power_io_addr)
+    print('----int_power_io_addr-----')
+    print(int_power_io_addr)
+    print(power_io_addr)
+    current_bytes_1 = packet_data[3:7]
+    current_bytes_2 = packet_data[7:11]
 
-    temp1 = packet_data.read(10).uint
-    temp2 = packet_data.read(10).uint
-    temp3 = packet_data.read(10).uint
-    battery_vol =  packet_data.read(2).uint
+    print('-----current_bytes------')
+    print(packet_data)
+    print(current_bytes_1)
+    print(current_bytes_2)
 
-    temprature1 = (sign(temp1_sign) * temp1)/10.0
-    temprature2 = (sign(temp2_sign) * temp2)/10.0
-    temprature3 = (sign(temp3_sign) * temp3)/10.0
+    # hex_current1 = binascii.b2a_hex(current_bytes_1).decode()
+    # print(hex_current1)
 
-    logger.debug('gateway_addr: %s', gateway_addr)
-    logger.info('-------------------')
-    logger.info('node_addr: %s', node_addr)
-    logger.info('-------------------')
 
-    logger.debug('tran_direct: %s', tran_direct)
-    logger.debug('-------------------')
-
-    logger.debug('func_code: %s', func_code)
-    logger.debug('-------------------')
-
-    logger.debug('switch: %s', switch)
-    logger.debug('-------------------')
-
-    logger.debug('temp1_sign', temp1_sign)
-    logger.debug('-------------------')
-
-    logger.debug('temp2_sign', temp2_sign)
-    logger.debug('-------------------')
-
-    logger.debug('temp3_sign', temp3_sign)
-    logger.debug('-------------------')
-
-    logger.info('temp1: %s', temp1)
-
-    logger.info('temp2: %s', temp2)
-
-    logger.info('temp3: %s', temp3)
-    logger.info('-------------------')
-
-    logger.info('battery_vol: %s', battery_vol)
+    current_value_mA_1 = struct.unpack('!f', current_bytes_1)[0]
+    current_value_A_1 = round(10 * ((current_value_mA_1-4.0)/16), 2)
+    current_value_mA_2 = struct.unpack('!f', current_bytes_2)[0]
+    current_value_A_2 = round(10 * ((current_value_mA_2-4.0)/16), 2)
     
-    logger.info('values : %s, %s, %s, %s', temprature1, temprature2, temprature3, battery_vol)
+    print('-----current_value_mA------')
+    print(current_value_mA_1)
+    print(current_value_mA_2)
+    print('-----current_value_A------')
+    print(current_value_A_1)
+    print(current_value_A_2)
 
-    return (gateway_addr, node_addr, switch, temprature1, temprature2, temprature3, battery_vol)
+    return (power_io_addr, current_value_A_1, current_value_A_2)
 
-def save_realtime_data(data):
-    c = GrainTemp()
-    c.grain_storehouse_id = 1
-    c.lora_gateway_id = data[0]
-    c.grain_barn_id = 1
-    c.lora_node_id = data[1]
-    c.switch = data[2]
-    c.temp1 = data[3]
-    c.temp2 = data[4]
-    c.temp3 = data[5]
-    c.battery_vol = data[6]
-    c.datetime = datetime.datetime.now()
 
-    db.session.add(c)
+def update_current(data):
+    power_io_addr = data[0]
+    current1 = data[1]
+    current2 = data[2]
+    print('-----power_io_addr------')
+    print(power_io_addr)
+    # node1_query = db_session.query(LoraNode.node_addr).filter(LoraNode.current_no == 1).all()
+    node1_query = db_session.query(LoraNode.node_addr).join(PowerIo, PowerIo.id == LoraNode.power_io_id).filter(and_(PowerIo.addr == power_io_addr, LoraNode.current_no == 1)).first()
+    print(node1_query)
+    if node1_query:
+        node1 = node1_query[0]
+    node2_query = db_session.query(LoraNode.node_addr).join(PowerIo, PowerIo.id == LoraNode.power_io_id).filter(and_(PowerIo.addr == power_io_addr, LoraNode.current_no == 2)).first()
+    if node2_query:
+        node2 = node2_query[0]
+    print('--------node1,node2------------')
+    print(node1)
+    print(node2)
+
+    lora_node = db_session.query(LoraNode).filter_by(node_addr=node1).first()  
+    lora_node.current = current1
+
+    lora_node1 = db_session.query(LoraNode).filter_by(node_addr=node2).first()  
+    lora_node1.current = current2
+
+
     try:
-        db.session.commit()
-        logger.debug('inserted!') 
+        db_session.commit()
+        logger.debug('updated!') 
     except Exception as e:
-        logger.error("Inserting Grian_temp: %s", e)
-        db.session.rollback()
+        logger.error("Inserting LoraNode: %s", e)
+        db_session.rollback()
 
 
 def lora_unpacking_ack(packet_data):
@@ -266,4 +209,5 @@ def mqtt_passthrough_sub():
     mqttc.loop_forever()
 
 if __name__ == '__main__':
+
     mqtt_passthrough_sub()

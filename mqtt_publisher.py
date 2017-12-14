@@ -121,12 +121,13 @@ def transmitMQTT(strMsg):
     publish.single(strMqttChannel, strMsg, hostname=strMqttBroker, auth={'username': 'iiot', 'password': 'smartlinkcloud'})
 
 
-def return_str_bin(node_addr, wind_direct, wind_speed, on_off, work_mode, temp, gateway_addr='0b001', trans_direct='0b1', func_code='0b0010001', model='0b1000111001'):
+def return_str_bin(node_addr, wind_direct, wind_speed, on_off, work_mode, temp, gateway_addr='0b001', trans_direct='0b1', func_code='0b0010001', model='0b0000011011'):
     return packing(gateway_addr, node_addr, trans_direct, func_code, wind_direct, wind_speed, model, on_off, work_mode, temp)
 
 
 def return_crc(str_bin):
     print('----str_bin------')
+    print(type(str_bin))
     print(str_bin)
     print('----len_str_bin------')
     print(len(str_bin))
@@ -137,6 +138,8 @@ def return_crc(str_bin):
     print('units', units)
 
     crc = crc_func(units)
+    print('crc', crc)
+    
     print('-------send-hex------')
     print(str_bin + hex(crc))
     return units,crc
@@ -185,9 +188,12 @@ def mqtt_auto_control_air(node_mqtt_trans_func, on_off):
     
     str_origin = gateway_addr + node_addr + trans_direct + func_code +\
                  wind_direct + wind_speed + model + on_off + work_mode + temp
-    
+    print('-----str_origin-----')
+    print(str_origin)
     str_bin = BitStream('0b' + str_origin)
     str_bytes = return_air_con_mqtt_str_bytes_to_send(str_bin)
+    print('-----str_bytes-----')
+    print(str_bytes)
 
     transmitMQTT(str_bytes)
 
@@ -225,9 +231,7 @@ if __name__ == '__main__':
     # while 1:
     #     mqtt_pub_node_setting()
     #     time.sleep(10)
-    # while True:
 
-    # time.sleep(10)
 
     for i in range(10):
         model_int = 20+i

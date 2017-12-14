@@ -1,14 +1,14 @@
 # -*- coding:utf-8 -*-
 
-from app.models import LoraGateway, LoraNode, GrainBarn, AlarmLevelSetting, PowerIoRs485Func, PowerIo, NodeMqttTransFunc, GrainTemp, GrainStorehouse
+from app.models import LoraGateway, LoraNode, GrainBarn, AlarmLevelSetting, PowerIo, NodeMqttTransFunc, GrainTemp, GrainStorehouse, RelayCurrentRs485Func
 from sqlalchemy import create_engine, and_
 from utils import calc_modus_hex_str_to_send, crc_func, str2hexstr, calc
 from mqtt_publisher import mqtt_pub_air_con, transmitMQTT, mqtt_auto_control_air
+from mqtt_passthrough_publisher import transmitMQTT_byte
 import bitstring
 from bitstring import BitArray, BitStream
 import struct
 import time
-from rs485_socket import rs485_socket_send
 import datetime
 
 from sqlalchemy.orm import sessionmaker
@@ -58,7 +58,6 @@ def dynamic_link():
                 fireAlarmSenserTemp = max(temps[0], temps[1])
                 airSenserTemp = temps[2]
 
-
                 print('******auto_node[0] in auto model******', auto_node[0])
 
                 mqtt_node_addr = bitstring.pack('uint:13', auto_node[0]).bin
@@ -81,7 +80,7 @@ def dynamic_link():
                         on_off = '01'
                         mqtt_auto_control_air(node_mqtt_trans_func, on_off)
                     elif airSenserTemp < airSenserTempLowLimit:
-                        print('temp lower than highlimit, transmit ')
+                        print('temp lower than lowlimit, transmit ')
                         on_off = '00'
                         mqtt_auto_control_air(node_mqtt_trans_func, on_off)
 
@@ -102,12 +101,15 @@ def dynamic_link():
             print('******power_io_addr******', power_io_addr_query)
             power_io_addr = power_io_addr_query[0][0]
 
-            open_channel_1 = db_session.query(PowerIoRs485Func.function_code, PowerIoRs485Func.start_at_reg_high,
-                PowerIoRs485Func.start_at_reg_low, PowerIoRs485Func.num_of_reg_high, PowerIoRs485Func.num_of_reg_low).filter(PowerIoRs485Func.function_name == 'open_channel_1').all()
-            close_channel_1 = db_session.query(PowerIoRs485Func.function_code, PowerIoRs485Func.start_at_reg_high,
-                PowerIoRs485Func.start_at_reg_low, PowerIoRs485Func.num_of_reg_high, PowerIoRs485Func.num_of_reg_low).filter(PowerIoRs485Func.function_name == 'close_channel_1').all()
-            print('******open_channel_1******', open_channel_1)
-            print('******close_channel_1******', close_channel_1)
+            print("switch off!")
+            suck_func_code = db_session.query(RelayCurrentRs485Func.function_code).filter(
+                RelayCurrentRs485Func.function_name == 'suck_func_code').first()
+
+            # current daq
+            current_daq_func_code = db_session.query(RelayCurrentRs485Func.function_code).filter(
+                RelayCurrentRs485Func.function_name == 'current_A1_A2_func_code').first()
+            transmitMQTT_byte(power_io_addr, current_daq_func_code[0])
+
 
             # cut off electric if fire alarm senser higher than HIGH LIMIT
             if temps:
@@ -117,17 +119,8 @@ def dynamic_link():
 
                 if fireAlarmSenserTemp > alarmLevelError:
                     # FireAlarm：disconnect switch
-                    if power_io_addr:
-                        address = int(power_io_addr)
-                        function_code = open_channel_1[0][0]
-                        start_at_reg_high = open_channel_1[0][1]
-                        start_at_reg_low = open_channel_1[0][2]
-                        num_of_reg_high = open_channel_1[0][3]
-                        num_of_reg_low = open_channel_1[0][4]
-
-                        output_hex = calc_modus_hex_str_to_send(address, function_code, start_at_reg_high, start_at_reg_low, num_of_reg_high, num_of_reg_low)
-                        rs485_socket_send(output_hex)
-                print('******node[0]******', node[0])
+                    if power_io_addr and suck_func_code[0]:
+                        transmitMQTT_byte(power_io_addr, suck_func_code[0])
 
 
             # timing ON/OFF
@@ -139,7 +132,6 @@ def dynamic_link():
                 NodeMqttTransFunc.work_mode, NodeMqttTransFunc.temp).filter(NodeMqttTransFunc.node_addr == mqtt_node_addr).all()
 
             print('******node_mqtt_trans_func******', node_mqtt_trans_func)
-
 
             start_end_time = db_session.query(LoraNode.node_addr, LoraNode.auto_start_time, LoraNode.auto_end_time).filter(LoraNode.node_addr == node[0]).all()
 
@@ -159,7 +151,8 @@ def dynamic_link():
                     on_off = '00'
                     mqtt_auto_control_air(node_mqtt_trans_func, on_off)
 
+            time.sleep(3)
+
 if __name__ == '__main__':
     while True:
         dynamic_link()
-        time.sleep(60)
