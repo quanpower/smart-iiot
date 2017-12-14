@@ -48,7 +48,7 @@ def dynamic_link():
         print('auto_nodes\n', auto_nodes)
         
         for j in range(len(auto_nodes)):
-            time.sleep(3)
+            time.sleep(30)
 
             auto_node = auto_nodes[j]
             print('---------------******auto_node******--------------:\n', auto_node)
@@ -171,7 +171,7 @@ def dynamic_link():
                     on_off = '00'
                     mqtt_auto_control_air(node_mqtt_trans_func, on_off)
 
-            time.sleep(3)
+            time.sleep(30)
 
 if __name__ == '__main__':
     while True:
