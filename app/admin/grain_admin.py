@@ -37,5 +37,5 @@ class AlarmLevelSettingModelView(ModelView):
         # You can pass name and other parameters if you want to
         super(AlarmLevelSettingModelView, self).__init__(AlarmLevelSetting, session, **kwargs)
 
-        def is_accessible(self):
-            return login.current_user.is_authenticated
+    def is_accessible(self):
+        return login.current_user.is_authenticated
