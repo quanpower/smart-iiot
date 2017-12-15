@@ -142,6 +142,8 @@ def dynamic_link():
                     print(type(power_io_addr))
                     print(suck_func_code[0])
                     test_addr = '4'
+                    print(test_addr)
+                    print(power_io_addr==test_addr)
 
                     if power_io_addr and suck_func_code[0]:
                         print('----send mqtt to cut off!------')
