@@ -144,12 +144,12 @@ def dynamic_link():
                     print(power_io_addr)
                     print(suck_func_code[0])
 
-                    if power_io_addr and suck_func_code[0]:
-                        print('----send mqtt to cut off!------')
-                        transmitMQTT_byte(power_io_addr, suck_func_code[0])
-                        time.sleep(3)
-                        print('-------mqtt sended over!-------')
-                        print('\n' * 3)
+                    # if power_io_addr and suck_func_code[0]:
+                    print('----send mqtt to cut off!------')
+                    transmitMQTT_byte(power_io_addr, suck_func_code[0])
+                    time.sleep(3)
+                    print('-------mqtt sended over!-------')
+                    print('\n' * 3)
 
 
 
