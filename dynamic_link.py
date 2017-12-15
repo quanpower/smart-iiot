@@ -36,12 +36,12 @@ def dynamic_link():
     print('alarmLevelWarning', alarmLevelWarning)
     print('alarmLevelError', alarmLevelError)
 
-    barns = db_session.query(GrainBarn.barn_no, GrainBarn.barn_name, GrainBarn.high_limit, GrainBarn.low_limit).join(GrainStorehouse, GrainStorehouse.id == GrainBarn.grain_storehouse_id).filter(GrainStorehouse.storehouse_no=='1').all()
+    barns = db_session.query(GrainBarn.barn_no, GrainBarn.barn_name, GrainBarn.high_limit, GrainBarn.low_limit, GrainBarn.current_limit).join(GrainStorehouse, GrainStorehouse.id == GrainBarn.grain_storehouse_id).filter(GrainStorehouse.storehouse_no=='1').all()
     print("-------barns are---------:", barns)
     for i in range(len(barns)):
         barn = barns[i]
         print('---------------**********barn*********--------------\n', barn)
-        nodes = db_session.query(LoraNode.node_addr).join(GrainBarn, GrainBarn.id == LoraNode.grain_barn_id).filter(GrainBarn.barn_no == barn[0]).all()
+        nodes = db_session.query(LoraNode.node_addr, LoraNode.current).join(GrainBarn, GrainBarn.id == LoraNode.grain_barn_id).filter(GrainBarn.barn_no == barn[0]).all()
         print('nodes:\n', nodes)
 
         auto_nodes = db_session.query(LoraNode.node_addr).join(GrainBarn, GrainBarn.id == LoraNode.grain_barn_id).filter(and_(LoraNode.auto_manual == 'auto', GrainBarn.barn_no == barn[0])).all()
@@ -120,6 +120,9 @@ def dynamic_link():
             release_func_code = db_session.query(RelayCurrentRs485Func.function_code).filter(
                 RelayCurrentRs485Func.function_name == 'release_func_code').first()
 
+
+
+
             print('\n' * 3)
             print('+++++++++++current daq+++++++++++++')
             # current daq
@@ -136,8 +139,13 @@ def dynamic_link():
                 fireAlarmSenserTemp = max(temps[0], temps[1])
                 airSenserTemp = temps[2]
                 print('******fireAlarmSenserTemp******', fireAlarmSenserTemp)
+                
+                current_value = node[1]
+                current_limit = barn[4]
+                print('******current_value,******', current_value)
+                print('******current_limit,******', current_limit)
 
-                if fireAlarmSenserTemp > alarmLevelError:
+                if fireAlarmSenserTemp > alarmLevelError or current_value > current_limit:
                     # FireAlarm：disconnect switch
                     print('suck_func_code:')
                     print(power_io_addr)
@@ -146,8 +154,6 @@ def dynamic_link():
                     if power_io_addr and suck_func_code[0]:
                         print('----send mqtt to cut off!------')
                         transmitMQTT_byte(power_io_addr, suck_func_code[0])
-                        time.sleep(10)
-                        transmitMQTT_byte(power_io_addr, release_func_code[0])
                         time.sleep(10)
                         print('-------mqtt sended over!-------')
                         print('\n' * 3)
