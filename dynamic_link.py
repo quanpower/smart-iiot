@@ -141,21 +141,16 @@ def dynamic_link():
                     # FireAlarm：disconnect switch
                     print('suck_func_code:')
                     print(power_io_addr)
-                    print(type(power_io_addr))
                     print(suck_func_code[0])
-                    test_addr = '4'
-                    print(test_addr)
-                    print(power_io_addr==test_addr)
 
                     if power_io_addr and suck_func_code[0]:
                         print('----send mqtt to cut off!------')
-                        transmitMQTT_byte(test_addr, suck_func_code[0])
+                        transmitMQTT_byte(power_io_addr, suck_func_code[0])
                         time.sleep(10)
-                        transmitMQTT_byte(test_addr, release_func_code[0])
+                        transmitMQTT_byte(power_io_addr, release_func_code[0])
                         time.sleep(10)
                         print('-------mqtt sended over!-------')
                         print('\n' * 3)
-
 
 
             # timing ON/OFF
