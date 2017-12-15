@@ -121,8 +121,6 @@ def dynamic_link():
                 RelayCurrentRs485Func.function_name == 'release_func_code').first()
 
 
-
-
             print('\n' * 3)
             print('+++++++++++current daq+++++++++++++')
             # current daq
@@ -140,7 +138,8 @@ def dynamic_link():
                 airSenserTemp = temps[2]
                 print('******fireAlarmSenserTemp******', fireAlarmSenserTemp)
                 
-                current_value = node[1]
+                currents = db_session.query(LoraNode.current).filter(LoraNode.node_addr == node[0]).first()
+                current_value = currents[0]
                 current_limit = barn[4]
                 print('******current_value,******', current_value)
                 print('******current_limit,******', current_limit)
