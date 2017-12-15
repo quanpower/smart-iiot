@@ -95,13 +95,14 @@ def dynamic_link():
                         mqtt_auto_control_air(node_mqtt_trans_func, on_off)
 
 
-        print('^^^^^^^^^^^^^' * 10)
+        print('^^^^^^^^^^^^^' * 5)
         print('\n' * 3 )
         print('-----------in all normal nodes cicle---------------')
         for k in range(len(nodes)):
             # todo: repalce geteway_addr
             node = nodes[k]
-            print('---------------******node******--------------', node)
+            print('\n' * 3 )
+            print('---------------******node circle begin******--------------', node)
             temps = db_session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.datetime, LoraGateway.gateway_addr,
                 LoraNode.node_addr).join(LoraGateway, LoraGateway.id == GrainTemp.lora_gateway_id).join(LoraNode, 
                 LoraNode.id == GrainTemp.lora_node_id).filter(and_(LoraGateway.gateway_addr == '1', LoraNode.node_addr == node[0])).order_by(
@@ -140,7 +141,7 @@ def dynamic_link():
                     print(suck_func_code[0])
 
                     if power_io_addr and suck_func_code[0]:
-                        print('send mqtt to cut off!')
+                        print('----send mqtt to cut off!------')
                         transmitMQTT_byte(power_io_addr, suck_func_code[0])
 
 
