@@ -148,6 +148,10 @@ def dynamic_link():
                         print('----send mqtt to cut off!------')
                         transmitMQTT_byte(power_io_addr, suck_func_code[0])
                         time.sleep(3)
+                        print('-------mqtt sended over!-------')
+                        print('\n' * 3)
+
+
 
             # timing ON/OFF
             mqtt_node_addr = bitstring.pack('uint:13', node[0]).bin
