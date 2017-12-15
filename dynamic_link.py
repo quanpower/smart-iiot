@@ -117,16 +117,14 @@ def dynamic_link():
 
             suck_func_code = db_session.query(RelayCurrentRs485Func.function_code).filter(
                 RelayCurrentRs485Func.function_name == 'suck_func_code').first()
-            
+            release_func_code = db_session.query(RelayCurrentRs485Func.function_code).filter(
+                RelayCurrentRs485Func.function_name == 'release_func_code').first()
 
             print('\n' * 3)
             print('+++++++++++current daq+++++++++++++')
             # current daq
             current_daq_func_code = db_session.query(RelayCurrentRs485Func.function_code).filter(
                 RelayCurrentRs485Func.function_name == 'current_A1_A2_func_code').first()
-            
-
-
             transmitMQTT_byte(power_io_addr, current_daq_func_code[0])
             print('+++++++++++current daq+++++++++++++')
             print('\n' * 3)
@@ -139,17 +137,18 @@ def dynamic_link():
 
                 if fireAlarmSenserTemp > alarmLevelError:
                     # FireAlarm：disconnect switch
-                    print("cut off power!")
                     print('suck_func_code:')
                     print(power_io_addr)
                     print(suck_func_code[0])
 
-                    # if power_io_addr and suck_func_code[0]:
-                    print('----send mqtt to cut off!------')
-                    transmitMQTT_byte(power_io_addr, suck_func_code[0])
-                    time.sleep(3)
-                    print('-------mqtt sended over!-------')
-                    print('\n' * 3)
+                    if power_io_addr and suck_func_code[0]:
+                        print('----send mqtt to cut off!------')
+                        transmitMQTT_byte(power_io_addr, suck_func_code[0])
+                        time.sleep(3)
+                        transmitMQTT_byte(power_io_addr, release_func_code[0])
+                        time.sleep(3)
+                        print('-------mqtt sended over!-------')
+                        print('\n' * 3)
 
 
 
