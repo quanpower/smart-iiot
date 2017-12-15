@@ -126,8 +126,9 @@ def dynamic_link():
             current_daq_func_code = db_session.query(RelayCurrentRs485Func.function_code).filter(
                 RelayCurrentRs485Func.function_name == 'current_A1_A2_func_code').first()
             transmitMQTT_byte(power_io_addr, current_daq_func_code[0])
-            time.sleep(10)
             print('+++++++++++current daq+++++++++++++')
+            time.sleep(10)
+
             print('\n' * 3)
 
             # cut off electric if fire alarm senser higher than HIGH LIMIT
