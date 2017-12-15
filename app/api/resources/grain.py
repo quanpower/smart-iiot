@@ -577,7 +577,7 @@ class GrainUnmanned(Resource):
 class GrainDynamicLinkage(Resource):
     def get(self, name, content):
         name = ''
-        title = u'动态联动'
+        title = '动态联动'
         content = ''
         avatar = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1504847729495&di=f65bcca6a50ad1e5565c344eb05d0414&imgtype=jpg&src=http%3A%2F%2Fimg4.imgtn.bdimg.com%2Fit%2Fu%3D3709439994%2C3925194796%26fm%3D214%26gp%3D0.jpg'
         dynamiclinkage = {'name': name, 'title': title, 'content': content, 'avatar': avatar}
@@ -595,7 +595,7 @@ class GrainDynamicLinkage(Resource):
 class GrainSecurity(Resource):
     def get(self, name, content):
         name = ''
-        title = u'作业安全'
+        title = '作业安全'
         content = ''
         avatar = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1504847487313&di=250cf0c99e194c4a5c3413f866aa2a42&imgtype=0&src=http%3A%2F%2Fdown.safehoo.com%2Flt%2Fforum%2F201311%2F18%2F144905a4jnod435ndzn7sj.jpg'
         security = {'name': name, 'title': title, 'content': content, 'avatar': avatar}
@@ -1395,3 +1395,44 @@ class OneAirConStartEndTimeUpdate(Resource):
         return 'lora node start/end time updated!'
 
         return nodes, args
+
+
+class AlarmAutoPlayStatus(Resource):
+    def get(self):
+
+        # with open('alarm.txt', 'r') as f:
+        #     # s = f.read()
+        #     # print(s)
+        #     json_dicts = []
+        #     for line in f.readlines():
+
+        #         # print(line.strip()) # 把末尾的'\n'删掉
+        #         json_dic = json.loads(line.strip())
+        #         print('----json_dic----')
+        #         print(json_dic)
+        #         if json_dict:
+        #             json_dicts.append(json_dict)
+        #     print(json_dicts)
+
+        # alarm_statuses = []
+        # for alarm_dict in json_dicts:
+        #     alarm = alarm_dict['Alarm']
+        #     # print(json_dicts['Alarm'])
+        #     alarm_statuses.append(alarm)
+        # print(alarm_statuses)
+        # return all(alarm_statuses)
+
+        # return True
+        autoPlay = {'autoPlay': random.choice([True, False])}
+        print(autoPlay)
+        return autoPlay
+        
+
+    def delete(self):
+        pass
+
+    def put(self):
+        pass
+
+    def post(self):
+        pass

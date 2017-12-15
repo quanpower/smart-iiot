@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 
-from app.models import LoraGateway, LoraNode, GrainBarn, AlarmLevelSetting, PowerIo, NodeMqttTransFunc, GrainTemp, GrainStorehouse, RelayCurrentRs485Func
+from app.models import LoraGateway, LoraNode, GrainBarn, AlarmLevelSetting, PowerIo, NodeMqttTransFunc, GrainTemp, GrainStorehouse, RelayCurrentRs485Func, AlarmStatus, AlarmRecords
 from sqlalchemy import create_engine, and_
 from utils import calc_modus_hex_str_to_send, crc_func, str2hexstr, calc
 from mqtt_publisher import mqtt_pub_air_con, transmitMQTT, mqtt_auto_control_air
@@ -12,6 +12,7 @@ import time
 import datetime
 
 from sqlalchemy.orm import sessionmaker
+import json
 
 # 初始化数据库连接:
 engine = create_engine('sqlite:///data.sqlite')
@@ -36,9 +37,13 @@ def dynamic_link():
     print('alarmLevelWarning', alarmLevelWarning)
     print('alarmLevelError', alarmLevelError)
 
-    barns = db_session.query(GrainBarn.barn_no, GrainBarn.barn_name, GrainBarn.high_limit, GrainBarn.low_limit, GrainBarn.current_limit).join(GrainStorehouse, GrainStorehouse.id == GrainBarn.grain_storehouse_id).filter(GrainStorehouse.storehouse_no=='1').all()
+    barns = db_session.query(GrainBarn.barn_no, GrainBarn.barn_name, GrainBarn.high_limit, GrainBarn.low_limit).join(GrainStorehouse, GrainStorehouse.id == GrainBarn.grain_storehouse_id).filter(GrainStorehouse.storehouse_no=='1').all()
     print("-------barns are---------:", barns)
     for i in range(len(barns)):
+
+        with open('alarm.txt', 'w') as f:
+            f.truncate()
+
         barn = barns[i]
         print('---------------**********barn*********--------------\n', barn)
         nodes = db_session.query(LoraNode.node_addr, LoraNode.current).join(GrainBarn, GrainBarn.id == LoraNode.grain_barn_id).filter(GrainBarn.barn_no == barn[0]).all()
@@ -138,17 +143,50 @@ def dynamic_link():
                 airSenserTemp = temps[2]
                 print('******fireAlarmSenserTemp******', fireAlarmSenserTemp)
                 
-                currents = db_session.query(LoraNode.current).filter(LoraNode.node_addr == node[0]).first()
+                currents = db_session.query(LoraNode.current, LoraNode.current_limit).filter(LoraNode.node_addr == node[0]).first()
                 current_value = currents[0]
-                current_limit = barn[4]
+                current_limit = currents[1]
                 print('******current_value,******', current_value)
                 print('******current_limit,******', current_limit)
 
-                if fireAlarmSenserTemp > alarmLevelError or current_value > current_limit:
+                if fireAlarmSenserTemp > alarmLevelError:
                     # FireAlarm：disconnect switch
-                    print('suck_func_code:')
-                    print(power_io_addr)
-                    print(suck_func_code[0])
+                    # print('suck_func_code:')
+                    # print(power_io_addr)
+                    # print(suck_func_code[0])
+
+                    time_now = datetime.datetime.now()
+
+                    alarm_status = db_session.query(AlarmStatus).join(LoraNode, LoraNode.id == AlarmStatus.lora_node_id).filter(LoraNode.node_addr=node[0]).first()  
+                    alarm_status.alarm_status = True
+                    alarm_status.datetime = time_now
+
+                    try:
+                        db_session.commit()
+                        logger.debug('updated!') 
+                    except Exception as e:
+                        logger.error("Updating AlarmStatus: %s", e)
+                        db_session.rollback()
+
+                    alarm_records = AlarmRecords()
+
+                    lora_node_id = db_session.query(LoraNode.id).filter(
+                        LoraNode.node_addr == node[0]).first()[0] 
+
+                    alarm_records.lora_node_id = lora_node_id
+                    alarm_records.alarm_type_id = 1
+                    alarm_records.datetime = time_now
+
+                    db_session.add(alarm_records)
+
+
+                    try:
+                        db_session.commit()
+                        logger.debug('inserted!') 
+                    except Exception as e:
+                        logger.error("Inserting AlarmRecords: %s", e)
+                        db_session.rollback()
+
 
                     if power_io_addr and suck_func_code[0]:
                         print('----send mqtt to cut off!------')
@@ -156,6 +194,62 @@ def dynamic_link():
                         time.sleep(10)
                         print('-------mqtt sended over!-------')
                         print('\n' * 3)
+
+
+                if current_value > current_limit:
+
+                    time_now = datetime.datetime.now()
+
+                    alarm_status = db_session.query(AlarmStatus).join(LoraNode, LoraNode.id == AlarmStatus.lora_node_id).filter(LoraNode.node_addr=node[0]).first()  
+                    alarm_status.alarm_status = True
+                    alarm_status.datetime = time_now
+
+                    try:
+                        db_session.commit()
+                        logger.debug('updated!') 
+                    except Exception as e:
+                        logger.error("Updating AlarmStatus: %s", e)
+                        db_session.rollback()
+
+                    alarm_records = AlarmRecords()
+
+                    lora_node_id = db_session.query(LoraNode.id).filter(
+                        LoraNode.node_addr == node[0]).first()[0] 
+
+                    alarm_records.lora_node_id = lora_node_id
+                    alarm_records.alarm_type_id = 1
+                    alarm_records.datetime = time_now
+
+                    db_session.add(alarm_records)
+
+                    try:
+                        db_session.commit()
+                        logger.debug('inserted!') 
+                    except Exception as e:
+                        logger.error("Inserting AlarmRecords: %s", e)
+                        db_session.rollback()
+
+
+                    if power_io_addr and suck_func_code[0]:
+                        print('----send mqtt to cut off!------')
+                        transmitMQTT_byte(power_io_addr, suck_func_code[0])
+                        time.sleep(10)
+                        print('-------mqtt sended over!-------')
+                        print('\n' * 3)
+
+                else:
+                    time_now = datetime.datetime.now()
+
+                    alarm_status = db_session.query(AlarmStatus).join(LoraNode, LoraNode.id == AlarmStatus.lora_node_id).filter(LoraNode.node_addr=node[0]).first()  
+                    alarm_status.alarm_status = False
+                    alarm_status.datetime = time_now
+
+                    try:
+                        db_session.commit()
+                        logger.debug('updated!') 
+                    except Exception as e:
+                        logger.error("Updating AlarmStatus: %s", e)
+                        db_session.rollback()
 
 
             # timing ON/OFF

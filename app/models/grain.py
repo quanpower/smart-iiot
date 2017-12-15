@@ -33,7 +33,6 @@ class GrainBarn(db.Model):
     lora_gateway = db.relationship("LoraGateway")
     high_limit = db.Column(db.Float)
     low_limit = db.Column(db.Float)
-    current_limit = db.Column(db.Float)
 
     def __repr__(self):
         return self.barn_name
@@ -77,6 +76,7 @@ class LoraNode(db.Model):
     power_io_id = db.Column(db.Integer, db.ForeignKey('power_io.id'), nullable=False)
     power_io = db.relationship("PowerIo")
     current = db.Column(db.Float, default=0)
+    current_limit = db.Column(db.Float)
     current_no = db.Column(db.SmallInteger)
     auto_manual = db.Column(db.String(8), default='auto')
     manual_start_time = db.Column(db.DateTime)
@@ -174,3 +174,37 @@ class AlarmLevelSetting(db.Model):
 
     def __repr__(self):
         return str(self.warning)
+
+
+class AlarmStatus(db.Model):
+    __tablename__ = 'alarm_status'
+    id = db.Column(db.Integer, primary_key=True)
+    lora_node_id = db.Column(db.Integer, db.ForeignKey('lora_node.id'), nullable=False)
+    lora_node = db.relationship("LoraNode")
+    alarm_status = db.Column(db.Boolean)
+    datetime = db.Column(db.DateTime)
+
+    def __repr__(self):
+        return str(self.alarm_status)
+
+
+class AlarmTypes(db.Model):
+    __tablename__ = 'alarm_type'
+    id = db.Column(db.Integer, primary_key=True)
+    alarm_type = db.Column(db.SmallInteger, default=35)
+
+    def __repr__(self):
+        return str(self.alarm_type)
+
+
+class AlarmRecords(db.Model):
+    __tablename__ = 'alarm_records'
+    id = db.Column(db.Integer, primary_key=True)
+    lora_node_id = db.Column(db.Integer, db.ForeignKey('lora_node.id'), nullable=False)
+    lora_node = db.relationship("LoraNode")
+    alarm_type_id = db.Column(db.Integer, db.ForeignKey('alarm_type.id'), nullable=False)
+    alarm_type = db.relationship("AlarmTypes")
+    datetime = db.Column(db.DateTime)
+
+    def __repr__(self):
+        return str(self.alarm_type)
