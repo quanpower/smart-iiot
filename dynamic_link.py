@@ -48,7 +48,7 @@ def dynamic_link():
         print('auto_nodes\n', auto_nodes)
         
         for j in range(len(auto_nodes)):
-            time.sleep(10)
+            time.sleep(5)
 
             auto_node = auto_nodes[j]
             print('---------------******auto_node******--------------:\n', auto_node)
@@ -148,9 +148,9 @@ def dynamic_link():
                     if power_io_addr and suck_func_code[0]:
                         print('----send mqtt to cut off!------')
                         transmitMQTT_byte(test_addr, suck_func_code[0])
-                        time.sleep(10)
+                        time.sleep(5)
                         transmitMQTT_byte(test_addr, release_func_code[0])
-                        time.sleep(10)
+                        time.sleep(5)
                         print('-------mqtt sended over!-------')
                         print('\n' * 3)
 
@@ -186,7 +186,7 @@ def dynamic_link():
                     on_off = '00'
                     mqtt_auto_control_air(node_mqtt_trans_func, on_off)
 
-            time.sleep(10)
+            time.sleep(1)
 
 if __name__ == '__main__':
     while True:
