@@ -124,6 +124,9 @@ def dynamic_link():
             # current daq
             current_daq_func_code = db_session.query(RelayCurrentRs485Func.function_code).filter(
                 RelayCurrentRs485Func.function_name == 'current_A1_A2_func_code').first()
+            
+
+
             transmitMQTT_byte(power_io_addr, current_daq_func_code[0])
             print('+++++++++++current daq+++++++++++++')
             print('\n' * 3)
@@ -138,12 +141,13 @@ def dynamic_link():
                     # FireAlarm：disconnect switch
                     print("cut off power!")
                     print('suck_func_code:')
+                    print(power_io_addr)
                     print(suck_func_code[0])
 
                     if power_io_addr and suck_func_code[0]:
                         print('----send mqtt to cut off!------')
                         transmitMQTT_byte(power_io_addr, suck_func_code[0])
-
+                        time.sleep(3)
 
             # timing ON/OFF
             mqtt_node_addr = bitstring.pack('uint:13', node[0]).bin
