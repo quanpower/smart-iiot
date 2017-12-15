@@ -957,6 +957,15 @@ class AirConControlOnOff(Resource):
 
         airconSwitch = args['airconSwitch']
         node_addr = args['nodeAddr']
+        print('/n' * 5)
+        print('-------------ready to send mqtt---------------')
+        print('airconSwitch')
+        print('node_addr')
+        print(airconSwitch)
+        print(node_addr)
+
+
+
         mqtt_node_addr = bitstring.pack('uint:13', node_addr).bin
 
         node_mqtt_trans_func = db.session.query(NodeMqttTransFunc.gateway_addr, NodeMqttTransFunc.node_addr,
@@ -978,7 +987,7 @@ class AirConControlOnOff(Resource):
                 print('airconditoner switch to off!')
                 on_off = '00'
                 mqtt_auto_control_air(node_mqtt_trans_func, on_off)
-
+            print('******node_mqtt_trans_end******')
         return args
 
 

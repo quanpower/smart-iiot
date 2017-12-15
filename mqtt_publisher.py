@@ -114,7 +114,6 @@ def transmitMQTT(strMsg):
     #strMqttBroker = "localhost"
     strMqttBroker = "101.200.158.2"
     strMqttChannel = "001.downstream"
-    print(strMsg)
     curtime = datetime.datetime.now()
     strcurtime = curtime.strftime("%Y-%m-%d %H:%M:%S")
     # strMsg += strcurtime
