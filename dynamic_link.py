@@ -48,7 +48,7 @@ def dynamic_link():
         print('auto_nodes\n', auto_nodes)
         
         for j in range(len(auto_nodes)):
-            time.sleep(30)
+            time.sleep(5)
 
             auto_node = auto_nodes[j]
             print('---------------******auto_node******--------------:\n', auto_node)
@@ -136,8 +136,11 @@ def dynamic_link():
                 if fireAlarmSenserTemp > alarmLevelError:
                     # FireAlarm：disconnect switch
                     print("cut off power!")
+                    print('suck_func_code:')
+                    print(suck_func_code[0])
 
                     if power_io_addr and suck_func_code[0]:
+                        print('send mqtt to cut off!')
                         transmitMQTT_byte(power_io_addr, suck_func_code[0])
 
 
@@ -171,7 +174,7 @@ def dynamic_link():
                     on_off = '00'
                     mqtt_auto_control_air(node_mqtt_trans_func, on_off)
 
-            time.sleep(30)
+            time.sleep(5)
 
 if __name__ == '__main__':
     while True:

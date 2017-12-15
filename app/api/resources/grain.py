@@ -1035,7 +1035,8 @@ class ElectricPowerControl(Resource):
 
         args = parser.parse_args()
         # todo: replace it with dynamic_link's function
-
+        print('\n' * 5)
+        print('-------------power_controls_ready----------------')
         print(args)
         powerNo = args['powerNo']
         powerSwitch = args['powerSwitch']
@@ -1051,6 +1052,8 @@ class ElectricPowerControl(Resource):
             func_code = db.session.query(RelayCurrentRs485Func.function_code).filter(
                 RelayCurrentRs485Func.function_name == 'suck_func_code').first()
             transmitMQTT_byte(powerNo, func_code[0])
+        print('-------------power_controls_end----------------')
+        print('\n' * 5)
 
         return args
 
