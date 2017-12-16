@@ -2,7 +2,7 @@ from flasgger import Swagger, swag_from
 from flask import Flask, redirect, url_for, request, jsonify, make_response
 from flask_restful import reqparse, abort, Api, Resource
 from app import db
-from app.models import User, GrainTemp, LoraGateway, LoraNode, GrainBarn, PowerIo, GrainStorehouse, NodeMqttTransFunc, RelayCurrentRs485Func
+from app.models import User, GrainTemp, LoraGateway, LoraNode, GrainBarn, PowerIo, GrainStorehouse, NodeMqttTransFunc, RelayCurrentRs485Func, AlarmStatus
 from sqlalchemy import and_
 import json
 import random
@@ -1397,35 +1397,15 @@ class OneAirConStartEndTimeUpdate(Resource):
         return nodes, args
 
 
-class AlarmStatus(Resource):
+class NodeAlarmStatus(Resource):
     def get(self):
 
-        # with open('alarm.txt', 'r') as f:
-        #     # s = f.read()
-        #     # print(s)
-        #     json_dicts = []
-        #     for line in f.readlines():
-
-        #         # print(line.strip()) # 把末尾的'\n'删掉
-        #         json_dic = json.loads(line.strip())
-        #         print('----json_dic----')
-        #         print(json_dic)
-        #         if json_dict:
-        #             json_dicts.append(json_dict)
-        #     print(json_dicts)
-
-        # alarm_statuses = []
-        # for alarm_dict in json_dicts:
-        #     alarm = alarm_dict['Alarm']
-        #     # print(json_dicts['Alarm'])
-        #     alarm_statuses.append(alarm)
-        # print(alarm_statuses)
-        # return all(alarm_statuses)
-
-        # return True
-        autoPlay = {'autoPlay': random.choice([True, False])}
-        print(autoPlay)
-        return autoPlay
+        alarms = db.session.query(AlarmStatus.alarm_status).all()
+        status = [alarm[0] for alarm in alarms]
+        alarmStatus = any(status)
+        alarm_status = {'alarmStatus': alarmStatus}
+        print(alarm_status)
+        return alarm_status
         
 
     def delete(self):

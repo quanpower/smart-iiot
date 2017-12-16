@@ -27,11 +27,11 @@ class UserModelView(ModelView):
         return login.current_user.is_authenticated
 
     can_create = True
-    can_delete = False
-    can_edit = False
+    can_delete = True
+    can_edit = True
 
 
-    column_list = ('email', 'username', 'role_id', 'password_hash', 'confirmed')
+    # column_list = ('email', 'username', 'role_id', 'password_hash', 'confirmed', 'owned_barns')
     column_searchable_list = ('username', 'email')
     column_filters = ('username', 'email') 
     def __init__(self, session, **kwargs):

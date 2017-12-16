@@ -48,7 +48,7 @@ flas_admin.add_view(AlarmTypesModelView(db.session, name='AlarmTypes', endpoint=
 flas_admin.add_view(AlarmRecordsModelView(db.session, name='AlarmRecords', endpoint='alarm_records', category='AlarmAdmin'))
 flas_admin.add_view(AlarmLevelSettingModelView(db.session, name='AlarmLevelSetting', endpoint='alarm_level_setting', category='AlarmAdmin'))
 
-flas_admin.add_view(UserModelView(db.session))
+flas_admin.add_view(UserModelView(db.session, name='User', endpoint='user', category='UserAdmin'))
 
 
 path = op.join(op.dirname(__file__), 'static')
