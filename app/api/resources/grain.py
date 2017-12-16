@@ -22,132 +22,221 @@ import urllib
 # swagger = Swagger(app)
 
 
-class LoraTemp(Resource):
-    def get(self, gatewayAddr, nodeAddr):
-        temps = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.battery_vol).filter(
-            and_(LoraGateway.gateway_addr == gatewayAddr, LoraNode.node_addr == nodeAddr)).order_by(
-            GrainTemp.datetime.desc()).first()
-        temp_dic = {"numbers": [{"icon": "apple", "color": "#64ea91", "title": "温度1", "number": temps[0]},
-                                {"icon": "apple", "color": "#8fc9fb", "title": "温度2", "number": temps[1]},
-                                {"icon": "apple", "color": "#d897eb", "title": "温度3", "number": temps[2]},
-                                {"icon": "message", "color": "#f69899", "title": "电池", "number": temps[3]}]}
-        return temp_dic
 
-    def delete(self, todo_id):
+class Menus(Resource):
+    def get(self):
+        menus = [
+            {
+                'id': '1',
+                'icon': 'laptop',
+                'name': '粮仓列表',
+                'route': '/grain',
+            },
+            {
+                'id': '2',
+                'bpid': '1',
+                'name': '粮仓仪表板',
+                'icon': 'bulb',
+                'route': '/grain_dashboard/1',
+            },
+            {
+                'id': '3',
+                'bpid': '1',
+                'name': '在线监测',
+                'icon': 'bulb',
+                'route': '/aircondetail/1',
+            },
+            {
+                'id': '4',
+                'bpid': '1',
+                'name': '智能控温',
+                'icon': 'code-o',
+            },
+            {
+                'id': '41',
+                'bpid': '4',
+                'mpid': '4',
+                'name': '壁挂空调控温',
+                'icon': 'shopping-cart',
+                'route': '/aircon_control/1',
+            },
+            {
+                'id': '42',
+                'bpid': '4',
+                'mpid': '4',
+
+                'name': '天硕空调开关控制',
+                'icon': 'shopping-cart',
+                'route': '/tianshuo_on_off',
+            },
+            {
+                'id': '5',
+                'bpid': '1',
+                'name': '智能控电',
+                'icon': 'shopping-cart',
+                'route': '/fire_alarm/1',
+            },
+            {
+                'id': '7',
+                'bpid': '1',
+                'name': '数据追溯',
+                'icon': 'shopping-cart',
+                'route': '/grain_history',
+            },
+            {
+                'id': 'b',
+                'bpid': '1',
+                'name': '图表报告',
+                'icon': 'code-o',
+            },
+            {
+                'id': 'b1',
+                'bpid': 'b',
+                'mpid': 'b',
+                'name': '线状图',
+                'icon': 'line-chart',
+                'route': '/chart/lineChart',
+            },
+            {
+                'id': 'b2',
+                'bpid': 'b',
+                'mpid': 'b',
+                'name': '柱状图',
+                'icon': 'bar-chart',
+                'route': '/chart/barChart',
+            },
+            {
+                'id': 'b3',
+                'bpid': 'b',
+                'mpid': 'b',
+                'name': '面积图',
+                'icon': 'area-chart',
+                'route': '/chart/areaChart',
+            }, {
+                'id': '8',
+                'bpid': '1',
+                'name': '用户管理',
+                'icon': 'user',
+                'route': '/user',
+            },
+            {
+                'id': '81',
+                'mpid': '-1',
+                'bpid': '8',
+                'name': 'User Detail',
+                'route': '/user/:id',
+            },
+            {
+                'id': 'c',
+                'bpid': '1',
+                'name': '系统设置',
+                'icon': 'setting',
+            },
+            {
+                'id': 'c1',
+                'bpid': 'c',
+                'mpid': 'c',
+                'name': '仓房设置',
+                'route': '/setting/storehouse_setting',
+            },
+            {
+                'id': 'c11',
+                'bpid': 'c1',
+                'mpid': 'c1',
+                'name': '仓号设置',
+                'route': '/setting/storehouse_setting/navigation1',
+            },
+            {
+                'id': 'c2',
+                'bpid': 'c',
+                'mpid': 'c',
+                'name': '空调设置',
+                'route': '/setting/airconditoner_setting',
+            },
+            {
+                'id': 'c21',
+                'bpid': 'c2',
+                'mpid': 'c2',
+                'name': '时间/上下限设置',
+                'route': '/setting/airconditoner_setting/start_end_time/1',
+            },
+            {
+                'id': 'c22',
+                'bpid': 'c2',
+                'mpid': 'c2',
+                'name': '天硕空调设置',
+                'route': '/setting/airconditoner_setting/tianshuo_setting/1',
+            },
+            # {
+            #     'id': '9',
+            #     'bpid': '1',
+            #     'name': 'Request',
+            #     'icon': 'api',
+            #     'route': '/request',
+            # },
+            # {
+            #     'id': 'a',
+            #     'bpid': '1',
+            #     'name': 'UI Element',
+            #     'icon': 'camera-o',
+            # },
+            # {
+            #     'id': 'a1',
+            #     'bpid': 'a',
+            #     'mpid': 'a',
+            #     'name': 'IconFont',
+            #     'icon': 'heart-o',
+            #     'route': '/UIElement/iconfont',
+            # },
+            # {
+            #     'id': 'a2',
+            #     'bpid': 'a',
+            #     'mpid': 'a',
+            #     'name': 'DataTable',
+            #     'icon': 'database',
+            #     'route': '/UIElement/dataTable',
+            # },
+            # {
+            #     'id': 'a3',
+            #     'bpid': 'a',
+            #     'mpid': 'a',
+            #     'name': 'DropOption',
+            #     'icon': 'bars',
+            #     'route': '/UIElement/dropOption',
+            # },
+            # {
+            #     'id': 'a4',
+            #     'bpid': 'a',
+            #     'mpid': 'a',
+            #     'name': 'Search',
+            #     'icon': 'search',
+            #     'route': '/UIElement/search',
+            # },
+            # {
+            #     'id': 'a5',
+            #     'bpid': 'a',
+            #     'mpid': 'a',
+            #     'name': 'Editor',
+            #     'icon': 'edit',
+            #     'route': '/UIElement/editor',
+            # },
+            # {
+            #     'id': 'a6',
+            #     'bpid': 'a',
+            #     'mpid': 'a',
+            #     'name': 'layer (Function)',
+            #     'icon': 'credit-card',
+            #     'route': '/UIElement/layer',
+            # },
+        ]
+        return menus
+
+    def delete(self):
         pass
 
-    def put(self, todo_id):
+    def put(self):
         pass
 
-
-class BarnTemp(Resource):
-    def get(self, barn_no):
-        temps = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.battery_vol).filter(
-            and_(LoraGateway.gateway_addr == '1', LoraNode.node_addr == '1')).order_by(
-            GrainTemp.datetime.desc()).first()
-        print('---------temps-----------')
-        print(temps)
-
-        temp_dic1 = {"air_conditioner": [{"title": "温度1", "value": temps[0]}, {"title": "温度2", "value": temps[1]},
-                                         {"title": "温度3", "value": temps[2]}, {"title": "电池", "value": temps[3]}]}
-        temp_dic2 = {"air_conditioner": [{"title": "温度1", "value": temps[0]}, {"title": "温度2", "value": temps[1]},
-                                         {"title": "温度3", "value": temps[2]}, {"title": "电池", "value": temps[3]}]}
-        temp_dic3 = {"air_conditioner": [{"title": "温度1", "value": temps[0]}, {"title": "温度2", "value": temps[1]},
-                                         {"title": "温度3", "value": temps[2]}, {"title": "电池", "value": temps[3]}]}
-        temp_dic4 = {"air_conditioner": [{"title": "温度1", "value": temps[0]}, {"title": "温度2", "value": temps[1]},
-                                         {"title": "温度3", "value": temps[2]}, {"title": "电池", "value": temps[3]}]}
-
-        temps_dict = {"air_conditioner_data": [temp_dic1, temp_dic2, temp_dic3, temp_dic4],
-                      "alarm": random.randint(0, 1)}
-
-        return temps_dict
-
-    def delete(self, todo_id):
-        pass
-
-    def put(self, todo_id):
-        pass
-
-
-class LoraTemps(Resource):
-    '''
-        get the lates 10 temps.
-    '''
-
-    def get(self, gatewayAddr, nodeAddr):
-        temp_records = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.datetime).filter(
-            and_(LoraGateway.gateway_addr == gatewayAddr, LoraNode.node_addr == nodeAddr)).order_by(
-            GrainTemp.datetime.desc()).limit(10).all()
-
-        temp_log = []
-        for i in range(len(temp_records)):
-            temp_log.append({"时间": temp_records[i][3].strftime("%Y-%m-%d %H:%M:%S"), "温度1": temp_records[i][0],
-                             "温度2": temp_records[i][1], "温度3": temp_records[i][2]})
-
-        temps_reverse = temp_log[::-1]
-        print('------------temps_reverse--------------')
-        print(temps_reverse)
-
-        temps_dict = {"temps": temps_reverse}
-        return temps_dict
-
-    def delete(self, todo_id):
-        pass
-
-    def put(self, todo_id):
-        pass
-
-
-class LoraTempRecord(Resource):
-    '''
-        get the temp records by the input datetime. %H:%M:S%
-    '''
-
-    def get(self, gatewayAddr, nodeAddr, startTime, endTime):
-        startTime = datetime.datetime.strptime(startTime, "%Y-%m-%d %H:%M:%S")
-        endTime = datetime.datetime.strptime(endTime, "%Y-%m-%d %H:%M:%S")
-
-        print(startTime)
-        print(endTime)
-        temp_records = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.datetime).filter(
-            and_(LoraGateway.gateway_addr == gatewayAddr, LoraNode.node_addr == nodeAddr,
-                 GrainTemp.datetime.between(startTime, endTime))).order_by(GrainTemp.datetime.desc()).all()
-
-        temp_log = []
-        for i in range(len(temp_records)):
-            temp_log.append(
-                {"key": i, "time": temp_records[i][3].strftime("%Y-%m-%d %H:%M:%S"), "Temp1": temp_records[i][0],
-                 "Temp2": temp_records[i][1], "Temp3": temp_records[i][2]})
-
-        temps_reverse = temp_log[::-1]
-        print('------------temps_records--------------')
-        print(temps_reverse)
-
-        temps_record_dict = {"tempRecord": temps_reverse}
-        return temps_record_dict
-
-    def delete(self, todo_id):
-        pass
-
-    def put(self, todo_id):
-        pass
-
-
-class LoRaBattery(Resource):
-    '''
-        get the latest baterry voltage.
-    '''
-
-    def get(self, gatewayAddr, nodeAddr):
-        battery_vol = db.session.query(GrainTemp.battery_vol).filter(
-            and_(LoraGateway.gateway_addr == gatewayAddr, LoraNode.node_addr == nodeAddr)).order_by(
-            GrainTemp.datetime.desc()).first()
-        battery_dict = {}
-        battery_dict["vol"] = battery_vol[0]
-        return battery_dict
-
-    def post(self):
-        pass
 
 
 class Barns(Resource):
@@ -501,328 +590,6 @@ class AirConDashboard(Resource):
     def put(self):
         pass
 
-
-class GrainSmarttempCtrl(Resource):
-    def get(self, name, content):
-        name = ''
-        title = '智能控温'
-        content = ''
-        avatar = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1504847335593&di=d7fd8e71543f9b99f12f614718757a0e&imgtype=0&src=http%3A%2F%2Fc1.neweggimages.com.cn%2FNeweggPic2%2Fneg%2FP800%2FA16-184-4PU.jpg'
-        smarttempctrl = {'name': name, 'title': title, 'content': content, 'avatar': avatar}
-        smarttempctrl_dic = {'smarttempctrl': smarttempctrl}
-
-        return smarttempctrl_dic
-
-    def delete(self):
-        pass
-
-    def put(self):
-        pass
-
-
-class GrainRealtimeTemp(Resource):
-    def get(self, name, content):
-        name = ''
-        title = '实时监测'
-        content = ''
-        avatar = 'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1819841961,264465916&fm=27&gp=0.jpg'
-        realtimetemp = {'name': name, 'title': title, 'content': content, 'avatar': avatar}
-        realtimetemp_dic = {'realtimetemp': realtimetemp}
-
-        return realtimetemp_dic
-
-    def delete(self):
-        pass
-
-    def put(self):
-        pass
-
-
-class GrainFireAlarm(Resource):
-    def get(self, name, content):
-        name = ''
-        title = '火灾预警'
-        content = ''
-        avatar = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1504847444729&di=8d63e49c779b5c58f828bdcb45efd73a&imgtype=0&src=http%3A%2F%2Fimgsrc.baidu.com%2Fimgad%2Fpic%2Fitem%2F0b55b319ebc4b745d353e132c5fc1e178b8215ca.jpg'
-        firealarm = {'name': name, 'title': title, 'content': content, 'avatar': avatar}
-        firealarm_dic = {'firealarm': firealarm}
-
-        return firealarm_dic
-
-    def delete(self):
-        pass
-
-    def put(self):
-        pass
-
-
-class GrainUnmanned(Resource):
-    def get(self):
-        name = ''
-        title = '无人值守'
-        content = ''
-        avatar = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1506452820706&di=2f39620de906300a10d3bc2e5920d45c&imgtype=0&src=http%3A%2F%2Fimg.taopic.com%2Fuploads%2Fallimg%2F120712%2F201699-120G2224T175.jpg'
-        unmanned = {'name': name, 'title': title, 'content': content, 'avatar': avatar}
-        unmanned_dic = {'unmanned': unmanned}
-
-        return unmanned_dic
-
-    def delete(self):
-        pass
-
-    def put(self):
-        pass
-
-
-class GrainDynamicLinkage(Resource):
-    def get(self, name, content):
-        name = ''
-        title = '动态联动'
-        content = ''
-        avatar = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1504847729495&di=f65bcca6a50ad1e5565c344eb05d0414&imgtype=jpg&src=http%3A%2F%2Fimg4.imgtn.bdimg.com%2Fit%2Fu%3D3709439994%2C3925194796%26fm%3D214%26gp%3D0.jpg'
-        dynamiclinkage = {'name': name, 'title': title, 'content': content, 'avatar': avatar}
-        dynamiclinkage_dic = {'dynamiclinkage': dynamiclinkage}
-
-        return dynamiclinkage_dic
-
-    def delete(self):
-        pass
-
-    def put(self):
-        pass
-
-
-class GrainSecurity(Resource):
-    def get(self, name, content):
-        name = ''
-        title = '作业安全'
-        content = ''
-        avatar = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1504847487313&di=250cf0c99e194c4a5c3413f866aa2a42&imgtype=0&src=http%3A%2F%2Fdown.safehoo.com%2Flt%2Fforum%2F201311%2F18%2F144905a4jnod435ndzn7sj.jpg'
-        security = {'name': name, 'title': title, 'content': content, 'avatar': avatar}
-        security_dic = {'security': security}
-
-        return security_dic
-
-    def delete(self):
-        pass
-
-    def put(self):
-        pass
-
-
-class Menus(Resource):
-    def get(self):
-        menus = [
-            {
-                'id': '1',
-                'icon': 'laptop',
-                'name': '粮仓列表',
-                'route': '/grain',
-            },
-            {
-                'id': '2',
-                'bpid': '1',
-                'name': '粮仓仪表板',
-                'icon': 'bulb',
-                'route': '/grain_dashboard',
-            },
-            {
-                'id': '3',
-                'bpid': '1',
-                'name': '在线监测',
-                'icon': 'bulb',
-                'route': '/aircondetail',
-            },
-            {
-                'id': '4',
-                'bpid': '1',
-                'name': '智能控温',
-                'icon': 'code-o',
-            },
-            {
-                'id': '41',
-                'bpid': '4',
-                'mpid': '4',
-                'name': '壁挂空调控温',
-                'icon': 'shopping-cart',
-                'route': '/aircon_control',
-            },
-            {
-                'id': '42',
-                'bpid': '4',
-                'mpid': '4',
-
-                'name': '天硕空调开关控制',
-                'icon': 'shopping-cart',
-                'route': '/tianshuo_on_off',
-            },
-            {
-                'id': '5',
-                'bpid': '1',
-                'name': '智能控电',
-                'icon': 'shopping-cart',
-                'route': '/fire_alarm',
-            },
-            {
-                'id': '7',
-                'bpid': '1',
-                'name': '数据追溯',
-                'icon': 'shopping-cart',
-                'route': '/grain_history',
-            },
-            {
-                'id': 'b',
-                'bpid': '1',
-                'name': '图表报告',
-                'icon': 'code-o',
-            },
-            {
-                'id': 'b1',
-                'bpid': 'b',
-                'mpid': 'b',
-                'name': '线状图',
-                'icon': 'line-chart',
-                'route': '/chart/lineChart',
-            },
-            {
-                'id': 'b2',
-                'bpid': 'b',
-                'mpid': 'b',
-                'name': '柱状图',
-                'icon': 'bar-chart',
-                'route': '/chart/barChart',
-            },
-            {
-                'id': 'b3',
-                'bpid': 'b',
-                'mpid': 'b',
-                'name': '面积图',
-                'icon': 'area-chart',
-                'route': '/chart/areaChart',
-            }, {
-                'id': '8',
-                'bpid': '1',
-                'name': '用户管理',
-                'icon': 'user',
-                'route': '/user',
-            },
-            {
-                'id': '81',
-                'mpid': '-1',
-                'bpid': '8',
-                'name': 'User Detail',
-                'route': '/user/:id',
-            },
-            {
-                'id': 'c',
-                'bpid': '1',
-                'name': '系统设置',
-                'icon': 'setting',
-            },
-            {
-                'id': 'c1',
-                'bpid': 'c',
-                'mpid': 'c',
-                'name': '仓房设置',
-                'route': '/setting/storehouse_setting',
-            },
-            {
-                'id': 'c11',
-                'bpid': 'c1',
-                'mpid': 'c1',
-                'name': '仓号设置',
-                'route': '/setting/storehouse_setting/navigation1',
-            },
-            {
-                'id': 'c2',
-                'bpid': 'c',
-                'mpid': 'c',
-                'name': '空调设置',
-                'route': '/setting/airconditoner_setting',
-            },
-            {
-                'id': 'c21',
-                'bpid': 'c2',
-                'mpid': 'c2',
-                'name': '时间/上下限设置',
-                'route': '/setting/airconditoner_setting/start_end_time/1',
-            },
-            {
-                'id': 'c22',
-                'bpid': 'c2',
-                'mpid': 'c2',
-                'name': '天硕空调设置',
-                'route': '/setting/airconditoner_setting/tianshuo_setting/1',
-            },
-            # {
-            #     'id': '9',
-            #     'bpid': '1',
-            #     'name': 'Request',
-            #     'icon': 'api',
-            #     'route': '/request',
-            # },
-            # {
-            #     'id': 'a',
-            #     'bpid': '1',
-            #     'name': 'UI Element',
-            #     'icon': 'camera-o',
-            # },
-            # {
-            #     'id': 'a1',
-            #     'bpid': 'a',
-            #     'mpid': 'a',
-            #     'name': 'IconFont',
-            #     'icon': 'heart-o',
-            #     'route': '/UIElement/iconfont',
-            # },
-            # {
-            #     'id': 'a2',
-            #     'bpid': 'a',
-            #     'mpid': 'a',
-            #     'name': 'DataTable',
-            #     'icon': 'database',
-            #     'route': '/UIElement/dataTable',
-            # },
-            # {
-            #     'id': 'a3',
-            #     'bpid': 'a',
-            #     'mpid': 'a',
-            #     'name': 'DropOption',
-            #     'icon': 'bars',
-            #     'route': '/UIElement/dropOption',
-            # },
-            # {
-            #     'id': 'a4',
-            #     'bpid': 'a',
-            #     'mpid': 'a',
-            #     'name': 'Search',
-            #     'icon': 'search',
-            #     'route': '/UIElement/search',
-            # },
-            # {
-            #     'id': 'a5',
-            #     'bpid': 'a',
-            #     'mpid': 'a',
-            #     'name': 'Editor',
-            #     'icon': 'edit',
-            #     'route': '/UIElement/editor',
-            # },
-            # {
-            #     'id': 'a6',
-            #     'bpid': 'a',
-            #     'mpid': 'a',
-            #     'name': 'layer (Function)',
-            #     'icon': 'credit-card',
-            #     'route': '/UIElement/layer',
-            # },
-        ]
-        return menus
-
-    def delete(self):
-        pass
-
-    def put(self):
-        pass
 
 
 class GrainHistory(Resource):
@@ -1416,3 +1183,78 @@ class NodeAlarmStatus(Resource):
 
     def post(self):
         pass
+
+
+class AirconBlockItems(Resource):
+    def get(self):
+        pass
+
+    def delete(self):
+        pass
+
+    def put(self):
+        pass
+
+    def post(self):
+
+        parser = reqparse.RequestParser()
+        parser.add_argument('barnNo', type=str)
+
+        args = parser.parse_args()
+        print(args)
+
+        barnNo = args['barnNo']
+        print('barnNo', barnNo)
+
+
+        title1 = '智能控温'
+        avatar1 = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1504847335593&di=d7fd8e71543f9b99f12f614718757a0e&imgtype=0&src=http%3A%2F%2Fc1.neweggimages.com.cn%2FNeweggPic2%2Fneg%2FP800%2FA16-184-4PU.jpg'
+        background1 = 'color.purple'
+        link1 = '/aircon_control/' + barnNo
+        smarttempctrl = {'name': '', 'title': title1, 'content': '', 'avatar': avatar1, 'link': link1, 'backgroud': background1}
+
+
+        title2 = '实时监测'
+        avatar2 = 'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1819841961,264465916&fm=27&gp=0.jpg'
+        background2 = 'color.purple'
+        link2 = '/aircondetail/' + barnNo
+        realtimetemp = {'name': '', 'title': title2, 'content': '', 'avatar': avatar2, 'link': link2, 'backgroud': background2}
+
+
+        title3 = '火灾预警'
+        avatar3 = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1504847444729&di=8d63e49c779b5c58f828bdcb45efd73a&imgtype=0&src=http%3A%2F%2Fimgsrc.baidu.com%2Fimgad%2Fpic%2Fitem%2F0b55b319ebc4b745d353e132c5fc1e178b8215ca.jpg'
+        background3 = 'color.green'
+        link3 = '/fire_alarm/' + barnNo
+        firealarm = {'name': '', 'title': title3, 'content': '', 'avatar': avatar3, 'link': link3, 'backgroud': background3}
+
+
+        title4 = '无人值守'
+        avatar4 = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1506452820706&di=2f39620de906300a10d3bc2e5920d45c&imgtype=0&src=http%3A%2F%2Fimg.taopic.com%2Fuploads%2Fallimg%2F120712%2F201699-120G2224T175.jpg'
+        background4 = 'color.blue'
+        link4 = '/'
+        unmanned = {'name': '', 'title': title4, 'content': '', 'avatar': avatar4, 'link': link4, 'backgroud': background4}
+
+
+        title5 = '动态联动'
+        avatar5 = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1504847729495&di=f65bcca6a50ad1e5565c344eb05d0414&imgtype=jpg&src=http%3A%2F%2Fimg4.imgtn.bdimg.com%2Fit%2Fu%3D3709439994%2C3925194796%26fm%3D214%26gp%3D0.jpg'
+        background5 = 'color.peach'
+        link5 = '/'
+        dynamiclinkage = {'name': '', 'title': title5, 'content': '', 'avatar': avatar5, 'link': link5, 'backgroud': background5}
+
+
+        title6 = '作业安全'
+        avatar6 = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1504847487313&di=250cf0c99e194c4a5c3413f866aa2a42&imgtype=0&src=http%3A%2F%2Fdown.safehoo.com%2Flt%2Fforum%2F201311%2F18%2F144905a4jnod435ndzn7sj.jpg'
+        background6 = 'color.yellow'
+        link6 = '/'
+        security = {'name': '', 'title': title6, 'content': '', 'avatar': avatar6, 'link': link6, 'backgroud': background6}
+
+
+        airconBlockItems = [smarttempctrl, realtimetemp, firealarm, unmanned, dynamiclinkage, security]
+        airconBlockItems_dict = {'airconBlockItems': airconBlockItems}
+        print(airconBlockItems_dict)
+        return airconBlockItems_dict
+
+
+
+
+        

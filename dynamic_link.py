@@ -157,7 +157,7 @@ def dynamic_link():
 
                     time_now = datetime.datetime.now()
 
-                    alarm_status = db_session.query(AlarmStatus).join(LoraNode, LoraNode.id == AlarmStatus.lora_node_id).filter(LoraNode.node_addr=node[0]).first()  
+                    alarm_status = db_session.query(AlarmStatus).join(LoraNode, LoraNode.id == AlarmStatus.lora_node_id).filter(LoraNode.node_addr == node[0]).first()  
                     alarm_status.alarm_status = True
                     alarm_status.datetime = time_now
 
@@ -200,7 +200,7 @@ def dynamic_link():
 
                     time_now = datetime.datetime.now()
 
-                    alarm_status = db_session.query(AlarmStatus).join(LoraNode, LoraNode.id == AlarmStatus.lora_node_id).filter(LoraNode.node_addr=node[0]).first()  
+                    alarm_status = db_session.query(AlarmStatus).join(LoraNode, LoraNode.id == AlarmStatus.lora_node_id).filter(LoraNode.node_addr == node[0]).first()  
                     alarm_status.alarm_status = True
                     alarm_status.datetime = time_now
 
@@ -240,7 +240,7 @@ def dynamic_link():
                 else:
                     time_now = datetime.datetime.now()
 
-                    alarm_status = db_session.query(AlarmStatus).join(LoraNode, LoraNode.id == AlarmStatus.lora_node_id).filter(LoraNode.node_addr=node[0]).first()  
+                    alarm_status = db_session.query(AlarmStatus).join(LoraNode, LoraNode.id == AlarmStatus.lora_node_id).filter(LoraNode.node_addr == node[0]).first()  
                     alarm_status.alarm_status = False
                     alarm_status.datetime = time_now
 
