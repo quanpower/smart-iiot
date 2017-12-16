@@ -1,6 +1,6 @@
 from flask_admin import Admin, BaseView, expose
 from flask_admin.contrib.sqla import ModelView
-from app.models import GrainStorehouse, GrainBarn, GrainTemp, AlarmLevelSetting
+from app.models import GrainStorehouse, GrainBarn, GrainTemp
 import flask_login as login
 
 
@@ -31,11 +31,3 @@ class GrainTempModelView(ModelView):
         return login.current_user.is_authenticated
 
 
-class AlarmLevelSettingModelView(ModelView):
-
-    def __init__(self, session, **kwargs):
-        # You can pass name and other parameters if you want to
-        super(AlarmLevelSettingModelView, self).__init__(AlarmLevelSetting, session, **kwargs)
-
-    def is_accessible(self):
-        return login.current_user.is_authenticated

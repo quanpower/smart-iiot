@@ -8,7 +8,7 @@ from app.api.resources import Login, Logout, GetUser,LoraTemp, BarnTemp, LoraTem
     AirConTempRecord, AirConDashboard, GrainSmarttempCtrl, GrainRealtimeTemp, GrainFireAlarm, GrainUnmanned, GrainDynamicLinkage, \
     GrainSecurity, Menus, GrainHistory, AirConControl, AirConControlOnOff, AirConControls, AirConControlItems, ElectricPowerControl, ElectricPowerControlItems, \
     TianshuoOnOffControl, LoraNodeUpdate, BarnLoraNodeUpdate, NodeAddressByBarnNo, AirConOnOffAllOneKey, OneAirConStartEndTimeUpdate, \
-    AutoInit, AlarmAutoPlayStatus
+    AutoInit, AlarmStatus
 
 
 api_resource = Api(api)
@@ -54,5 +54,5 @@ api_resource.add_resource(NodeAddressByBarnNo, '/node_address_by_barn_no')
 api_resource.add_resource(AirConOnOffAllOneKey, '/air-conditioner_on_off_all_one_key')
 api_resource.add_resource(OneAirConStartEndTimeUpdate, '/one_air-conditioner_start_end_time_update')
 api_resource.add_resource(AutoInit, '/auto_init')
-api_resource.add_resource(AlarmAutoPlayStatus, '/auto_play_status')
+api_resource.add_resource(AlarmStatus, '/alarm_status')
 

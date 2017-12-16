@@ -1397,7 +1397,7 @@ class OneAirConStartEndTimeUpdate(Resource):
         return nodes, args
 
 
-class AlarmAutoPlayStatus(Resource):
+class AlarmStatus(Resource):
     def get(self):
 
         # with open('alarm.txt', 'r') as f:
