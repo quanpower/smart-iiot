@@ -1256,9 +1256,8 @@ class AirconBlockItems(Resource):
 
         airconBlockItems = [smarttempctrl, electric, realtimetemp, firealarm, unmanned, dynamiclinkage]
         airconBlockItems_dict = {'airconBlockItems': airconBlockItems}
-        print(airconBlockItems_dict)
+        # print(airconBlockItems_dict)
         return airconBlockItems_dict
-
 
 
 class AlarmEmail(Resource):
@@ -1293,7 +1292,6 @@ class AlarmEmail(Resource):
 
 
         send_email(user_email, subject, 'mail/email_alarm', user_name=user_name, alarm_msg=alarm_msg)
-
 
         return 'alarm email has sended successfuly!'
 
