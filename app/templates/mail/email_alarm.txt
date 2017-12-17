@@ -2,7 +2,6 @@ Dear {{ user_name }},
 
 Welcome to AIWCY!
 
-To confirm your account please click on the following link:
 
 {{ alarm_msg }}
 

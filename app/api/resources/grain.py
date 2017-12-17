@@ -2,7 +2,7 @@ from flasgger import Swagger, swag_from
 from flask import Flask, redirect, url_for, request, jsonify, make_response
 from flask_restful import reqparse, abort, Api, Resource
 from app import db
-from app.models import User, GrainTemp, LoraGateway, LoraNode, GrainBarn, PowerIo, GrainStorehouse, NodeMqttTransFunc, RelayCurrentRs485Func, AlarmStatus
+from app.models import User, GrainTemp, LoraGateway, LoraNode, GrainBarn, PowerIo, GrainStorehouse, NodeMqttTransFunc, RelayCurrentRs485Func, AlarmStatus, AlarmLevelSetting
 from sqlalchemy import and_
 import json
 import random
@@ -243,10 +243,14 @@ class Menus(Resource):
 class Barns(Resource):
     def get(self):
 
+        alarmLevel = db.session.query(AlarmLevelSetting.warning, AlarmLevelSetting.error).all()
+        alarmLevelWarning = alarmLevel[0][0]
+        alarmLevelError = alarmLevel[0][1]
+
         def return_color(max_abc):
-            if max_abc < 40:
+            if max_abc < alarmLevelWarning:
                 return "#64ea91"
-            elif (40 <= max_abc) and (max_abc <= 50):
+            elif (alarmLevelWarning <= max_abc) and (max_abc <= alarmLevelError):
                 return "#ffff00"
             else:
                 return "#ff0000"
@@ -375,7 +379,8 @@ class AllNodes(Resource):
             for j in range(len(nodes)):
                 node = nodes[j]
                 print('******node******', node)
-                node_children.append({'value':node[0], 'label':node[1]+'({0}号节点)'.format(node[0])})
+                node_children.append({'value':node[0], 'label':node[1]})
+                # node_children.append({'value':node[0], 'label':node[1]+'({0}号节点)'.format(node[0])})
 
             barn_children.append(barn_value_label)
 
@@ -529,11 +534,16 @@ class AirConTempRecord(Resource):
 
 class AirConDashboard(Resource):
     def return_status(self, a, b, c):
+
+        alarmLevel = db.session.query(AlarmLevelSetting.warning, AlarmLevelSetting.error).all()
+        alarmLevelWarning = alarmLevel[0][0]
+        alarmLevelError = alarmLevel[0][1]
+
         max_abc = max(a, b, c)
         print('max_abc:', max_abc)
-        if max_abc < 40:
+        if max_abc < alarmLevelWarning:
             return 1
-        elif (40 <= max_abc) and (max_abc <= 50):
+        elif (alarmLevelWarning <= max_abc) and (max_abc <= alarmLevelError):
             return 2
         else:
             return 3
@@ -567,8 +577,9 @@ class AirConDashboard(Resource):
                 status = {"name": node[1] + "号空调", "status": self.return_status(temps[0], temps[1], temps[2]),
                           "content": "插座：{0}℃, 空调：{1}℃, 仓温：{2}℃".format(
                               str(temps[0]), str(temps[1]), str(temps[2])),
-                          "avatar": "http://dummyimage.com/48x48/{0}/757575.png&text={1}".format(
-                              index_color(int(node[0]))[1:], node[1]),
+                          "avatar": "http://dummyimage.com/48x48/ffff00/000000.png&text={0}".format(node[0]),
+                          # "avatar": "http://dummyimage.com/48x48/{0}/757575.png&text={1}".format(
+                              # index_color(int(node[0]))[1:], node[1]),
                           "date": datetime.datetime.strftime(temps[3], "%Y-%m-%d %H:%M:%S"), "nodeAddr": node[0]}
                 statuses.append(status)
             else:
@@ -773,9 +784,6 @@ class AirConControls(Resource):
 
 
 class ElectricPowerControl(Resource):
-
-    
-
     def get(self):
         pass
 
@@ -1239,14 +1247,14 @@ class AirconBlockItems(Resource):
         dynamiclinkage = {'name': '', 'title': title5, 'content': '', 'avatar': avatar5, 'link': link5, 'background': background5}
 
 
-        title6 = '作业安全'
+        title6 = '智能控电'
         avatar6 = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1504847487313&di=250cf0c99e194c4a5c3413f866aa2a42&imgtype=0&src=http%3A%2F%2Fdown.safehoo.com%2Flt%2Fforum%2F201311%2F18%2F144905a4jnod435ndzn7sj.jpg'
         background6 = '#f797d6'
-        link6 = '/'
-        security = {'name': '', 'title': title6, 'content': '', 'avatar': avatar6, 'link': link6, 'background': background6}
+        link6 = '/fire_alarm/' + barnNo
+        electric = {'name': '', 'title': title6, 'content': '', 'avatar': avatar6, 'link': link6, 'background': background6}
 
 
-        airconBlockItems = [smarttempctrl, realtimetemp, firealarm, unmanned, dynamiclinkage, security]
+        airconBlockItems = [smarttempctrl, electric, realtimetemp, firealarm, unmanned, dynamiclinkage]
         airconBlockItems_dict = {'airconBlockItems': airconBlockItems}
         print(airconBlockItems_dict)
         return airconBlockItems_dict
