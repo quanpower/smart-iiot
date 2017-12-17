@@ -183,6 +183,7 @@ class AlarmStatus(db.Model):
     lora_node = db.relationship("LoraNode")
     alarm_status = db.Column(db.Boolean)
     datetime = db.Column(db.DateTime)
+    send_alarm_datetime = db.Column(db.DateTime)
 
     def __repr__(self):
         return str(self.alarm_status)

@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 
-from app.models import LoraGateway, LoraNode, GrainBarn, AlarmLevelSetting, PowerIo, NodeMqttTransFunc, GrainTemp, GrainStorehouse, RelayCurrentRs485Func, AlarmStatus, AlarmRecords
+from app.models import LoraGateway, LoraNode, GrainBarn, AlarmLevelSetting, PowerIo, NodeMqttTransFunc, GrainTemp, GrainStorehouse, RelayCurrentRs485Func, AlarmStatus, AlarmRecords, User
 from sqlalchemy import create_engine, and_
 from utils import calc_modus_hex_str_to_send, crc_func, str2hexstr, calc
 from mqtt_publisher import mqtt_pub_air_con, transmitMQTT, mqtt_auto_control_air
@@ -10,15 +10,19 @@ from bitstring import BitArray, BitStream
 import struct
 import time
 import datetime
-
+import requests
 from sqlalchemy.orm import sessionmaker
 import json
+
 
 # 初始化数据库连接:
 engine = create_engine('sqlite:///data.sqlite')
 # 创建DBSession类型:
 Session = sessionmaker(bind=engine)
 db_session=Session()
+
+
+
 
 
 def dynamic_link():
@@ -29,6 +33,9 @@ def dynamic_link():
     alarmLevel = db_session.query(AlarmLevelSetting.warning, AlarmLevelSetting.error).all()
     alarmLevelWarning = alarmLevel[0][0]
     alarmLevelError = alarmLevel[0][1]
+
+    users = db_session.query(User).all() 
+
 
     print('\n' * 5)
     print('------------dynamic_link beginning-------------')
@@ -46,7 +53,7 @@ def dynamic_link():
 
         barn = barns[i]
         print('---------------**********barn*********--------------\n', barn)
-        nodes = db_session.query(LoraNode.node_addr, LoraNode.current).join(GrainBarn, GrainBarn.id == LoraNode.grain_barn_id).filter(GrainBarn.barn_no == barn[0]).all()
+        nodes = db_session.query(LoraNode.node_addr, LoraNode.current, LoraNode.node_name).join(GrainBarn, GrainBarn.id == LoraNode.grain_barn_id).filter(GrainBarn.barn_no == barn[0]).all()
         print('nodes:\n', nodes)
 
         auto_nodes = db_session.query(LoraNode.node_addr).join(GrainBarn, GrainBarn.id == LoraNode.grain_barn_id).filter(and_(LoraNode.auto_manual == 'auto', GrainBarn.barn_no == barn[0])).all()
@@ -149,6 +156,7 @@ def dynamic_link():
                 print('******current_value,******', current_value)
                 print('******current_limit,******', current_limit)
 
+
                 if fireAlarmSenserTemp > alarmLevelError:
                     # FireAlarm：disconnect switch
                     # print('suck_func_code:')
@@ -161,11 +169,14 @@ def dynamic_link():
                     alarm_status.alarm_status = True
                     alarm_status.datetime = time_now
 
+                    send_alarm_datetime = db_session.query(AlarmStatus.send_alarm_datetime).join(LoraNode, LoraNode.id == AlarmStatus.lora_node_id).filter(LoraNode.node_addr == node[0]).first()[0]
+
                     try:
                         db_session.commit()
-                        logger.debug('updated!') 
+                        # logger.debug('updated!') 
+                        print('updated!') 
                     except Exception as e:
-                        logger.error("Updating AlarmStatus: %s", e)
+                        print("Updating AlarmStatus: %s", e)
                         db_session.rollback()
 
                     alarm_records = AlarmRecords()
@@ -182,9 +193,9 @@ def dynamic_link():
 
                     try:
                         db_session.commit()
-                        logger.debug('inserted!') 
+                        print('inserted!') 
                     except Exception as e:
-                        logger.error("Inserting AlarmRecords: %s", e)
+                        print("Inserting AlarmRecords: %s", e)
                         db_session.rollback()
 
 
@@ -194,6 +205,24 @@ def dynamic_link():
                         time.sleep(10)
                         print('-------mqtt sended over!-------')
                         print('\n' * 3)
+
+
+                    # email alarm
+                    if (time_now - send_alarm_datetime).seconds > 600:
+
+                        alarm_msg = node[2] + ' air-conditoner\' temperature is: ' + str(fireAlarmSenserTemp) + '℃, Alarming!!Please to check!'
+                        for user in users:
+                            payload = {'user_email': user.email, 'subject': 'Temperature Alarm!', 'user_name': user.name, 'alarm_msg': alarm_msg}
+                            requests.post("http://127.0.0.1:5000/api/v1/alarm_email", data=payload)
+                        alarm_status.send_alarm_datetime = time_now
+
+
+                        try:
+                            db_session.commit()
+                            print('updated!') 
+                        except Exception as e:
+                            print("Updating AlarmStatus send_alarm_datetime: %s", e)
+                            db_session.rollback()
 
 
                 if current_value > current_limit:
@@ -204,11 +233,13 @@ def dynamic_link():
                     alarm_status.alarm_status = True
                     alarm_status.datetime = time_now
 
+                    send_alarm_datetime = db_session.query(AlarmStatus.send_alarm_datetime).join(LoraNode, LoraNode.id == AlarmStatus.lora_node_id).filter(LoraNode.node_addr == node[0]).first()[0]
+                    print('send_alarm_datetime', send_alarm_datetime)
                     try:
                         db_session.commit()
-                        logger.debug('updated!') 
+                        print('updated!') 
                     except Exception as e:
-                        logger.error("Updating AlarmStatus: %s", e)
+                        print("Updating AlarmStatus: %s", e)
                         db_session.rollback()
 
                     alarm_records = AlarmRecords()
@@ -224,9 +255,9 @@ def dynamic_link():
 
                     try:
                         db_session.commit()
-                        logger.debug('inserted!') 
+                        print('inserted!') 
                     except Exception as e:
-                        logger.error("Inserting AlarmRecords: %s", e)
+                        print("Inserting AlarmRecords: %s", e)
                         db_session.rollback()
 
 
@@ -237,6 +268,26 @@ def dynamic_link():
                         print('-------mqtt sended over!-------')
                         print('\n' * 3)
 
+
+                    # email alarm
+                    print('time_now - send_alarm_datetime', (time_now - send_alarm_datetime).seconds)
+                    if (time_now - send_alarm_datetime).seconds > 600:
+                        alarm_msg = node[2] + ' air-conditoner\' current is: ' + str(current_value) + ' A, Alarming!!Please to check!'
+                        for user in users:
+                            payload = {'user_email': user.email, 'subject': 'Current Alarm!', 'user_name': user.name, 'alarm_msg': alarm_msg}
+                            requests.post("http://127.0.0.1:5000/api/v1/alarm_email", data=payload)
+
+                        alarm_status.send_alarm_datetime = time_now
+
+
+                        try:
+                            db_session.commit()
+                            print('updated!') 
+                        except Exception as e:
+                            print("Updating AlarmStatus send_alarm_datetime: %s", e)
+                            db_session.rollback()
+          
+
                 else:
                     time_now = datetime.datetime.now()
 
@@ -246,9 +297,9 @@ def dynamic_link():
 
                     try:
                         db_session.commit()
-                        logger.debug('updated!') 
+                        print('updated!') 
                     except Exception as e:
-                        logger.error("Updating AlarmStatus: %s", e)
+                        print("Updating AlarmStatus: %s", e)
                         db_session.rollback()
 
 

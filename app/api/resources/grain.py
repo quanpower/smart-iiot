@@ -15,6 +15,7 @@ from mqtt_passthrough_publisher import transmitMQTT_byte
 import bitstring
 import json
 import urllib
+from app.email import send_email
 
 
 # api = Api(app)
@@ -44,7 +45,7 @@ class Menus(Resource):
                 'bpid': '1',
                 'name': '在线监测',
                 'icon': 'bulb',
-                'route': '/aircondetail/1',
+                'route': '/aircondetail/29',
             },
             {
                 'id': '4',
@@ -246,12 +247,12 @@ class Barns(Resource):
             if max_abc < 40:
                 return "#64ea91"
             elif (40 <= max_abc) and (max_abc <= 50):
-                return "#8fc9fb"
+                return "#ffff00"
             else:
-                return "#f69899"
+                return "#ff0000"
 
         barns = db.session.query(GrainBarn.barn_no, GrainBarn.barn_name).join(GrainStorehouse,
-                                                                              GrainStorehouse.id == GrainBarn.grain_storehouse_id).filter(
+            GrainStorehouse.id == GrainBarn.grain_storehouse_id).filter(
             GrainStorehouse.storehouse_no == '1').all()
         print("-------barns are---------:", barns)
         barn_temps = []
@@ -262,41 +263,33 @@ class Barns(Resource):
             print('nodes:', nodes)
             max_temps = []
             for node in nodes:
-                # todo: repalce geteway_addr
                 print('******node******', node)
                 temps = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, LoraGateway.gateway_addr,
-                                         LoraNode.node_addr).join(LoraGateway,
-                                                                  LoraGateway.id == GrainTemp.lora_gateway_id).join(
-                    LoraNode,
-                    LoraNode.id == GrainTemp.lora_node_id).filter(
-                    and_(LoraGateway.gateway_addr == '1', LoraNode.node_addr == node[0])).order_by(
-                    GrainTemp.datetime.desc()).all()
+                        LoraNode.node_addr).join(LoraGateway,LoraGateway.id == GrainTemp.lora_gateway_id).join(LoraNode,LoraNode.id == GrainTemp.lora_node_id).filter(
+                        and_(LoraGateway.gateway_addr == '1', LoraNode.node_addr == node[0])).order_by(
+                        GrainTemp.datetime.desc()).all()
 
                 # print('temps', temps)
                 if temps:
                     max_temp = max(temps[0][0], temps[0][1], temps[0][2])
-                    print('max_temp', max_temp)
+                    # print('max_temp', max_temp)
 
                     max_temp_dic = {"max_temp": max_temp}
                     max_temps.append(max_temp_dic)
                 else:
                     max_temps = []
-            print('max_temps:', max_temps)
+            # print('max_temps:', max_temps)
 
             if max_temps:
                 max_temp_value = max(a['max_temp'] for a in max_temps)
             else:
                 max_temp_value = 0
-
             barn_temps_dic = {"icon": "home", "color": return_color(max_temp_value), "title": barn[1],
                               "number": max_temp_value, "barnNo": barn[0]}
             barn_temps.append(barn_temps_dic)
         barn_dic = {"barns": barn_temps}
-        # conc_dash_dic = {"concDash":[{"name":"1","status":1,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/f279aa/757575.png&text=1","date":"2017-08-19 23:38:45"},{"name":"White","status":2,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/79cdf2/757575.png&text=W","date":"2017-04-22 14:17:06"},{"name":"Martin","status":3,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/f1f279/757575.png&text=M","date":"2017-05-07 04:29:13"},{"name":"Johnson","status":1,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/d079f2/757575.png&text=J","date":"2017-01-14 02:38:37"},{"name":"Jones","status":2,"content":"上：25.7℃, 中：26.5℃, 下： 31℃","avatar":"http://dummyimage.com/48x48/79f2ac/757575.png&text=J","date":"2017-07-08 20:05:50"}]}
-        # conc_dash_dic = {"concDash":statuses}
         print("barns", barn_dic)
 
-        # barn_dic = {"barns": [{"icon": "home", "color": "#64ea91", "title": "1haocang", "number": 27.1}, {"icon": "home", "color": "#8fc9fb", "title": "2haocang", "number": 27.5}, {"icon": "home", "color": "#d897eb", "title": "3haocang", "number": 31}, {"icon": "home", "color": "#f69899", "title": "4haocang", "number": 32}, {"icon": "home", "color": "#64ea91", "title": "5haocang", "number": 27.1}, {"icon": "home", "color": "#8fc9fb", "title": "6haocang", "number": 27.5}, {"icon": "home", "color": "#d897eb", "title": "7haocang", "number": 31}, {"icon": "home", "color": "#f69899", "title": "8haocang", "number": 32}]}
         return barn_dic
 
     def delete(self, todo_id):
@@ -559,8 +552,8 @@ class AirConDashboard(Resource):
         barnNo = args['barnNo']
 
 
-        nodes = db.session.query(LoraNode.node_addr).join(GrainBarn, GrainBarn.id == LoraNode.grain_barn_id).filter(
-            GrainBarn.barn_no == barnNo).order_by(LoraNode.node_addr.asc()).all()
+        nodes = db.session.query(LoraNode.node_addr, LoraNode.node_name).join(GrainBarn, GrainBarn.id == LoraNode.grain_barn_id).filter(
+            GrainBarn.barn_no == barnNo).order_by(LoraNode.node_name.asc()).all()
         print("nodes are:", nodes)
         statuses = []
         for i in range(len(nodes)):
@@ -571,11 +564,11 @@ class AirConDashboard(Resource):
                 and_(LoraGateway.gateway_addr == gatewayAddr, LoraNode.node_addr == node[0])).order_by(
                 GrainTemp.datetime.desc()).first()
             if temps:
-                status = {"name": node[0] + "号空调", "status": self.return_status(temps[0], temps[1], temps[2]),
+                status = {"name": node[1] + "号空调", "status": self.return_status(temps[0], temps[1], temps[2]),
                           "content": "插座：{0}℃, 空调：{1}℃, 仓温：{2}℃".format(
                               str(temps[0]), str(temps[1]), str(temps[2])),
                           "avatar": "http://dummyimage.com/48x48/{0}/757575.png&text={1}".format(
-                              index_color(int(node[0]))[1:], node[0]),
+                              index_color(int(node[0]))[1:], node[1]),
                           "date": datetime.datetime.strftime(temps[3], "%Y-%m-%d %H:%M:%S"), "nodeAddr": node[0]}
                 statuses.append(status)
             else:
@@ -589,7 +582,6 @@ class AirConDashboard(Resource):
 
     def put(self):
         pass
-
 
 
 class GrainHistory(Resource):
@@ -1209,44 +1201,49 @@ class AirconBlockItems(Resource):
 
         title1 = '智能控温'
         avatar1 = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1504847335593&di=d7fd8e71543f9b99f12f614718757a0e&imgtype=0&src=http%3A%2F%2Fc1.neweggimages.com.cn%2FNeweggPic2%2Fneg%2FP800%2FA16-184-4PU.jpg'
-        background1 = 'color.purple'
+        background1 = '#64ea91'
         link1 = '/aircon_control/' + barnNo
-        smarttempctrl = {'name': '', 'title': title1, 'content': '', 'avatar': avatar1, 'link': link1, 'backgroud': background1}
+        smarttempctrl = {'name': '', 'title': title1, 'content': '', 'avatar': avatar1, 'link': link1, 'background': background1}
 
 
         title2 = '实时监测'
         avatar2 = 'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1819841961,264465916&fm=27&gp=0.jpg'
-        background2 = 'color.purple'
-        link2 = '/aircondetail/' + barnNo
-        realtimetemp = {'name': '', 'title': title2, 'content': '', 'avatar': avatar2, 'link': link2, 'backgroud': background2}
+        background2 = '#8fc9fb'
+
+        nodes = db.session.query(LoraNode.node_addr, LoraNode.node_name).join(GrainBarn, GrainBarn.id == LoraNode.grain_barn_id).filter(
+            GrainBarn.barn_no == barnNo).order_by(LoraNode.node_name.asc()).all()
+
+        nodeAddr = nodes[0][0]
+        link2 = '/aircondetail/' + nodeAddr
+        realtimetemp = {'name': '', 'title': title2, 'content': '', 'avatar': avatar2, 'link': link2, 'background': background2}
 
 
         title3 = '火灾预警'
         avatar3 = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1504847444729&di=8d63e49c779b5c58f828bdcb45efd73a&imgtype=0&src=http%3A%2F%2Fimgsrc.baidu.com%2Fimgad%2Fpic%2Fitem%2F0b55b319ebc4b745d353e132c5fc1e178b8215ca.jpg'
-        background3 = 'color.green'
+        background3 = '#d897eb'
         link3 = '/fire_alarm/' + barnNo
-        firealarm = {'name': '', 'title': title3, 'content': '', 'avatar': avatar3, 'link': link3, 'backgroud': background3}
+        firealarm = {'name': '', 'title': title3, 'content': '', 'avatar': avatar3, 'link': link3, 'background': background3}
 
 
         title4 = '无人值守'
         avatar4 = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1506452820706&di=2f39620de906300a10d3bc2e5920d45c&imgtype=0&src=http%3A%2F%2Fimg.taopic.com%2Fuploads%2Fallimg%2F120712%2F201699-120G2224T175.jpg'
-        background4 = 'color.blue'
+        background4 = '#f69899'
         link4 = '/'
-        unmanned = {'name': '', 'title': title4, 'content': '', 'avatar': avatar4, 'link': link4, 'backgroud': background4}
+        unmanned = {'name': '', 'title': title4, 'content': '', 'avatar': avatar4, 'link': link4, 'background': background4}
 
 
         title5 = '动态联动'
         avatar5 = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1504847729495&di=f65bcca6a50ad1e5565c344eb05d0414&imgtype=jpg&src=http%3A%2F%2Fimg4.imgtn.bdimg.com%2Fit%2Fu%3D3709439994%2C3925194796%26fm%3D214%26gp%3D0.jpg'
-        background5 = 'color.peach'
+        background5 = '#f8c82e'
         link5 = '/'
-        dynamiclinkage = {'name': '', 'title': title5, 'content': '', 'avatar': avatar5, 'link': link5, 'backgroud': background5}
+        dynamiclinkage = {'name': '', 'title': title5, 'content': '', 'avatar': avatar5, 'link': link5, 'background': background5}
 
 
         title6 = '作业安全'
         avatar6 = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1504847487313&di=250cf0c99e194c4a5c3413f866aa2a42&imgtype=0&src=http%3A%2F%2Fdown.safehoo.com%2Flt%2Fforum%2F201311%2F18%2F144905a4jnod435ndzn7sj.jpg'
-        background6 = 'color.yellow'
+        background6 = '#f797d6'
         link6 = '/'
-        security = {'name': '', 'title': title6, 'content': '', 'avatar': avatar6, 'link': link6, 'backgroud': background6}
+        security = {'name': '', 'title': title6, 'content': '', 'avatar': avatar6, 'link': link6, 'background': background6}
 
 
         airconBlockItems = [smarttempctrl, realtimetemp, firealarm, unmanned, dynamiclinkage, security]
@@ -1254,6 +1251,43 @@ class AirconBlockItems(Resource):
         print(airconBlockItems_dict)
         return airconBlockItems_dict
 
+
+
+class AlarmEmail(Resource):
+    def get(self):
+        return "alram email"
+
+    def delete(self):
+        pass
+
+    def put(self):
+        pass
+
+    def post(self):
+
+        parser = reqparse.RequestParser()
+        parser.add_argument('user_email', type=str)
+        parser.add_argument('subject', type=str)
+        parser.add_argument('user_name', type=str)
+        parser.add_argument('alarm_msg', type=str)
+
+        args = parser.parse_args()
+        print('\n' * 5)
+        print('**email**' *5)
+        print(args)
+        print('**email**' *5)
+
+        print('\n' * 5)
+        user_email = args['user_email']
+        subject = args['subject']
+        user_name = args['user_name']
+        alarm_msg = args['alarm_msg']
+
+
+        send_email(user_email, subject, 'mail/email_alarm', user_name=user_name, alarm_msg=alarm_msg)
+
+
+        return 'alarm email has sended successfuly!'
 
 
 

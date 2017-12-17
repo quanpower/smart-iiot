@@ -6,7 +6,8 @@ api = Blueprint('api', __name__)
 from flask_restful import Api
 from app.api.resources import Login, Logout, GetUser, Barns, AllBarns, AllNodes, AirConRealtimeTemp, AirConTemps, AirConTempRecord, AirConDashboard, \
     Menus, GrainHistory, AirConControl, AirConControlOnOff, AirConControls, AirConControlItems, ElectricPowerControl, ElectricPowerControlItems, \
-    TianshuoOnOffControl, LoraNodeUpdate, BarnLoraNodeUpdate, NodeAddressByBarnNo, AirConOnOffAllOneKey, OneAirConStartEndTimeUpdate, AutoInit, NodeAlarmStatus, AirconBlockItems
+    TianshuoOnOffControl, LoraNodeUpdate, BarnLoraNodeUpdate, NodeAddressByBarnNo, AirConOnOffAllOneKey, OneAirConStartEndTimeUpdate, AutoInit, \
+    NodeAlarmStatus, AirconBlockItems, AlarmEmail
 
 
 api_resource = Api(api)
@@ -39,3 +40,4 @@ api_resource.add_resource(OneAirConStartEndTimeUpdate, '/one_air-conditioner_sta
 api_resource.add_resource(AutoInit, '/auto_init')
 api_resource.add_resource(NodeAlarmStatus, '/alarm_status')
 api_resource.add_resource(AirconBlockItems, '/air-conditioner_block_items')
+api_resource.add_resource(AlarmEmail, '/alarm_email')
