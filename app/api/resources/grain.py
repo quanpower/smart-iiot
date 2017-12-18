@@ -239,7 +239,6 @@ class Menus(Resource):
         pass
 
 
-
 class Barns(Resource):
     def get(self):
 
@@ -540,7 +539,7 @@ class AirConDashboard(Resource):
         alarmLevelError = alarmLevel[0][1]
 
         max_abc = max(a, b, c)
-        print('max_abc:', max_abc)
+        # print('max_abc:', max_abc)
         if max_abc < alarmLevelWarning:
             return 1
         elif (alarmLevelWarning <= max_abc) and (max_abc <= alarmLevelError):
@@ -556,7 +555,7 @@ class AirConDashboard(Resource):
 
         args = parser.parse_args()
 
-        print('-------AirConDashboard args---------', args)
+        # print('-------AirConDashboard args---------', args)
 
         gatewayAddr = args['gatewayAddr']
         barnNo = args['barnNo']
@@ -564,7 +563,7 @@ class AirConDashboard(Resource):
 
         nodes = db.session.query(LoraNode.node_addr, LoraNode.node_name).join(GrainBarn, GrainBarn.id == LoraNode.grain_barn_id).filter(
             GrainBarn.barn_no == barnNo).order_by(LoraNode.node_name.asc()).all()
-        print("nodes are:", nodes)
+        # print("nodes are:", nodes)
         statuses = []
         for i in range(len(nodes)):
             node = nodes[i]
@@ -577,7 +576,7 @@ class AirConDashboard(Resource):
                 status = {"name": node[1] + "号空调", "status": self.return_status(temps[0], temps[1], temps[2]),
                           "content": "插座：{0}℃, 空调：{1}℃, 仓温：{2}℃".format(
                               str(temps[0]), str(temps[1]), str(temps[2])),
-                          "avatar": "http://dummyimage.com/48x48/ffff00/000000.png&text={0}".format(node[0]),
+                          "avatar": "http://dummyimage.com/48x48/ffff00/000000.png&text={0}".format(node[1]),
                           # "avatar": "http://dummyimage.com/48x48/{0}/757575.png&text={1}".format(
                               # index_color(int(node[0]))[1:], node[1]),
                           "date": datetime.datetime.strftime(temps[3], "%Y-%m-%d %H:%M:%S"), "nodeAddr": node[0]}
@@ -695,8 +694,10 @@ class AirConControlItems(Resource):
             airconcontrol_item['title '] = node[1] + '号空调'
             airconcontrol_item['avatar'] =  'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1506181543644&di=36ab98904965175769fb54fbd316cbe1&imgtype=0&src=http%3A%2F%2Fimg003.21cnimg.com%2Fphotos%2Falbum%2F20150207%2Fm600%2F562A7CBD05C2B187842FC10B831015B0.jpeg'
             # judge if air-condiontioner is working?
-            if node[2] > 1:
+            if node[2] >= 1:
                 node_status = {'color':'green', 'text':'运行中', 'current_value':node[2]}
+            elif node[2]> 0.2 and node[2] < 1:
+                node_status = {'color':'yellow', 'text':'待机中', 'current_value':node[2]}
             else:
                 node_status = {'color':'red', 'text':'已停止', 'current_value':node[2]}
             airconcontrol_item['onoff_status'] = node_status
