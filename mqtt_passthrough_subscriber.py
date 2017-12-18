@@ -166,8 +166,7 @@ def update_current(data):
     if node2_query:
         node2 = node2_query[0]
     print('--------node1,node2------------')
-    print(node1)
-    print(node2)
+
 
     lora_node = db_session.query(LoraNode).filter_by(node_addr=node1).first()  
     lora_node.current = current1
