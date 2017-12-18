@@ -8,3 +8,8 @@ app.db
 env
 venv
 *.sublime*
+.env
+.idea
+.flaskenv
+data.sqlite
+log
