@@ -52,3 +52,26 @@ exec gunicorn -b :5000 --access-logfile - --error-logfile - smart-iiot:app
 10>cp ~/smart-iiot/antd-nginx.conf /etc/nginx/conf.d
 11>flask migrate && flask deploy
 12>exec gunicorn -b :5000 --access-logfile - --error-logfile - smart-iiot:app
+13>supervisord
+# 生成默认配置文件  
+echo_supervisord_conf > /etc/supervisord.conf  
+
+mkdir -m 755 -p /etc/supervisor/
+mkdir -m 755 conf.d
+echo_supervisord_conf > /etc/supervisor/supervisord.conf 
+
+include区段修改为：  
+[include]  
+files = /etc/supervisor/conf.d/*.conf
+mv smart-iiot.conf /etc/supervisor/conf.d
+如需要访问web控制界面，inet_http_server区段修改为：  
+[inet_http_server]  
+port=0.0.0.0:9001  
+username=username ; 你的用户名  
+password=password ; 你的密码
+每个需要管理的进程分别写在一个文件里面，放在/etc/supervisord.conf.d/目录下，便于管理。例如：test.conf  
+[program:sqlparse]  
+directory = /var/www/python  
+command = /bin/env python test.py
+
+supervisord -c /etc/supervisor/supervisord.conf
