@@ -324,7 +324,7 @@ class AllBarns(Resource):
         userID = args['userID']
         username = args['username']
 
-        storehouse_value_lable = {'value':'1', 'label':'福州库'}
+        storehouse_value_lable = {'value': '1', 'label': '福州库'}
 
         barns = db.session.query(GrainBarn.barn_no, GrainBarn.barn_name).join(GrainStorehouse,
         GrainStorehouse.id == GrainBarn.grain_storehouse_id).filter(GrainStorehouse.storehouse_no == '1').all()
@@ -359,7 +359,7 @@ class AllBarns(Resource):
 class AllNodes(Resource):
     def get(self):
 
-        storehouse_value_lable = {'value':'1', 'label':'福州库'}
+        storehouse_value_lable = {'value': '1', 'label': '福州库'}
 
         barns = db.session.query(GrainBarn.barn_no, GrainBarn.barn_name).join(GrainStorehouse,
         GrainStorehouse.id == GrainBarn.grain_storehouse_id).filter(GrainStorehouse.storehouse_no == '1').all()
