@@ -447,15 +447,15 @@ class AirConTemps(Resource):
 
     def get(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('gateway_addr', type=str)
-        parser.add_argument('node_addr', type=str)
+        parser.add_argument('gatewayAddr', type=str)
+        parser.add_argument('nodeAddr', type=str)
 
         args = parser.parse_args()
 
         print('-------aircontemps args---------', args)
 
-        gatewayAddr = args['gateway_addr']
-        nodeAddr = args['node_addr']
+        gatewayAddr = args['gatewayAddr']
+        nodeAddr = args['nodeAddr']
 
         temp_records = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.datetime).join(
             LoraNode, LoraNode.id == GrainTemp.lora_node_id).join(
