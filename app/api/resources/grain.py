@@ -403,15 +403,18 @@ class AllNodes(Resource):
 class AirConRealtimeTemp(Resource):
     def get(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('gateway_addr', type=str)
-        parser.add_argument('node_addr', type=str)
+        parser.add_argument('gatewayAddr', type=str)
+        parser.add_argument('nodeAddr', type=str)
 
         args = parser.parse_args()
 
         print('-----realtimetemp args-----', args)
 
-        gatewayAddr = args['gateway_addr']
-        nodeAddr = args['node_addr']
+        gatewayAddr = args['gatewayAddr']
+        nodeAddr = args['nodeAddr']
+
+        print(gatewayAddr)
+        print(nodeAddr)
 
         temps = db.session.query(GrainTemp.temp1, GrainTemp.temp2, GrainTemp.temp3, GrainTemp.battery_vol).join(
             LoraNode, LoraNode.id == GrainTemp.lora_node_id).join(
@@ -419,7 +422,8 @@ class AirConRealtimeTemp(Resource):
             and_(LoraNode.node_addr == nodeAddr, LoraGateway.gateway_addr == gatewayAddr)).order_by(
             GrainTemp.datetime.desc()).first()
 
-        # print("temps:", temps)
+        print("temps:", temps)
+
         if len(temps) > 0:
             air_con_realtime_temp_dic = {
             "airConRealtimeTemp": [{"icon": "bulb", "color": "#64ea91", "title": "插座", "number": temps[0]},
