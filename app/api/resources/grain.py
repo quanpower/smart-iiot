@@ -23,7 +23,6 @@ from app.email import send_email
 # swagger = Swagger(app)
 
 
-
 class Menus(Resource):
     def get(self):
         menus = [
@@ -291,14 +290,14 @@ class Barns(Resource):
                               "number": max_temp_value, "barnNo": barn[0]}
             barn_temps.append(barn_temps_dic)
         barn_dic = {"barns": barn_temps}
-        print("barns", barn_dic)
+        # print("barns", barn_dic)
 
         return barn_dic
 
-    def delete(self, todo_id):
+    def delete(self):
         pass
 
-    def put(self, todo_id):
+    def put(self):
         pass
 
 
