@@ -697,9 +697,9 @@ class AirConControlItems(Resource):
             airconcontrol_item['title '] = node[1] + '号空调'
             airconcontrol_item['avatar'] =  'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1506181543644&di=36ab98904965175769fb54fbd316cbe1&imgtype=0&src=http%3A%2F%2Fimg003.21cnimg.com%2Fphotos%2Falbum%2F20150207%2Fm600%2F562A7CBD05C2B187842FC10B831015B0.jpeg'
             # judge if air-condiontioner is working?
-            if node[2] >= 1:
+            if node[2] >= 0.5:
                 node_status = {'color':'green', 'text':'运行中', 'current_value':node[2]}
-            elif node[2]> 0.2 and node[2] < 1:
+            elif node[2]> 0.1 and node[2] < 0.5:
                 node_status = {'color':'yellow', 'text':'待机中', 'current_value':node[2]}
             else:
                 node_status = {'color':'red', 'text':'已停止', 'current_value':node[2]}
