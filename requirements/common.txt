@@ -37,7 +37,7 @@ pyserial==3.4
 python-dateutil==2.6.1
 python-dotenv==0.6.5
 python-editor==1.0.3
-PyYAML==3.12
+PyYAML==5.4
 requests==2.18.4
 six==1.10.0
 SQLAlchemy==1.1.11
